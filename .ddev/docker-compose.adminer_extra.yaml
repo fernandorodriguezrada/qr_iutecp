@@ -1,0 +1,4 @@
+services:
+  adminer:
+    volumes:
+      - ./adminer/adminer.css:/var/www/html/adminer.css

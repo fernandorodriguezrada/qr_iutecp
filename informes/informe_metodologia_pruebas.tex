@@ -1,0 +1,314 @@
+\documentclass[12pt, letterpaper, oneside]{report}
+
+% ------------------------------------------------------------
+% PAQUETES
+% ------------------------------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[spanish, es-tabla]{babel}
+\usepackage{mathptmx}
+\usepackage[letterpaper, left=4cm, top=3cm, right=3cm, bottom=3cm]{geometry}
+\usepackage{setspace}
+\usepackage{indentfirst}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tikz}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{tocloft}
+\usepackage[bookmarks=false, colorlinks=true, linkcolor=black, urlcolor=black, citecolor=black]{hyperref}
+\usetikzlibrary{shapes, positioning}
+
+% ------------------------------------------------------------
+% FORMATO GENERAL
+% ------------------------------------------------------------
+\setstretch{1.5}
+\setlength{\parindent}{0.5cm}
+\setlength{\parskip}{0pt}
+
+% ------------------------------------------------------------
+% FORMATO DE CAPÍTULOS
+% ------------------------------------------------------------
+\titleformat{\chapter}[display]
+  {\centering\normalfont\bfseries\large}
+  {CAPÍTULO \Roman{chapter}}
+  {0.5em}
+  {}
+\titlespacing*{\chapter}{0pt}{-20pt}{20pt}
+\titlespacing*{\section}{0pt}{12pt}{6pt}
+\titlespacing*{\subsection}{0pt}{6pt}{3pt}
+
+% ------------------------------------------------------------
+% ENCABEZADO Y PIE DE PÁGINA
+% ------------------------------------------------------------
+\fancypagestyle{preliminary}{%
+  \fancyhf{}
+  \fancyfoot[C]{\thepage}
+  \renewcommand{\headrulewidth}{0pt}
+}
+\fancypagestyle{body}{%
+  \fancyhf{}
+  \fancyhead[R]{\thepage}
+  \renewcommand{\headrulewidth}{0pt}
+}
+\setlength{\headheight}{15pt}
+
+% ------------------------------------------------------------
+% TABLA DE CONTENIDOS
+% ------------------------------------------------------------
+\renewcommand{\cfttoctitlefont}{\hfill\bfseries\large}
+\renewcommand{\cftaftertoctitle}{\hfill}
+\setlength{\cftbeforetoctitleskip}{-20pt}
+\renewcommand{\cftchapfont}{\bfseries}
+\renewcommand{\cftchappagefont}{\bfseries}
+\setlength{\cftchapindent}{0pt}
+\setlength{\cftsecindent}{0.5cm}
+\setlength{\cftsubsecindent}{1cm}
+
+% ------------------------------------------------------------
+% DOCUMENTO
+% ------------------------------------------------------------
+\begin{document}
+
+\pagenumbering{roman}
+
+% ============================================================
+% PORTADA
+% ============================================================
+\begin{titlepage}
+\thispagestyle{empty}
+\noindent\makebox[\textwidth][c]{\llap{\raisebox{-0.6cm}{\includegraphics[width=2.8cm]{../logoIUTECP_azul.png}}\hspace{0.2cm}}%
+\begin{tabular}[t]{c}
+  \small
+  REP\'UBLICA BOLIVARIANA DE VENEZUELA\\
+  MINISTERIO DEL PODER POPULAR PARA\\
+  LA EDUCACI\'ON UNIVERSITARIA\\
+  INSTITUTO UNIVERSITARIO DE TECNOLOG\'IA\\
+  ``EL\'IAS CALIXTO POMPA''\\
+  INFORM\'ATICA\\
+  AN\'ALISIS Y DISE\~NO DE SISTEMAS II
+\end{tabular}}
+
+\vfill
+
+\begin{center}
+  \large\textbf
+  {SISTEMA DE GESTI\'ON DE ASISTENCIA\\MEDIANTE C\'ODIGOS QR PARA EL IUTECP\\[0.6cm]
+  Metodolog\'ia y Pruebas}
+\end{center}
+
+\vfill
+
+\begin{flushright}
+  \large
+  \textbf{Facilitador:} William Hern\'andez
+
+  \vspace{0.3cm}
+
+  \textbf{Integrantes:}\\[0.4cm]
+  \begin{tabular}{l l}
+    Fernando Rodr\'iguez & C.I: 31.853.086\\
+    Daniel Dias          & C.I: 30.937.908
+  \end{tabular}
+\end{flushright}
+
+\vspace{0.5cm}
+
+\begin{center}
+  Guatire, 21 de Agosto de 2026
+\end{center}
+\end{titlepage}
+
+% ============================================================
+% PÁGINAS PRELIMINARES
+% ============================================================
+\pagestyle{preliminary}
+
+\tableofcontents
+\newpage
+
+% ------------------------------------------------------------
+% RESUMEN
+% ------------------------------------------------------------
+\chapter*{RESUMEN}
+\addcontentsline{toc}{chapter}{RESUMEN}
+
+El presente informe describe la metodolog\'ia de desarrollo adoptada para el Sistema de Control de Asistencia mediante C\'odigos QR del IUTECP, basada en Scrum adaptado a un equipo de dos desarrolladores en ocho semanas y cuatro sprints. Se incluye la fundamentaci\'on te\'orica, la tabla metodol\'ogica adaptada con el formato requerido y el modelo de pruebas del programa, centrado en pruebas manuales funcionales por m\'odulo utilizando los recursos reales del proyecto.
+
+\newpage
+
+% ============================================================
+% CUERPO DEL TRABAJO
+% ============================================================
+\pagenumbering{arabic}
+\pagestyle{body}
+
+% ============================================================
+% CAPÍTULO I
+% ============================================================
+\chapter{METODOLOG\'IA DE DESARROLLO: SCRUM ADAPTADO}
+
+\section{Fundamentaci\'on Te\'orica}
+
+Scrum es un marco de trabajo \textit{framework} para el desarrollo y mantenimiento de productos de software complejos, definido en la \textit{Scrum Guide} (2020) por Ken Schwaber y Jeff Sutherland. Se basa en el control emp\'irico del proceso mediante tres pilares: transparencia, inspecci\'on y adaptaci\'on.
+
+Para el presente proyecto, Scrum se adapta a las siguientes restricciones reales:
+
+\begin{itemize}
+  \item \textbf{Equipo de dos desarrolladores:} ambos asumen el rol de \textit{Developers} y comparten responsabilidades de \textit{Product Owner} (priorizaci\'on, clarificaci\'on de requisitos) y \textit{Scrum Master} (facilitaci\'on de eventos, eliminaci\'on de impedimentos) de forma ligera.
+  \item \textbf{Duraci\'on fija:} ocho semanas distribuidas en cuatro sprints de dos semanas cada uno.
+  \item \textbf{Eventos reducidos:}
+    \begin{itemize}
+      \item \textit{Sprint Planning} (inicio de cada sprint, 1 hora): definici\'on del Sprint Goal y selecci\'on de \textit{Product Backlog Items}.
+      \item \textit{Daily Scrum} (diario, 10-15 min): sincronizaci\'on entre los dos desarrolladores.
+      \item \textit{Sprint Review} (fin de sprint, 30 min): demostraci\'on del incremento al \textit{Product Owner}.
+      \item \textit{Sprint Retrospective} (fin de sprint, 15 min): mejora continua del proceso.
+    \end{itemize}
+  \item \textbf{Artefactos m\'inimos:}
+    \begin{itemize}
+      \item \textit{Product Backlog:} lista priorizada de funcionalidades (tablero f\'isico/Trello).
+      \item \textit{Sprint Backlog:} tareas seleccionadas para el sprint actual.
+      \item \textit{Increment:} c\'odigo funcional en rama \texttt{main} al final de cada sprint.
+    \end{itemize}
+\end{itemize}
+
+Esta adaptaci\'on mantiene la esencia de Scrum (entregas incrementales, inspecci\'on frecuente, adaptaci\'on) sin sobrecargar a un equipo de dos personas con ceremonias innecesarias.
+
+\section{Tabla Metodol\'ogica Adaptada}
+
+A continuaci\'on se presenta la tabla metodol\'ogica adaptada al proyecto, siguiendo el formato de la Tabla N°2 del enunciado (Disciplina / Actividades a Desarrollar / Producto Resultante / Herramientas), donde cada fila corresponde a un sprint.
+
+\begin{center}
+\small
+\begin{tabularx}{\textwidth}{|p{2.5cm}|X|X|X|}
+\hline
+\textbf{Disciplina} & \textbf{Actividades a Desarrollar} & \textbf{Producto Resultante} & \textbf{Herramientas} \\
+\hline
+Sprint 1 -- Setup y Autenticaci\'on (Sem 1-2) &
+1. Configurar entorno DDEV + Git
+2. Dise\~nar y crear esquema BD + seeds
+3. Implementar auth: login, roles, sesiones
+4. Estructura base MVC ligero &
+M\'odulo autenticaci\'on funcional + BD poblada &
+Git, DDEV, PHP 8.4, MariaDB \\
+\hline
+Sprint 2 -- N\'ucleo QR: Generar y Escanear (Sem 3-4) &
+1. Profesor: generar QR \'unico, expiraci\'on, rotaci\'on
+2. Estudiante: escanear QR (Camera API), validar, registrar asistencia &
+N\'ucleo QR completo (generar + escanear + asistencia) &
+PHP QR Code, JS Camera API, AJAX fetch \\
+\hline
+Sprint 3 -- Panel Admin: Gesti\'on y Reportes (Sem 5-6) &
+1. Admin: CRUD usuarios + importaci\'on CSV
+2. Admin: gesti\'on cursos/inscripciones
+3. Admin: reportes asistencia (filtros + CSV export)
+4. Backup BD + auditor\'ia &
+Panel admin completo (gesti\'on + reportes + backup + auditor\'ia) &
+PHP, MariaDB, CSV, triggers SQL \\
+\hline
+Sprint 4 -- Pruebas, Validaci\'on y Entrega (Sem 7-8) &
+1. Pruebas integrales cross-m\'odulo
+2. Correcci\'on bugs detectados
+3. Validaci\'on m\'ovil (responsive, c\'amara)
+4. Limpieza BD entre ciclos
+5. Documentaci\'on final + despliegue DDEV &
+Sistema validado listo para entrega &
+DevTools, m\'ovil real, \texttt{test\_ajustes.php}, \texttt{clean\_test\_data.sql} \\
+\hline
+\end{tabularx}
+\end{center}
+
+Cada sprint incluye: \textit{Planning} (inicio), \textit{Daily} (sync diaria 2 devs), \textit{Review} (demo), \textit{Retro} (15 min). Artefactos: \textit{Product Backlog}, \textit{Sprint Backlog}, \textit{Increment} (código en \texttt{main}).
+
+\newpage
+
+% ============================================================
+% CAPÍTULO II
+% ============================================================
+\chapter{MODELO DE PRUEBAS DEL PROGRAMA}
+
+\section{Estrategia de Pruebas}
+
+El modelo de pruebas adoptado es \textbf{manual funcional} por m\'odulo, ejecutado en entorno DDEV, sin frameworks automatizados (no existen en el proyecto). Se utilizan los recursos reales disponibles:
+
+\begin{itemize}
+  \item Script \texttt{test\_ajustes.php} como patr\'on para simular sesiones de usuario.
+  \item Script \texttt{sql/clean\_test\_data.sql} para limpiar estado de la base de datos entre ciclos de prueba.
+  \item Navegador web + Chrome DevTools (modo responsive) + dispositivo f\'isico m\'ovil para validar escaneo de c\'amara.
+\end{itemize}
+
+La estrategia cubre cuatro niveles:
+
+\begin{description}
+  \item[Unitarias manuales:] Funciones de \texttt{includes/} (\texttt{functions.php}, \texttt{academico.php}, \texttt{session.php}) invocadas mediante scripts tipo \texttt{test\_ajustes.php}.
+  \item[Integraci\'on:] Flujos completos CU-01 a CU-06 (login \textrightarrow generar QR \textrightarrow escanear \textrightarrow asistencia registrada \textrightarrow reporte).
+  \item[Funcionales:] Cada caso de uso con pasos definidos, entrada y resultado esperado.
+  \item[Usabilidad m\'ovil:] Escaneo QR en dispositivo real, responsive en DevTools.
+\end{description}
+
+\section{Plan por Módulos Reales}
+
+\begin{center}
+\small
+\begin{tabularx}{\textwidth}{|p{5cm}|X|}
+\hline
+\textbf{M\'odulo} & \textbf{Qu\'e se prueba} \\
+\hline
+Auth (\texttt{login.php}, \texttt{includes/session.php}) & Login v\'alido/inv\'alido, roles (admin/profesor/estudiante), sesi\'on, logout \\
+\hline
+Profesor (\texttt{generar\_qr.php}, \texttt{asistencia.php}, \texttt{ajustes.php}) & Generar QR, rotaci\'on autom\'atica, expiraci\'on, ver asistencias en tiempo real, configurar par\'ametros \\
+\hline
+Estudiante (\texttt{escanear\_qr.php}, \texttt{index.php}) & Escaneo c\'amara, validaci\'on QR (vigente/expirado/inv\'alido), registro asistencia, historial \\
+\hline
+Admin (\texttt{usuarios.php}, \texttt{cursos\_lista.php}, \texttt{reportes.php}, \texttt{backup\_db.php}, \texttt{seguridad.php}) & CRUD usuarios, importar CSV, reportes filtrados, exportar CSV, backup BD, auditor\'ia \\
+\hline
+\end{tabularx}
+\end{center}
+
+\section{Descripción del Modelo de Pruebas}
+
+El modelo de pruebas se documenta mediante casos de prueba representativos que cubren los seis casos de uso del sistema (CU-01 a CU-06). Cada caso de prueba especifica: identificador, módulo, descripción, pasos de ejecución, resultado esperado y tipo de prueba.
+
+\begin{center}
+\small
+\begin{tabularx}{\textwidth}{|p{1cm}|p{1.8cm}|p{3cm}|X|p{1.8cm}|}
+\hline
+\textbf{ID} & \textbf{M\'odulo} & \textbf{Descripci\'on} & \textbf{Pasos / Resultado Esperado} & \textbf{Tipo} \\
+\hline
+CP-01 & Auth & Login profesor v\'alido & 1. Abrir login 2. Credenciales prof 3. Submit \textrightarrow Redirect a \texttt{profesor/index.php} & Funcional \\
+\hline
+CP-02 & Auth & Login credenciales inv\'alidas & 1. Credenciales err\'oneas 2. Submit \textrightarrow Mensaje error, permanece en login & Funcional \\
+\hline
+CP-03 & QR & Generar QR profesor & 1. Login prof 2. Seleccionar curso/semana 3. Generar \textrightarrow QR visible, expira 5 min, rota 30s & Funcional \\
+\hline
+CP-04 & QR & Escanear QR v\'alido & 1. Login est 2. Abrir esc\'aner 3. Apuntar QR \textrightarrow ``Asistencia registrada'', BD insert & Integraci\'on \\
+\hline
+CP-05 & QR & Escanear QR expirado & 1. QR con expiraci\'on pasada 2. Escanear \textrightarrow Rechaza, notifica ``QR expirado'' & Funcional \\
+\hline
+CP-06 & Admin & Importar CSV inscripciones & 1. Login admin 2. Cargar CSV v\'alido 3. Procesar \textrightarrow Alumnos inscritos en BD & Funcional \\
+\hline
+CP-07 & Admin & Reporte asistencia + CSV & 1. Filtros curso/semana 2. Exportar \textrightarrow CSV descargado con datos correctos & Funcional \\
+\hline
+CP-08 & M\'ovil & Escanear QR en dispositivo real & 1. Abrir \texttt{escanear\_qr.php} en m\'ovil 2. Permitir c\'amara 3. Apuntar QR \textrightarrow Registro exitoso & Usabilidad \\
+\hline
+\end{tabularx}
+\end{center}
+
+\textbf{Criterios de aceptación:} coinciden con las postcondiciones de los seis casos de uso documentados en el informe de casos de uso (CU-01 a CU-06). Una funcionalidad se considera aprobada cuando todos sus casos de prueba asociados pasan sin desviaciones.
+
+\newpage
+
+% ============================================================
+% REFERENCIAS
+% ============================================================
+\chapter*{REFERENCIAS}
+\addcontentsline{toc}{chapter}{REFERENCIAS}
+\markboth{REFERENCIAS}{}
+
+\begin{enumerate}
+\item Scrum Guide. (2020). \textit{The Scrum Guide}. ScrumGuides.org.
+\item Pressman, R. S. (2014). \textit{Ingenier\'ia del software: Un enfoque pr\'actico} (7.a ed.). McGraw-Hill.
+\item Sommerville, I. (2011). \textit{Ingenier\'ia de software} (9.a ed.). Pearson.
+\end{enumerate}
+
+\end{document}

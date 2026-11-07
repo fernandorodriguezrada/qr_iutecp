@@ -1,0 +1,23 @@
+# DDEV local development files
+.ddev/.dbimageBuild
+.ddev/.homeadditions
+.ddev/.ssh
+.ddev/.webimageBuild
+.ddev/db_snapshots
+.ddev/commands/web/.gitattributes
+
+# Códigos QR dinámicos temporales generados por el sistema
+includes/phpqrcode/cache/qr_*.png
+
+# Archivos temporales de compilación LaTeX
+informes/*.aux
+informes/*.log
+informes/*.toc
+informes/*.out
+informes/missfont.log
+
+# Archivos del sistema y respaldos
+.DS_Store
+Thumbs.db
+*.tmp
+*.bak

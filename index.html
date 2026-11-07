@@ -1,0 +1,2802 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <title>Sistema QR IUTECP</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="dev-fab-container" class="dev-fab-container">
+      <div id="dev-fab-menu" class="dev-fab-menu">
+        <button
+          onclick="
+            switchRole('admin');
+            toggleDevMenu();
+          "
+        >
+          Administrador
+        </button>
+        <button
+          onclick="
+            switchRole('prof');
+            toggleDevMenu();
+          "
+        >
+          Profesor
+        </button>
+        <button
+          onclick="
+            switchRole('student');
+            toggleDevMenu();
+          "
+        >
+          Alumno
+        </button>
+        <button
+          onclick="
+            switchRole('login');
+            toggleDevMenu();
+          "
+        >
+          Login
+        </button>
+      </div>
+      <button class="dev-fab-btn" onclick="toggleDevMenu()">⚙️ Modos</button>
+    </div>
+    <div id="view-login" class="auth-view" style="display: flex">
+      <div class="bg-icons">
+        <span
+          style="top: 10%; left: 8%; transform: rotate(-15deg)"
+          title="Informática"
+          >💻</span
+        >
+        <span
+          style="top: 15%; left: 85%; transform: rotate(20deg)"
+          title="Administración"
+          >💼</span
+        >
+        <span
+          style="top: 75%; left: 10%; transform: rotate(-10deg)"
+          title="Contaduría"
+          >🧮</span
+        >
+        <span
+          style="top: 80%; left: 85%; transform: rotate(15deg)"
+          title="Enfermería"
+          >🩺</span
+        >
+        <span
+          style="top: 45%; left: 5%; transform: rotate(25deg)"
+          title="Fisioterapia"
+          >🦴</span
+        >
+        <span
+          style="top: 50%; left: 90%; transform: rotate(-20deg)"
+          title="Relaciones Industriales"
+          >🤝🏾</span
+        >
+        <span
+          style="top: 12%; left: 45%; transform: rotate(10deg)"
+          title="Enfermería"
+          >💉</span
+        >
+        <span
+          style="top: 85%; left: 50%; transform: rotate(-15deg)"
+          title="Contaduría"
+          >📊</span
+        >
+        <span
+          style="top: 65%; left: 22%; transform: rotate(30deg)"
+          title="Relaciones Industriales"
+          >👥</span
+        >
+        <span
+          style="top: 25%; left: 65%; transform: rotate(-25deg)"
+          title="Informática"
+          >⌨️</span
+        >
+      </div>
+      <img src="k-listo-foto.png" alt="K-Listo" class="auth-mascot" />
+      <div class="auth-card">
+        <img src="logoIUTECP_azul.png" alt="IUTECP" class="auth-logo" />
+        <p class="auth-slogan">¡Formando profesionales exitosos!</p>
+        <hr class="auth-divider" />
+        <h2 style="color: var(--primary); margin-bottom: 20px">
+          Iniciar Sesión
+        </h2>
+        <form
+          onsubmit="
+            event.preventDefault();
+            switchRole('student');
+          "
+        >
+          <label>Cédula de Identidad</label>
+          <input type="text" placeholder="Ej. 25123456" required />
+          <label>Contraseña</label>
+          <input type="password" placeholder="Ingrese su contraseña" required />
+          <button class="btn btn-primary" style="width: 100%; font-size: 16px">
+            Ingresar
+          </button>
+        </form>
+      </div>
+      <img src="k-listo-happy.png" alt="K-Listo Feliz" class="auth-mascot" />
+    </div>
+    <div id="view-admin" style="display: none">
+      <aside class="admin-sidebar">
+        <img src="logoIUTECP_azul.png" alt="IUTECP" />
+        <ul>
+          <li class="active" onclick="switchAdminTab('dashboard', this)">
+            📊 Panel Principal
+          </li>
+          <li onclick="switchAdminTab('management', this)">
+            👥 Gestión de Entidades
+          </li>
+          <li onclick="switchAdminTab('reports', this)">📄 Reportes y Datos</li>
+          <li onclick="switchAdminTab('password', this)">
+            🔑 Seguridad y Accesos
+          </li>
+          <li
+            onclick="switchRole('login')"
+            style="color: #dc3545; margin-top: 20px"
+          >
+            🚪 Cerrar Sesión
+          </li>
+        </ul>
+      </aside>
+      <section class="admin-content">
+        <div
+          style="
+            position: absolute;
+            top: 20px;
+            right: 40px;
+            font-size: 13px;
+            color: #888;
+            display: flex;
+            gap: 20px;
+          "
+        >
+          <span><strong>Rol:</strong> Administrativo</span>
+          <span><strong>Usuario:</strong> admin_iutecp</span>
+          <span><strong>Correo:</strong> soporte@iutecp.edu.ve</span>
+        </div>
+        <div id="admin-dashboard">
+          <h2 style="color: var(--primary); margin-bottom: 10px">
+            Panel de Control
+          </h2>
+          <p style="margin-bottom: 20px; color: #666">Resumen Institucional</p>
+          <div class="dashboard-cards" style="margin-bottom: 20px">
+            <div class="card" style="text-align: center; padding: 15px">
+              <p style="font-size: 12px; color: #666; font-weight: bold">
+                Total Estudiantes
+              </p>
+              <p
+                style="
+                  font-size: 24px;
+                  color: var(--secondary);
+                  font-weight: bold;
+                  margin-top: 5px;
+                "
+              >
+                1,245
+              </p>
+            </div>
+            <div class="card" style="text-align: center; padding: 15px">
+              <p style="font-size: 12px; color: #666; font-weight: bold">
+                Promedio Semanal
+              </p>
+              <p
+                style="
+                  font-size: 24px;
+                  color: var(--primary);
+                  font-weight: bold;
+                  margin-top: 5px;
+                "
+              >
+                82%
+              </p>
+            </div>
+            <div class="card" style="text-align: center; padding: 15px">
+              <p style="font-size: 12px; color: #666; font-weight: bold">
+                Promedio Ausencias
+              </p>
+              <p
+                style="
+                  font-size: 24px;
+                  color: red;
+                  font-weight: bold;
+                  margin-top: 5px;
+                "
+              >
+                18%
+              </p>
+            </div>
+          </div>
+          <div class="card" style="margin-bottom: 20px">
+            <h3 style="color: var(--primary); margin-bottom: 20px">
+              Asistencia Semanal
+            </h3>
+            <div class="css-chart">
+              <div class="chart-y-axis">
+                <span>100%</span>
+                <span>75%</span>
+                <span>50%</span>
+                <span>25%</span>
+                <span>0%</span>
+              </div>
+              <div class="chart-content">
+                <div class="chart-bars-container">
+                  <div class="chart-guide" style="top: 25%"></div>
+                  <div class="chart-guide" style="top: 50%"></div>
+                  <div class="chart-guide" style="top: 75%"></div>
+                  <div class="chart-bar-wrapper">
+                    <span class="chart-tooltip" style="color: #d39e00"
+                      >85%</span
+                    >
+                    <div
+                      class="chart-bar"
+                      style="
+                        height: 85%;
+                        background: linear-gradient(to top, #ffc107, #ffda6a);
+                      "
+                    ></div>
+                  </div>
+                  <div class="chart-bar-wrapper">
+                    <span class="chart-tooltip" style="color: green">92%</span>
+                    <div
+                      class="chart-bar"
+                      style="
+                        height: 92%;
+                        background: linear-gradient(to top, green, #66cc66);
+                      "
+                    ></div>
+                  </div>
+                  <div class="chart-bar-wrapper">
+                    <span class="chart-tooltip" style="color: #d39e00"
+                      >78%</span
+                    >
+                    <div
+                      class="chart-bar"
+                      style="
+                        height: 78%;
+                        background: linear-gradient(to top, #ffc107, #ffda6a);
+                      "
+                    ></div>
+                  </div>
+                  <div class="chart-bar-wrapper">
+                    <span class="chart-tooltip" style="color: green">98%</span>
+                    <div
+                      class="chart-bar"
+                      style="
+                        height: 98%;
+                        background: linear-gradient(to top, green, #66cc66);
+                      "
+                    ></div>
+                  </div>
+                  <div class="chart-bar-wrapper">
+                    <span class="chart-tooltip" style="color: #dc3545"
+                      >55%</span
+                    >
+                    <div
+                      class="chart-bar"
+                      style="
+                        height: 55%;
+                        background: linear-gradient(to top, #dc3545, #f17b86);
+                      "
+                    ></div>
+                  </div>
+                </div>
+                <div class="chart-x-axis">
+                  <span>Lunes</span>
+                  <span>Martes</span>
+                  <span>Miércoles</span>
+                  <span>Jueves</span>
+                  <span>Viernes</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="admin-management" class="hidden">
+          <h2 style="color: var(--primary); margin-bottom: 20px">Gestión</h2>
+          <div class="management-grid">
+            <div class="card">
+              <h3
+                style="
+                  margin-bottom: 15px;
+                  color: var(--primary);
+                  border-bottom: 2px solid var(--accent);
+                  padding-bottom: 5px;
+                "
+              >
+                Registrar Usuario
+              </h3>
+              <form onsubmit="event.preventDefault()">
+                <label>Nombre Completo</label>
+                <input type="text" placeholder="Ej. Juan Pérez" />
+                <label>Cédula de Identidad</label>
+                <input type="text" placeholder="Ej. 12345678" />
+                <label>Rol</label>
+                <select>
+                  <option>Estudiante</option>
+                  <option>Profesor</option>
+                  <option>Administrativo</option>
+                </select>
+                <button class="btn btn-primary" style="width: 100%">
+                  Guardar Usuario
+                </button>
+              </form>
+            </div>
+            <div class="card">
+              <h3
+                style="
+                  margin-bottom: 15px;
+                  color: var(--primary);
+                  border-bottom: 2px solid var(--accent);
+                  padding-bottom: 5px;
+                "
+              >
+                Registrar Curso
+              </h3>
+              <form onsubmit="event.preventDefault()">
+                <label>Materia</label>
+                <input type="text" placeholder="Ej. Programación I" />
+                <label>Profesor Asignado</label>
+                <select>
+                  <option>Prof. Carlos Mendoza</option>
+                  <option>Prof. María López</option>
+                </select>
+                <label>Aula</label>
+                <input type="text" placeholder="Ej. Laboratorio A" />
+                <button class="btn btn-primary" style="width: 100%">
+                  Guardar Curso
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div id="admin-reports" class="hidden">
+          <h2 style="color: var(--primary); margin-bottom: 20px">
+            Reportes y Datos
+          </h2>
+
+          <div class="card" style="margin-bottom: 15px">
+            <div class="filters">
+              <input type="text" placeholder="Buscar estudiante o cédula..." />
+              <select>
+                <option>Período 2026-I</option>
+                <option>Período 2025-II</option>
+              </select>
+              <select>
+                <option>Informática</option>
+                <option>Administración</option>
+              </select>
+              <select>
+                <option>Estado: Presentes</option>
+                <option>Estado: Ausentes</option>
+              </select>
+              <button class="btn btn-primary">Filtrar</button>
+            </div>
+          </div>
+          <div id="admin-reports-list">
+            <h3
+              style="
+                color: var(--secondary);
+                margin-bottom: 15px;
+                font-size: 16px;
+              "
+            >
+              Seleccione una materia y semana
+            </h3>
+            <div class="admin-accordions-grid">
+              <details class="class-accordion" open>
+                <summary>Base de Datos - 1D1</summary>
+                <ul class="weeks-list">
+                  <li
+                    class="clickable-week"
+                    onclick="viewAdminReportDetail('Base de Datos', 'Semana 1')"
+                  >
+                    <span>Semana 1</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="viewAdminReportDetail('Base de Datos', 'Semana 2')"
+                  >
+                    <span>Semana 2</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="viewAdminReportDetail('Base de Datos', 'Semana 3')"
+                  >
+                    <span>Semana 3</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="viewAdminReportDetail('Base de Datos', 'Semana 4')"
+                  >
+                    <span>Semana 4</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="viewAdminReportDetail('Base de Datos', 'Semana 5')"
+                  >
+                    <span>Semana 5</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="viewAdminReportDetail('Base de Datos', 'Semana 6')"
+                  >
+                    <span>Semana 6</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="viewAdminReportDetail('Base de Datos', 'Semana 7')"
+                  >
+                    <span>Semana 7</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="viewAdminReportDetail('Base de Datos', 'Semana 8')"
+                  >
+                    <span>Semana 8</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="viewAdminReportDetail('Base de Datos', 'Semana 9')"
+                  >
+                    <span>Semana 9</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Base de Datos', 'Semana 10')
+                    "
+                  >
+                    <span>Semana 10</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Base de Datos', 'Semana 11')
+                    "
+                  >
+                    <span>Semana 11</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Base de Datos', 'Semana 12')
+                    "
+                  >
+                    <span>Semana 12</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                </ul>
+              </details>
+              <details class="class-accordion" open>
+                <summary>Programación II - 1D1</summary>
+                <ul class="weeks-list">
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Programación II', 'Semana 1')
+                    "
+                  >
+                    <span>Semana 1</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Programación II', 'Semana 2')
+                    "
+                  >
+                    <span>Semana 2</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Programación II', 'Semana 3')
+                    "
+                  >
+                    <span>Semana 3</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Programación II', 'Semana 4')
+                    "
+                  >
+                    <span>Semana 4</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Programación II', 'Semana 5')
+                    "
+                  >
+                    <span>Semana 5</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Programación II', 'Semana 6')
+                    "
+                  >
+                    <span>Semana 6</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Programación II', 'Semana 7')
+                    "
+                  >
+                    <span>Semana 7</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Programación II', 'Semana 8')
+                    "
+                  >
+                    <span>Semana 8</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Programación II', 'Semana 9')
+                    "
+                  >
+                    <span>Semana 9</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Programación II', 'Semana 10')
+                    "
+                  >
+                    <span>Semana 10</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Programación II', 'Semana 11')
+                    "
+                  >
+                    <span>Semana 11</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Programación II', 'Semana 12')
+                    "
+                  >
+                    <span>Semana 12</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                </ul>
+              </details>
+              <details class="class-accordion" open>
+                <summary>Telecomunicaciones - 1D1</summary>
+                <ul class="weeks-list">
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Telecomunicaciones', 'Semana 1')
+                    "
+                  >
+                    <span>Semana 1</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Telecomunicaciones', 'Semana 2')
+                    "
+                  >
+                    <span>Semana 2</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Telecomunicaciones', 'Semana 3')
+                    "
+                  >
+                    <span>Semana 3</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Telecomunicaciones', 'Semana 4')
+                    "
+                  >
+                    <span>Semana 4</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Telecomunicaciones', 'Semana 5')
+                    "
+                  >
+                    <span>Semana 5</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Telecomunicaciones', 'Semana 6')
+                    "
+                  >
+                    <span>Semana 6</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Telecomunicaciones', 'Semana 7')
+                    "
+                  >
+                    <span>Semana 7</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Telecomunicaciones', 'Semana 8')
+                    "
+                  >
+                    <span>Semana 8</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Telecomunicaciones', 'Semana 9')
+                    "
+                  >
+                    <span>Semana 9</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Telecomunicaciones', 'Semana 10')
+                    "
+                  >
+                    <span>Semana 10</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Telecomunicaciones', 'Semana 11')
+                    "
+                  >
+                    <span>Semana 11</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Telecomunicaciones', 'Semana 12')
+                    "
+                  >
+                    <span>Semana 12</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                </ul>
+              </details>
+              <details class="class-accordion" open>
+                <summary>Cálculo Matricial - 1D1</summary>
+                <ul class="weeks-list">
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Cálculo Matricial', 'Semana 1')
+                    "
+                  >
+                    <span>Semana 1</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Cálculo Matricial', 'Semana 2')
+                    "
+                  >
+                    <span>Semana 2</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Cálculo Matricial', 'Semana 3')
+                    "
+                  >
+                    <span>Semana 3</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Cálculo Matricial', 'Semana 4')
+                    "
+                  >
+                    <span>Semana 4</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Cálculo Matricial', 'Semana 5')
+                    "
+                  >
+                    <span>Semana 5</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Cálculo Matricial', 'Semana 6')
+                    "
+                  >
+                    <span>Semana 6</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Cálculo Matricial', 'Semana 7')
+                    "
+                  >
+                    <span>Semana 7</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Cálculo Matricial', 'Semana 8')
+                    "
+                  >
+                    <span>Semana 8</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Cálculo Matricial', 'Semana 9')
+                    "
+                  >
+                    <span>Semana 9</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Cálculo Matricial', 'Semana 10')
+                    "
+                  >
+                    <span>Semana 10</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Cálculo Matricial', 'Semana 11')
+                    "
+                  >
+                    <span>Semana 11</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Cálculo Matricial', 'Semana 12')
+                    "
+                  >
+                    <span>Semana 12</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                </ul>
+              </details>
+              <details class="class-accordion" open>
+                <summary>Análisis y Diseño de Sistemas I - 1D1</summary>
+                <ul class="weeks-list">
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail(
+                        'Análisis y Diseño de Sistemas I',
+                        'Semana 1',
+                      )
+                    "
+                  >
+                    <span>Semana 1</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail(
+                        'Análisis y Diseño de Sistemas I',
+                        'Semana 2',
+                      )
+                    "
+                  >
+                    <span>Semana 2</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail(
+                        'Análisis y Diseño de Sistemas I',
+                        'Semana 3',
+                      )
+                    "
+                  >
+                    <span>Semana 3</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail(
+                        'Análisis y Diseño de Sistemas I',
+                        'Semana 4',
+                      )
+                    "
+                  >
+                    <span>Semana 4</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail(
+                        'Análisis y Diseño de Sistemas I',
+                        'Semana 5',
+                      )
+                    "
+                  >
+                    <span>Semana 5</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail(
+                        'Análisis y Diseño de Sistemas I',
+                        'Semana 6',
+                      )
+                    "
+                  >
+                    <span>Semana 6</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail(
+                        'Análisis y Diseño de Sistemas I',
+                        'Semana 7',
+                      )
+                    "
+                  >
+                    <span>Semana 7</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail(
+                        'Análisis y Diseño de Sistemas I',
+                        'Semana 8',
+                      )
+                    "
+                  >
+                    <span>Semana 8</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail(
+                        'Análisis y Diseño de Sistemas I',
+                        'Semana 9',
+                      )
+                    "
+                  >
+                    <span>Semana 9</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail(
+                        'Análisis y Diseño de Sistemas I',
+                        'Semana 10',
+                      )
+                    "
+                  >
+                    <span>Semana 10</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail(
+                        'Análisis y Diseño de Sistemas I',
+                        'Semana 11',
+                      )
+                    "
+                  >
+                    <span>Semana 11</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail(
+                        'Análisis y Diseño de Sistemas I',
+                        'Semana 12',
+                      )
+                    "
+                  >
+                    <span>Semana 12</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                </ul>
+              </details>
+
+              <details class="class-accordion" open>
+                <summary>Estadística General - 1D1</summary>
+                <ul class="weeks-list">
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Estadística General', 'Semana 1')
+                    "
+                  >
+                    <span>Semana 1</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Estadística General', 'Semana 2')
+                    "
+                  >
+                    <span>Semana 2</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Estadística General', 'Semana 3')
+                    "
+                  >
+                    <span>Semana 3</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Estadística General', 'Semana 4')
+                    "
+                  >
+                    <span>Semana 4</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Estadística General', 'Semana 5')
+                    "
+                  >
+                    <span>Semana 5</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Estadística General', 'Semana 6')
+                    "
+                  >
+                    <span>Semana 6</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Estadística General', 'Semana 7')
+                    "
+                  >
+                    <span>Semana 7</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Estadística General', 'Semana 8')
+                    "
+                  >
+                    <span>Semana 8</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Estadística General', 'Semana 9')
+                    "
+                  >
+                    <span>Semana 9</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Estadística General', 'Semana 10')
+                    "
+                  >
+                    <span>Semana 10</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Estadística General', 'Semana 11')
+                    "
+                  >
+                    <span>Semana 11</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail('Estadística General', 'Semana 12')
+                    "
+                  >
+                    <span>Semana 12</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                </ul>
+              </details>
+              <details class="class-accordion" open>
+                <summary>Arquitectura del Computador - 1D1</summary>
+                <ul class="weeks-list">
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail(
+                        'Arquitectura del Computador',
+                        'Semana 1',
+                      )
+                    "
+                  >
+                    <span>Semana 1</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail(
+                        'Arquitectura del Computador',
+                        'Semana 2',
+                      )
+                    "
+                  >
+                    <span>Semana 2</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail(
+                        'Arquitectura del Computador',
+                        'Semana 3',
+                      )
+                    "
+                  >
+                    <span>Semana 3</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail(
+                        'Arquitectura del Computador',
+                        'Semana 4',
+                      )
+                    "
+                  >
+                    <span>Semana 4</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail(
+                        'Arquitectura del Computador',
+                        'Semana 5',
+                      )
+                    "
+                  >
+                    <span>Semana 5</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail(
+                        'Arquitectura del Computador',
+                        'Semana 6',
+                      )
+                    "
+                  >
+                    <span>Semana 6</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail(
+                        'Arquitectura del Computador',
+                        'Semana 7',
+                      )
+                    "
+                  >
+                    <span>Semana 7</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail(
+                        'Arquitectura del Computador',
+                        'Semana 8',
+                      )
+                    "
+                  >
+                    <span>Semana 8</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail(
+                        'Arquitectura del Computador',
+                        'Semana 9',
+                      )
+                    "
+                  >
+                    <span>Semana 9</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail(
+                        'Arquitectura del Computador',
+                        'Semana 10',
+                      )
+                    "
+                  >
+                    <span>Semana 10</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail(
+                        'Arquitectura del Computador',
+                        'Semana 11',
+                      )
+                    "
+                  >
+                    <span>Semana 11</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                  <li
+                    class="clickable-week"
+                    onclick="
+                      viewAdminReportDetail(
+                        'Arquitectura del Computador',
+                        'Semana 12',
+                      )
+                    "
+                  >
+                    <span>Semana 12</span
+                    ><span style="color: var(--secondary); font-weight: bold"
+                      >Ver detalle ></span
+                    >
+                  </li>
+                </ul>
+              </details>
+            </div>
+          </div>
+          <div id="admin-reports-detail" class="hidden">
+            <button
+              class="btn"
+              style="
+                margin-bottom: 15px;
+                background: #eee;
+                color: var(--text-dark);
+              "
+              onclick="backToAdminReports()"
+            >
+              ⬅ Volver a semanas
+            </button>
+            <h3
+              id="admin-report-title"
+              style="color: var(--primary); margin-bottom: 15px"
+            >
+              Materia - Semana
+            </h3>
+            <div
+              style="
+                overflow-x: auto;
+                background: white;
+                border: 1px solid var(--border-color);
+                border-radius: 4px;
+              "
+            >
+              <table>
+                <thead>
+                  <tr>
+                    <th>Cédula</th>
+                    <th>Estudiante</th>
+                    <th>Fecha</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>25.123.456</td>
+                    <td>Jorge Rodríguez</td>
+                    <td>03/04/2026</td>
+                    <td style="color: green; font-weight: bold">Presente</td>
+                  </tr>
+                  <tr>
+                    <td>26.444.555</td>
+                    <td>Casiopea Montero</td>
+                    <td>03/04/2026</td>
+                    <td style="color: green; font-weight: bold">Presente</td>
+                  </tr>
+                  <tr>
+                    <td>26.789.012</td>
+                    <td>Baudilio Rivas</td>
+                    <td>03/04/2026</td>
+                    <td style="color: red; font-weight: bold">Ausente</td>
+                  </tr>
+                  <tr>
+                    <td>27.111.222</td>
+                    <td>Xenaida Palacios</td>
+                    <td>03/04/2026</td>
+                    <td style="color: green; font-weight: bold">Presente</td>
+                  </tr>
+                  <tr>
+                    <td>27.345.678</td>
+                    <td>Melquiades Tovar</td>
+                    <td>03/04/2026</td>
+                    <td style="color: green; font-weight: bold">Presente</td>
+                  </tr>
+                  <tr>
+                    <td>27.888.999</td>
+                    <td>Zoraya Quintero</td>
+                    <td>03/04/2026</td>
+                    <td style="color: red; font-weight: bold">Ausente</td>
+                  </tr>
+                  <tr>
+                    <td>28.000.111</td>
+                    <td>Gumersindo Vivas</td>
+                    <td>03/04/2026</td>
+                    <td style="color: green; font-weight: bold">Presente</td>
+                  </tr>
+                  <tr>
+                    <td>28.333.444</td>
+                    <td>Eulalia Cifuentes</td>
+                    <td>03/04/2026</td>
+                    <td style="color: green; font-weight: bold">Presente</td>
+                  </tr>
+                  <tr>
+                    <td>28.555.666</td>
+                    <td>Wenceslao Machado</td>
+                    <td>03/04/2026</td>
+                    <td style="color: red; font-weight: bold">Ausente</td>
+                  </tr>
+                  <tr>
+                    <td>28.777.888</td>
+                    <td>Tibisay Escalona</td>
+                    <td>03/04/2026</td>
+                    <td style="color: green; font-weight: bold">Presente</td>
+                  </tr>
+                  <tr>
+                    <td>29.123.987</td>
+                    <td>Amadís Valbuena</td>
+                    <td>03/04/2026</td>
+                    <td style="color: green; font-weight: bold">Presente</td>
+                  </tr>
+                  <tr>
+                    <td>29.456.123</td>
+                    <td>Yaxenia Urdaneta</td>
+                    <td>03/04/2026</td>
+                    <td style="color: red; font-weight: bold">Ausente</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div id="admin-password" class="hidden">
+          <h2 style="color: var(--primary); margin-bottom: 20px">
+            Seguridad y Accesos
+          </h2>
+          <div class="management-grid">
+            <div class="card">
+              <h3
+                style="
+                  margin-bottom: 15px;
+                  color: var(--primary);
+                  border-bottom: 2px solid var(--accent);
+                  padding-bottom: 5px;
+                "
+              >
+                Mi Contraseña (Administrador)
+              </h3>
+              <form
+                onsubmit="
+                  event.preventDefault();
+                  updatePassword('admin');
+                "
+              >
+                <label
+                  style="font-size: 14px; display: block; margin-bottom: 5px"
+                  >Contraseña Actual</label
+                >
+                <input type="password" required />
+                <label
+                  style="font-size: 14px; display: block; margin-bottom: 5px"
+                  >Nueva Contraseña</label
+                >
+                <input type="password" required />
+                <label
+                  style="font-size: 14px; display: block; margin-bottom: 5px"
+                  >Confirmar Nueva Contraseña</label
+                >
+                <input type="password" required />
+                <button class="btn btn-primary" style="width: 100%">
+                  Actualizar Mi Contraseña
+                </button>
+              </form>
+            </div>
+            <div class="card">
+              <h3
+                style="
+                  margin-bottom: 15px;
+                  color: var(--primary);
+                  border-bottom: 2px solid var(--accent);
+                  padding-bottom: 5px;
+                "
+              >
+                Restablecer Acceso de Usuarios
+              </h3>
+              <form
+                onsubmit="
+                  event.preventDefault();
+                  resetUserPassword();
+                "
+              >
+                <label
+                  style="font-size: 14px; display: block; margin-bottom: 5px"
+                  >Buscar Usuario (C.I o Nombre)</label
+                >
+                <div style="display: flex; gap: 10px; margin-bottom: 15px">
+                  <input
+                    type="text"
+                    placeholder="Ej. 25123456"
+                    value="25123456"
+                    style="margin-bottom: 0"
+                  />
+                  <button
+                    type="button"
+                    class="btn"
+                    style="
+                      background: #eee;
+                      color: var(--text-dark);
+                      border: 1px solid var(--border-color);
+                    "
+                  >
+                    Buscar
+                  </button>
+                </div>
+                <div
+                  style="
+                    background: var(--bg-light);
+                    padding: 12px;
+                    border-radius: 4px;
+                    margin-bottom: 15px;
+                    border-left: 4px solid var(--primary);
+                    font-size: 13px;
+                  "
+                >
+                  <strong>Usuario Seleccionado:</strong><br />
+                  Jorge Rodríguez (Estudiante) - C.I: 25.123.456
+                </div>
+
+                <label
+                  style="font-size: 14px; display: block; margin-bottom: 5px"
+                  >Nueva Contraseña Temporal</label
+                >
+                <input
+                  type="password"
+                  placeholder="Ingrese nueva contraseña..."
+                  required
+                />
+                <button class="btn btn-danger" style="width: 100%">
+                  Restablecer Contraseña
+                </button>
+              </form>
+            </div>
+          </div>
+          <p style="margin-top: 20px; font-size: 13px; color: #666">
+            <strong>Advertencia:</strong> El uso de esta herramienta queda
+            registrado en el historial de auditoría del sistema. Al restablecer
+            la contraseña, se cerrarán todas las sesiones activas del usuario
+            seleccionado y el cambio será irreversible.
+          </p>
+        </div>
+        <div id="admin-password-popup" class="scan-popup">
+          <div class="popup-content">
+            <span class="check-icon">✓</span>
+            <p class="popup-text">¡Contraseña<br />Actualizada!</p>
+          </div>
+        </div>
+        <div id="admin-reset-popup" class="scan-popup">
+          <div class="popup-content">
+            <span class="check-icon">✓</span>
+            <p class="popup-text">¡Acceso<br />Restablecido!</p>
+          </div>
+        </div>
+      </section>
+    </div>
+    <div id="view-prof">
+      <div class="mobile-container">
+        <div class="mobile-header">
+          <img src="logoIUTECP_azul.png" alt="IUTECP" class="mobile-logo" />
+          <div class="hamburger" onclick="toggleProfMenu()">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+        <div id="prof-side-menu" class="student-side-menu">
+          <div
+            class="menu-item"
+            onclick="
+              switchProfTab('password');
+              toggleProfMenu();
+            "
+          >
+            🔑 Cambiar Contraseña
+          </div>
+          <div
+            class="menu-item"
+            onclick="
+              switchProfTab('diagnostico');
+              toggleProfMenu();
+            "
+          >
+            🛠️ Diagnóstico
+          </div>
+          <div
+            class="menu-item"
+            onclick="
+              switchRole('login');
+              toggleProfMenu();
+            "
+            style="color: red"
+          >
+            🚪 Cerrar Sesión
+          </div>
+        </div>
+        <div class="mobile-content" id="prof-generar">
+          <h2 style="color: var(--primary); margin-bottom: 10px">
+            ¡Hola, Prof. Carlos!
+          </h2>
+          <p style="margin-bottom: 20px; color: #666">Gestión de Aula IUTECP</p>
+          <div class="card" style="margin-bottom: 20px">
+            <label
+              style="
+                font-weight: bold;
+                display: block;
+                margin-bottom: 10px;
+                color: var(--primary);
+              "
+            >
+              Seleccionar Clase de Hoy:
+            </label>
+            <select style="font-size: 16px; padding: 10px; margin-bottom: 20px">
+              <option>Programación I - Sección 1D1 (08:00 AM)</option>
+              <option>Sistemas Operativos - Sección 1E1 (10:00 AM)</option>
+            </select>
+            <button
+              class="btn btn-accent"
+              style="width: 100%; font-size: 16px; padding: 15px"
+              onclick="generateQR()"
+            >
+              Generar QR Dinámico
+            </button>
+          </div>
+          <div
+            class="card hidden"
+            id="qr-display-area"
+            style="text-align: center"
+          >
+            <h3 style="color: var(--primary); margin-bottom: 15px">
+              Código QR de Asistencia
+            </h3>
+            <div class="qr-placeholder"></div>
+            <div class="timer">Expira en 05:00</div>
+            <p style="margin-bottom: 20px; font-size: 14px; color: #666">
+              Escanea con tu dispositivo
+            </p>
+            <button class="btn btn-primary" onclick="closeQR()">
+              Ocultar Código
+            </button>
+          </div>
+        </div>
+        <div class="mobile-content hidden" id="prof-asistencia">
+          <div id="prof-classes-list">
+            <h2 style="color: var(--primary); margin-bottom: 10px">
+              Registro de Asistencias
+            </h2>
+            <p style="margin-bottom: 20px; color: #666">
+              Seleccione una materia y semana
+            </p>
+            <details class="class-accordion">
+              <summary>Programación I - Sección 1D1</summary>
+              <ul class="weeks-list">
+                <li
+                  class="clickable-week"
+                  onclick="viewAttendance('Programación I', 'Semana 1')"
+                >
+                  <span>Semana 1</span
+                  ><span style="color: var(--secondary); font-weight: bold"
+                    >Ver detalle ></span
+                  >
+                </li>
+                <li
+                  class="clickable-week"
+                  onclick="viewAttendance('Programación I', 'Semana 2')"
+                >
+                  <span>Semana 2</span
+                  ><span style="color: var(--secondary); font-weight: bold"
+                    >Ver detalle ></span
+                  >
+                </li>
+                <li
+                  class="clickable-week"
+                  onclick="viewAttendance('Programación I', 'Semana 3')"
+                >
+                  <span>Semana 3</span
+                  ><span style="color: var(--secondary); font-weight: bold"
+                    >Ver detalle ></span
+                  >
+                </li>
+                <li>
+                  <span style="color: #999">Semana 4</span
+                  ><span class="status-pending">Pendiente</span>
+                </li>
+                <li>
+                  <span style="color: #999">Semana 5</span
+                  ><span class="status-pending">Pendiente</span>
+                </li>
+                <li>
+                  <span style="color: #999">Semana 6</span
+                  ><span class="status-pending">Pendiente</span>
+                </li>
+                <li>
+                  <span style="color: #999">Semana 7</span
+                  ><span class="status-pending">Pendiente</span>
+                </li>
+                <li>
+                  <span style="color: #999">Semana 8</span
+                  ><span class="status-pending">Pendiente</span>
+                </li>
+                <li>
+                  <span style="color: #999">Semana 9</span
+                  ><span class="status-pending">Pendiente</span>
+                </li>
+                <li>
+                  <span style="color: #999">Semana 10</span
+                  ><span class="status-pending">Pendiente</span>
+                </li>
+                <li>
+                  <span style="color: #999">Semana 11</span
+                  ><span class="status-pending">Pendiente</span>
+                </li>
+                <li>
+                  <span style="color: #999">Semana 12</span
+                  ><span class="status-pending">Pendiente</span>
+                </li>
+              </ul>
+            </details>
+            <details class="class-accordion">
+              <summary>Sistemas Operativos - Sección 1E1</summary>
+              <ul class="weeks-list">
+                <li
+                  class="clickable-week"
+                  onclick="viewAttendance('Sistemas Operativos', 'Semana 1')"
+                >
+                  <span>Semana 1</span
+                  ><span style="color: var(--secondary); font-weight: bold"
+                    >Ver detalle ></span
+                  >
+                </li>
+                <li
+                  class="clickable-week"
+                  onclick="viewAttendance('Sistemas Operativos', 'Semana 2')"
+                >
+                  <span>Semana 2</span
+                  ><span style="color: var(--secondary); font-weight: bold"
+                    >Ver detalle ></span
+                  >
+                </li>
+                <li>
+                  <span style="color: #999">Semana 3</span
+                  ><span class="status-pending">Pendiente</span>
+                </li>
+                <li>
+                  <span style="color: #999">Semana 4</span
+                  ><span class="status-pending">Pendiente</span>
+                </li>
+                <li>
+                  <span style="color: #999">Semana 5</span
+                  ><span class="status-pending">Pendiente</span>
+                </li>
+                <li>
+                  <span style="color: #999">Semana 6</span
+                  ><span class="status-pending">Pendiente</span>
+                </li>
+                <li>
+                  <span style="color: #999">Semana 7</span
+                  ><span class="status-pending">Pendiente</span>
+                </li>
+                <li>
+                  <span style="color: #999">Semana 8</span
+                  ><span class="status-pending">Pendiente</span>
+                </li>
+                <li>
+                  <span style="color: #999">Semana 9</span
+                  ><span class="status-pending">Pendiente</span>
+                </li>
+                <li>
+                  <span style="color: #999">Semana 10</span
+                  ><span class="status-pending">Pendiente</span>
+                </li>
+                <li>
+                  <span style="color: #999">Semana 11</span
+                  ><span class="status-pending">Pendiente</span>
+                </li>
+                <li>
+                  <span style="color: #999">Semana 12</span
+                  ><span class="status-pending">Pendiente</span>
+                </li>
+              </ul>
+            </details>
+          </div>
+          <div id="prof-attendance-detail" class="hidden">
+            <button
+              class="btn"
+              style="
+                margin-bottom: 15px;
+                background: #eee;
+                color: var(--text-dark);
+              "
+              onclick="backToClasses()"
+            >
+              ⬅ Volver a clases
+            </button>
+            <h3
+              id="attendance-detail-title"
+              style="color: var(--primary); margin-bottom: 15px"
+            >
+              Materia - Semana
+            </h3>
+            <div class="card">
+              <table style="margin-top: 0; font-size: 14px">
+                <thead>
+                  <tr>
+                    <th>N°</th>
+                    <th>Estudiante</th>
+                    <th>Hora</th>
+                    <th>Estatus</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>1</td>
+                    <td>Jorge Rodríguez</td>
+                    <td>08:05 AM</td>
+                    <td style="color: green; font-weight: bold">Presente</td>
+                  </tr>
+                  <tr>
+                    <td>2</td>
+                    <td>Casiopea Montero</td>
+                    <td>08:06 AM</td>
+                    <td style="color: green; font-weight: bold">Presente</td>
+                  </tr>
+                  <tr>
+                    <td>3</td>
+                    <td>Baudilio Rivas</td>
+                    <td>--:--</td>
+                    <td style="color: red; font-weight: bold">Ausente</td>
+                  </tr>
+                  <tr>
+                    <td>4</td>
+                    <td>Xenaida Palacios</td>
+                    <td>08:08 AM</td>
+                    <td style="color: green; font-weight: bold">Presente</td>
+                  </tr>
+                  <tr>
+                    <td>5</td>
+                    <td>Melquiades Tovar</td>
+                    <td>08:10 AM</td>
+                    <td style="color: green; font-weight: bold">Presente</td>
+                  </tr>
+                  <tr>
+                    <td>6</td>
+                    <td>Zoraya Quintero</td>
+                    <td>--:--</td>
+                    <td style="color: red; font-weight: bold">Ausente</td>
+                  </tr>
+                  <tr>
+                    <td>7</td>
+                    <td>Gumersindo Vivas</td>
+                    <td>08:12 AM</td>
+                    <td style="color: green; font-weight: bold">Presente</td>
+                  </tr>
+                  <tr>
+                    <td>8</td>
+                    <td>Eulalia Cifuentes</td>
+                    <td>08:14 AM</td>
+                    <td style="color: green; font-weight: bold">Presente</td>
+                  </tr>
+                  <tr>
+                    <td>9</td>
+                    <td>Wenceslao Machado</td>
+                    <td>--:--</td>
+                    <td style="color: red; font-weight: bold">Ausente</td>
+                  </tr>
+                  <tr>
+                    <td>10</td>
+                    <td>Tibisay Escalona</td>
+                    <td>08:16 AM</td>
+                    <td style="color: green; font-weight: bold">Presente</td>
+                  </tr>
+                  <tr>
+                    <td>11</td>
+                    <td>Amadís Valbuena</td>
+                    <td>08:18 AM</td>
+                    <td style="color: green; font-weight: bold">Presente</td>
+                  </tr>
+                  <tr>
+                    <td>12</td>
+                    <td>Yaxenia Urdaneta</td>
+                    <td>--:--</td>
+                    <td style="color: red; font-weight: bold">Ausente</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="mobile-content hidden" id="prof-ajustes">
+          <h2 style="color: var(--primary); margin-bottom: 10px">
+            Ajustes de Escaneo QR
+          </h2>
+          <p style="margin-bottom: 20px; color: #666">
+            Configuración de seguridad y expiración
+          </p>
+          <div class="card">
+            <form
+              onsubmit="
+                event.preventDefault();
+                saveSettings();
+              "
+            >
+              <label>Tiempo de expiración base (Minutos)</label>
+              <input type="number" value="5" required />
+              <label>Frecuencia de rotación dinámica (Segundos)</label>
+              <input type="number" value="30" required />
+              <label>Radio de validación GPS (Metros)</label>
+              <input type="number" value="50" required />
+              <button
+                class="btn btn-primary"
+                style="width: 100%; margin-top: 10px"
+              >
+                Guardar Ajustes
+              </button>
+            </form>
+          </div>
+        </div>
+        <div class="mobile-content hidden" id="prof-password">
+          <h3 style="color: var(--primary); margin-bottom: 15px">
+            Cambiar Contraseña
+          </h3>
+          <div class="card">
+            <form
+              onsubmit="
+                event.preventDefault();
+                updatePassword('prof');
+              "
+            >
+              <label style="font-size: 14px; display: block; margin-bottom: 5px"
+                >Contraseña Actual</label
+              >
+              <input type="password" required />
+              <label style="font-size: 14px; display: block; margin-bottom: 5px"
+                >Nueva Contraseña</label
+              >
+              <input type="password" required />
+              <label style="font-size: 14px; display: block; margin-bottom: 5px"
+                >Confirmar Nueva Contraseña</label
+              >
+              <input type="password" required />
+              <button class="btn btn-primary" style="width: 100%">
+                Actualizar
+              </button>
+            </form>
+          </div>
+        </div>
+        <div class="mobile-content hidden" id="prof-diagnostico">
+          <h3 style="color: var(--primary); margin-bottom: 15px">
+            Diagnóstico de Sistema
+          </h3>
+          <div
+            style="
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 15px;
+              margin-bottom: 15px;
+            "
+          >
+            <div class="card" style="text-align: center; padding: 15px">
+              <p style="font-size: 12px; color: #666; font-weight: bold">
+                Éxito GPS
+              </p>
+              <p
+                style="
+                  font-size: 24px;
+                  color: green;
+                  font-weight: bold;
+                  margin-top: 5px;
+                "
+              >
+                88%
+              </p>
+            </div>
+            <div class="card" style="text-align: center; padding: 15px">
+              <p style="font-size: 12px; color: #666; font-weight: bold">
+                Error Promedio
+              </p>
+              <p
+                style="
+                  font-size: 24px;
+                  color: var(--accent);
+                  font-weight: bold;
+                  margin-top: 5px;
+                "
+              >
+                58m
+              </p>
+            </div>
+          </div>
+          <div
+            style="
+              display: grid;
+              grid-template-columns: 1fr 1fr 1fr;
+              gap: 10px;
+              margin-bottom: 20px;
+            "
+          >
+            <div class="card" style="text-align: center; padding: 10px">
+              <p style="font-size: 11px; color: #666; font-weight: bold">
+                Totales
+              </p>
+              <p
+                style="
+                  font-size: 20px;
+                  color: var(--primary);
+                  font-weight: bold;
+                  margin-top: 5px;
+                "
+              >
+                50
+              </p>
+            </div>
+            <div class="card" style="text-align: center; padding: 10px">
+              <p style="font-size: 11px; color: #666; font-weight: bold">
+                Exitosos
+              </p>
+              <p
+                style="
+                  font-size: 20px;
+                  color: green;
+                  font-weight: bold;
+                  margin-top: 5px;
+                "
+              >
+                44
+              </p>
+            </div>
+            <div class="card" style="text-align: center; padding: 10px">
+              <p style="font-size: 11px; color: #666; font-weight: bold">
+                Fallidos
+              </p>
+              <p
+                style="
+                  font-size: 20px;
+                  color: red;
+                  font-weight: bold;
+                  margin-top: 5px;
+                "
+              >
+                6
+              </p>
+            </div>
+          </div>
+          <div class="card" style="margin-bottom: 20px">
+            <h4 style="color: var(--primary); margin-bottom: 10px">
+              Registro de Incidencias
+            </h4>
+            <select
+              id="log-filter"
+              onchange="filterLogs()"
+              style="margin-bottom: 15px"
+            >
+              <option value="all">Ver todas las incidencias</option>
+              <option value="gps">GPS Fuera de Rango (2)</option>
+              <option value="expired">QR Expirado (1)</option>
+              <option value="location">Ubicación Desactivada (1)</option>
+            </select>
+            <ul class="historial-list error-log-list" id="diagnostics-log-list">
+              <li data-type="expired">
+                <strong>QR Expirado</strong><br />
+                <span style="font-size: 12px; color: #666"
+                  >Hace 1 min - Alumno C.I: 26.987.654</span
+                >
+              </li>
+              <li data-type="gps">
+                <strong>GPS Fuera de Rango (55m)</strong><br />
+                <span style="font-size: 12px; color: #666"
+                  >Hace 4 min - Alumno C.I: 27.123.456</span
+                >
+              </li>
+              <li data-type="location">
+                <strong>Ubicación Desactivada</strong><br />
+                <span style="font-size: 12px; color: #666"
+                  >Hace 6 min - Alumno C.I: 28.555.444</span
+                >
+              </li>
+              <li data-type="gps">
+                <strong>GPS Fuera de Rango (61m)</strong><br />
+                <span style="font-size: 12px; color: #666"
+                  >Hace 8 min - Alumno C.I: 25.444.333</span
+                >
+              </li>
+            </ul>
+          </div>
+          <div
+            class="card"
+            style="border: 1px solid #f5c6cb; background: #fff8f8"
+          >
+            <h4 style="color: #dc3545; margin-bottom: 10px">
+              Modo de Emergencia
+            </h4>
+            <button
+              class="btn btn-danger"
+              style="width: 100%; margin-bottom: 10px; font-size: 15px"
+              onclick="activatePanicMode()"
+            >
+              ⚠️ Activar Máxima Tolerancia
+            </button>
+            <p style="font-size: 12px; color: #666; line-height: 1.4">
+              Aplica un perfil de relajación automático: sube el radio GPS a
+              150m, rotación a 60s y expiración a 20 min. Se apaga
+              automáticamente en 20 minutos. Úselo si la mayoría presenta fallos
+              técnicos.
+            </p>
+          </div>
+        </div>
+        <div id="prof-password-popup" class="scan-popup">
+          <div class="popup-content">
+            <span class="check-icon">✓</span>
+            <p class="popup-text">¡Contraseña<br />Actualizada!</p>
+          </div>
+        </div>
+        <div id="settings-popup" class="scan-popup">
+          <div class="popup-content">
+            <span class="check-icon">✓</span>
+            <p class="popup-text">¡Ajustes<br />Guardados!</p>
+          </div>
+        </div>
+        <div id="panic-popup" class="scan-popup">
+          <div class="popup-content" style="border-color: #dc3545">
+            <span class="check-icon" style="background: #dc3545">⚠️</span>
+            <p class="popup-text" style="color: #dc3545">
+              ¡Modo Tolerancia<br />Activado!
+            </p>
+          </div>
+        </div>
+        <div class="mobile-nav">
+          <button class="active" onclick="switchProfTab('generar', this)">
+            Generar QR
+          </button>
+          <button onclick="switchProfTab('asistencia', this)">
+            Asistencias
+          </button>
+          <button onclick="switchProfTab('ajustes', this)">Ajustes</button>
+        </div>
+      </div>
+    </div>
+    <div id="view-student">
+      <div class="mobile-container">
+        <div class="mobile-header">
+          <img src="logoIUTECP_azul.png" alt="IUTECP" class="mobile-logo" />
+          <div class="hamburger" onclick="toggleStudentMenu()">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+        <div id="student-side-menu" class="student-side-menu">
+          <div
+            class="menu-item"
+            onclick="
+              switchStudentTab('guia');
+              toggleStudentMenu();
+            "
+          >
+            📘 Guía Rápida
+          </div>
+          <div
+            class="menu-item"
+            onclick="
+              switchStudentTab('password');
+              toggleStudentMenu();
+            "
+          >
+            🔑 Cambiar Contraseña
+          </div>
+          <div
+            class="menu-item"
+            onclick="
+              switchRole('login');
+              toggleStudentMenu();
+            "
+            style="color: red"
+          >
+            🚪 Cerrar Sesión
+          </div>
+        </div>
+        <div class="mobile-content" id="student-inicio">
+          <h2 style="color: var(--primary); margin-bottom: 10px">
+            ¡Hola, Fernando!
+          </h2>
+          <p style="margin-bottom: 20px; color: #666">
+            C.I: 31.853.086 | Informática
+          </p>
+          <h4 style="color: var(--secondary); margin-bottom: 15px">
+            Mis Materias
+          </h4>
+          <details class="class-accordion">
+            <summary>Programación II (PRO1354)</summary>
+            <ul class="weeks-list">
+              <li>
+                <span>Semana 1</span
+                ><span class="status-present">Presente</span>
+              </li>
+              <li>
+                <span>Semana 2</span
+                ><span class="status-present">Presente</span>
+              </li>
+              <li>
+                <span>Semana 3</span><span class="status-absent">Ausente</span>
+              </li>
+              <li>
+                <span>Semana 4</span
+                ><span class="status-present">Presente</span>
+              </li>
+              <li>
+                <span>Semana 5</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 6</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 7</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 8</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 9</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 10</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 11</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 12</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+            </ul>
+          </details>
+          <details class="class-accordion">
+            <summary>Bases de Datos (BDA1343)</summary>
+            <ul class="weeks-list">
+              <li>
+                <span>Semana 1</span
+                ><span class="status-present">Presente</span>
+              </li>
+              <li>
+                <span>Semana 2</span
+                ><span class="status-present">Presente</span>
+              </li>
+              <li>
+                <span>Semana 3</span
+                ><span class="status-present">Presente</span>
+              </li>
+              <li>
+                <span>Semana 4</span
+                ><span class="status-present">Presente</span>
+              </li>
+              <li>
+                <span>Semana 5</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 6</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 7</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 8</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 9</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 10</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 11</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 12</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+            </ul>
+          </details>
+          <details class="class-accordion">
+            <summary>Cálculo Matricial (CMA1332)</summary>
+            <ul class="weeks-list">
+              <li>
+                <span>Semana 1</span
+                ><span class="status-present">Presente</span>
+              </li>
+              <li>
+                <span>Semana 2</span><span class="status-absent">Ausente</span>
+              </li>
+              <li>
+                <span>Semana 3</span
+                ><span class="status-present">Presente</span>
+              </li>
+              <li>
+                <span>Semana 4</span><span class="status-absent">Ausente</span>
+              </li>
+              <li>
+                <span>Semana 5</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 6</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 7</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 8</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 9</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 10</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 11</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 12</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+            </ul>
+          </details>
+          <details class="class-accordion">
+            <summary>Telecomunicaciones (TEL1322)</summary>
+            <ul class="weeks-list">
+              <li>
+                <span>Semana 1</span
+                ><span class="status-present">Presente</span>
+              </li>
+              <li>
+                <span>Semana 2</span
+                ><span class="status-present">Presente</span>
+              </li>
+              <li>
+                <span>Semana 3</span
+                ><span class="status-present">Presente</span>
+              </li>
+              <li>
+                <span>Semana 4</span
+                ><span class="status-present">Presente</span>
+              </li>
+              <li>
+                <span>Semana 5</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 6</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 7</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 8</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 9</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 10</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 11</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 12</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+            </ul>
+          </details>
+          <details class="class-accordion">
+            <summary>Análisis y Diseño de Sistemas I (ADS1343)</summary>
+            <ul class="weeks-list">
+              <li>
+                <span>Semana 1</span
+                ><span class="status-present">Presente</span>
+              </li>
+              <li>
+                <span>Semana 2</span
+                ><span class="status-present">Presente</span>
+              </li>
+              <li>
+                <span>Semana 3</span
+                ><span class="status-present">Presente</span>
+              </li>
+              <li>
+                <span>Semana 4</span
+                ><span class="status-present">Presente</span>
+              </li>
+              <li>
+                <span>Semana 5</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 6</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 7</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 8</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 9</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 10</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 11</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 12</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+            </ul>
+          </details>
+          <details class="class-accordion">
+            <summary>Estadística General (EGE1332)</summary>
+            <ul class="weeks-list">
+              <li>
+                <span>Semana 1</span><span class="status-absent">Ausente</span>
+              </li>
+              <li>
+                <span>Semana 2</span><span class="status-absent">Ausente</span>
+              </li>
+              <li>
+                <span>Semana 3</span
+                ><span class="status-present">Presente</span>
+              </li>
+              <li>
+                <span>Semana 4</span
+                ><span class="status-present">Presente</span>
+              </li>
+              <li>
+                <span>Semana 5</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 6</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 7</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 8</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 9</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 10</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 11</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 12</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+            </ul>
+          </details>
+          <details class="class-accordion">
+            <summary>Arquitectura del Computador (ACO1343)</summary>
+            <ul class="weeks-list">
+              <li>
+                <span>Semana 1</span
+                ><span class="status-present">Presente</span>
+              </li>
+              <li>
+                <span>Semana 2</span
+                ><span class="status-present">Presente</span>
+              </li>
+              <li>
+                <span>Semana 3</span
+                ><span class="status-present">Presente</span>
+              </li>
+              <li>
+                <span>Semana 4</span
+                ><span class="status-present">Presente</span>
+              </li>
+              <li>
+                <span>Semana 5</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 6</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 7</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 8</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 9</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 10</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 11</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+              <li>
+                <span>Semana 12</span
+                ><span class="status-pending">Pendiente</span>
+              </li>
+            </ul>
+          </details>
+        </div>
+        <div class="mobile-content hidden" id="student-escanear">
+          <h3 class="scan-title-overlay">Escanear QR de Aula</h3>
+          <div
+            class="camera-box"
+            onclick="simularEscaneo()"
+            style="cursor: pointer"
+          >
+            <img src="qr-scan.jpg" alt="Escaneando QR" />
+          </div>
+        </div>
+        <div class="mobile-content hidden" id="student-historial">
+          <h3 style="margin-bottom: 20px; color: var(--primary)">
+            Historial de Escaneos QR
+          </h3>
+          <ul class="historial-list">
+            <li>
+              <strong>Bases de Datos (BDA1343)</strong><br />
+              <span style="font-size: 12px; color: #666"
+                >QR Escaneado: #A8B29C - 03/04/2026 08:05 AM</span
+              >
+            </li>
+            <li>
+              <strong>Arquitectura del Computador (ACO1343)</strong><br />
+              <span style="font-size: 12px; color: #666"
+                >QR Escaneado: #M49V12 - 02/04/2026 10:03 AM</span
+              >
+            </li>
+            <li>
+              <strong>Estadística General (EGE1332)</strong><br />
+              <span style="font-size: 12px; color: #666"
+                >QR Escaneado: #P88Q33 - 01/04/2026 02:10 PM</span
+              >
+            </li>
+            <li>
+              <strong>Análisis y Diseño de Sistemas I (ADS1343)</strong><br />
+              <span style="font-size: 12px; color: #666"
+                >QR Escaneado: #L11Z99 - 01/04/2026 09:02 AM</span
+              >
+            </li>
+            <li>
+              <strong>Cálculo Matricial (CMA1332)</strong><br />
+              <span style="font-size: 12px; color: #666"
+                >QR Escaneado: #J77K44 - 31/03/2026 08:07 AM</span
+              >
+            </li>
+            <li>
+              <strong>Telecomunicaciones (TEL1322)</strong><br />
+              <span style="font-size: 12px; color: #666"
+                >QR Escaneado: #R44KL0 - 30/03/2026 01:05 PM</span
+              >
+            </li>
+            <li>
+              <strong>Programación II (PRO1354)</strong><br />
+              <span style="font-size: 12px; color: #666"
+                >QR Escaneado: #X99M21 - 30/03/2026 10:04 AM</span
+              >
+            </li>
+            <li>
+              <strong>Bases de Datos (BDA1343)</strong><br />
+              <span style="font-size: 12px; color: #666"
+                >QR Escaneado: #C33N55 - 27/03/2026 08:02 AM</span
+              >
+            </li>
+          </ul>
+        </div>
+        <div class="mobile-content hidden" id="student-guia">
+          <h3 style="color: var(--primary); margin-bottom: 15px">
+            Guía Rápida
+          </h3>
+          <p style="margin-bottom: 15px; font-size: 15px; line-height: 1.5">
+            ¡Hola! Bienvenido a la app de Control de Asistencias QR del IUTECP.
+            Registrar tu asistencia ahora es mucho más sencillo. Solo sigue
+            estos pasos:
+          </p>
+          <div class="card" style="margin-bottom: 15px; padding: 15px">
+            <h4 style="color: var(--secondary)">1. Revisa tus clases</h4>
+            <p style="font-size: 14px; margin: 10px 0">
+              Ve a la pestaña <b>Inicio</b> para consultar tus materias
+              asignadas y cuántas semanas llevas asistiendo.
+            </p>
+            <img
+              src="mockup-no-qr.webp"
+              alt="Captura Pestaña Inicio"
+              class="guide-img"
+            />
+          </div>
+          <div class="card" style="margin-bottom: 15px; padding: 15px">
+            <h4 style="color: var(--secondary)">2. Escanea el Código QR</h4>
+            <p style="font-size: 14px; margin: 10px 0">
+              Cuando estés en el aula con tu profesor, ve a la pestaña
+              <b>Escanear</b>, apunta tu cámara al código y ¡listo! Asistencia
+              guardada.
+            </p>
+            <img
+              src="mockup-qr.webp"
+              alt="Captura Escaneando QR"
+              class="guide-img"
+            />
+          </div>
+        </div>
+        <div class="mobile-content hidden" id="student-password">
+          <h3 style="color: var(--primary); margin-bottom: 15px">
+            Cambiar Contraseña
+          </h3>
+          <div class="card">
+            <form
+              onsubmit="
+                event.preventDefault();
+                updatePassword('student');
+              "
+            >
+              <label style="font-size: 14px; display: block; margin-bottom: 5px"
+                >Contraseña Actual</label
+              >
+              <input type="password" required />
+              <label style="font-size: 14px; display: block; margin-bottom: 5px"
+                >Nueva Contraseña</label
+              >
+              <input type="password" required />
+              <label style="font-size: 14px; display: block; margin-bottom: 5px"
+                >Confirmar Nueva Contraseña</label
+              >
+              <input type="password" required />
+              <button class="btn btn-primary" style="width: 100%">
+                Actualizar
+              </button>
+            </form>
+          </div>
+        </div>
+        <div id="scan-popup" class="scan-popup">
+          <div class="popup-content">
+            <span class="check-icon">✓</span>
+            <p class="popup-text">¡Escaneo<br />Exitoso!</p>
+          </div>
+        </div>
+        <div id="student-password-popup" class="scan-popup">
+          <div class="popup-content">
+            <span class="check-icon">✓</span>
+            <p class="popup-text">¡Contraseña<br />Actualizada!</p>
+          </div>
+        </div>
+        <div class="mobile-nav">
+          <button class="active" onclick="switchStudentTab('inicio', this)">
+            Inicio
+          </button>
+          <button onclick="switchStudentTab('escanear', this)">Escanear</button>
+          <button onclick="switchStudentTab('historial', this)">
+            Historial
+          </button>
+        </div>
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>

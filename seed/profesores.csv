@@ -1,0 +1,21 @@
+﻿cedula,nombre_completo,email,carrera_id,password
+V2010000000,"Luis García Flores",profesor0@iutecp.edu.ve,1,12345678
+V2010000001,"Ana Rodríguez Rivera",profesor1@iutecp.edu.ve,3,12345678
+V2010000002,"Jorge Martínez Gómez",profesor2@iutecp.edu.ve,4,12345678
+V2010000003,"Laura López Díaz",profesor3@iutecp.edu.ve,5,12345678
+V2010000004,"Miguel Hernández Reyes",profesor4@iutecp.edu.ve,6,12345678
+V2010000005,"Sofía González Morales",profesor5@iutecp.edu.ve,8,12345678
+V2010000006,"Andrés Pérez Ortiz",profesor6@iutecp.edu.ve,10,12345678
+V2010000007,"Isabella Sánchez Mendoza",profesor7@iutecp.edu.ve,11,12345678
+V2010000008,"Manuel Ramírez Castillo",profesor8@iutecp.edu.ve,1,12345678
+V2010000009,"Daniela Torres Moreno",profesor9@iutecp.edu.ve,3,12345678
+V2010000010,"Francisco Flores Jiménez",profesor10@iutecp.edu.ve,4,12345678
+V2010000011,"Camila Rivera Acosta",profesor11@iutecp.edu.ve,5,12345678
+V2010000012,"Ricardo Gómez Medina",profesor12@iutecp.edu.ve,6,12345678
+V2010000013,"Elena Díaz Molina",profesor13@iutecp.edu.ve,8,12345678
+V2010000014,"Marcos Reyes Rivas",profesor14@iutecp.edu.ve,10,12345678
+V2010000015,"Andrea Morales Quintero",profesor15@iutecp.edu.ve,11,12345678
+V2010000016,"Alejandro Ortiz Cruz",profesor16@iutecp.edu.ve,1,12345678
+V2010000017,"Verónica Mendoza Peña",profesor17@iutecp.edu.ve,3,12345678
+V2010000018,"Javier Castillo Carrillo",profesor18@iutecp.edu.ve,4,12345678
+V2010000019,"Rosa Moreno Salazar",profesor19@iutecp.edu.ve,5,12345678

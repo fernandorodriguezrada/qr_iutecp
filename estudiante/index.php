@@ -456,9 +456,9 @@ if (
     <button id="btn-scroll-top" onclick="volverArriba()" style="position:absolute;bottom:calc(65px + max(0px, env(safe-area-inset-bottom)));right:14px;width:42px;height:42px;border-radius:50%;border:none;background:var(--primary);color:#fff;font-size:20px;cursor:pointer;z-index:500;display:none;box-shadow:0 2px 6px rgba(0,0,0,0.3);line-height:42px;text-align:center;padding:0;transition:opacity 0.4s ease;">↑</button>
 
     <div class="mobile-nav">
-        <button class="active" onclick="switchTab('inicio',this)"><span class="nav-icon">🏠</span>Inicio</button>
-        <button onclick="switchTab('escanear',this)"><span class="nav-icon">📷</span>Escanear</button>
-        <button onclick="switchTab('historial',this)"><span class="nav-icon">📋</span>Historial</button>
+        <button class="active" onclick="switchTab('inicio',this)">Inicio</button>
+        <button onclick="switchTab('escanear',this)">Escanear</button>
+        <button onclick="switchTab('historial',this)">Historial</button>
     </div>
 </div>
 

@@ -225,9 +225,9 @@ $cursos = $stmt->fetchAll();
     </div>
 
     <div class="mobile-nav">
-        <button class="active" onclick="switchTab('generar',this)"><span class="nav-icon">📱</span>Generar QR</button>
-        <button onclick="switchTab('asistencia',this)"><span class="nav-icon">📊</span>Asistencias</button>
-        <button onclick="switchTab('ajustes',this)"><span class="nav-icon">⚙️</span>Ajustes</button>
+        <button class="active" onclick="switchTab('generar',this)">Generar QR</button>
+        <button onclick="switchTab('asistencia',this)">Asistencias</button>
+        <button onclick="switchTab('ajustes',this)">Ajustes</button>
     </div>
 </div>
 

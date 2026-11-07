@@ -589,27 +589,17 @@ body.mobile-app-body {
 }
 .mobile-nav button {
   flex: 1;
-  padding: 8px 4px 6px;
+  padding: 15px 0;
   border: none;
   background: transparent;
   font-weight: bold;
-  font-size: 12px;
+  font-size: 14px;
   color: var(--primary);
   cursor: pointer;
   border-right: 1px solid var(--border-color);
   transition: background-color 0.15s ease, color 0.15s ease;
   touch-action: manipulation;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
   -webkit-tap-highlight-color: transparent;
-}
-.mobile-nav button .nav-icon {
-  font-size: 19px;
-  line-height: 1;
-  display: block;
 }
 .mobile-nav button:last-child {
   border-right: none;

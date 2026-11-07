@@ -63,16 +63,23 @@ $stmt->execute([$profesor_id]);
 $cursos = $stmt->fetchAll();
 ?>
 <!doctype html>
-<html lang="es">
+<html lang="es" class="mobile-app-html">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#262865" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="QR IUTECP" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <title>Profesor - Sistema QR IUTECP</title>
-    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/style.css?v=<?= filemtime(__DIR__ . '/../style.css') ?>" />
 </head>
-<body>
-<div class="mobile-container" style="max-width:480px;">
+<body class="mobile-app-body">
+<div class="mobile-container">
     <div class="mobile-header">
         <img src="/logoIUTECP_azul.png" alt="IUTECP" class="mobile-logo" />
         <div class="hamburger" onclick="toggleMenu()">
@@ -218,9 +225,9 @@ $cursos = $stmt->fetchAll();
     </div>
 
     <div class="mobile-nav">
-        <button class="active" onclick="switchTab('generar',this)">Generar QR</button>
-        <button onclick="switchTab('asistencia',this)">Asistencias</button>
-        <button onclick="switchTab('ajustes',this)">Ajustes</button>
+        <button class="active" onclick="switchTab('generar',this)"><span class="nav-icon">📱</span>Generar QR</button>
+        <button onclick="switchTab('asistencia',this)"><span class="nav-icon">📊</span>Asistencias</button>
+        <button onclick="switchTab('ajustes',this)"><span class="nav-icon">⚙️</span>Ajustes</button>
     </div>
 </div>
 
@@ -540,15 +547,11 @@ document.addEventListener('DOMContentLoaded', function() {
     cargarAjustes();
 });
 
-(function() {
-    function ajustarAltura() {
-        var c = document.querySelector('.mobile-container');
-        if (c) c.style.height = window.innerHeight + 'px';
-    }
-    ajustarAltura();
-    window.addEventListener('resize', ajustarAltura);
-    if (window.visualViewport) window.visualViewport.addEventListener('resize', ajustarAltura);
-})();
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js').catch(function(e){ console.log(e); });
+    });
+}
 </script>
 </body>
 </html>

@@ -243,10 +243,17 @@ if (
 }
 ?>
 <!doctype html>
-<html lang="es">
+<html lang="es" class="mobile-app-html">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#262865" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="QR IUTECP" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <title>Estudiante - Sistema QR IUTECP</title>
     <link rel="stylesheet" href="/style.css?v=<?= filemtime(__DIR__ . '/../style.css') ?>" />
@@ -266,8 +273,8 @@ if (
         }
     </style>
 </head>
-<body>
-<div class="mobile-container" style="max-width:480px;">
+<body class="mobile-app-body">
+<div class="mobile-container">
     <div class="mobile-header">
         <img src="/logoIUTECP_azul.png" alt="IUTECP" class="mobile-logo" />
         <div class="hamburger" onclick="toggleMenu()">
@@ -446,12 +453,12 @@ if (
         </div>
     </div>
 
-    <button id="btn-scroll-top" onclick="volverArriba()" style="position:absolute;bottom:65px;right:12px;width:42px;height:42px;border-radius:50%;border:none;background:var(--primary);color:#fff;font-size:20px;cursor:pointer;z-index:500;display:none;box-shadow:0 2px 6px rgba(0,0,0,0.3);line-height:42px;text-align:center;padding:0;transition:opacity 0.4s ease;">↑</button>
+    <button id="btn-scroll-top" onclick="volverArriba()" style="position:absolute;bottom:calc(65px + max(0px, env(safe-area-inset-bottom)));right:14px;width:42px;height:42px;border-radius:50%;border:none;background:var(--primary);color:#fff;font-size:20px;cursor:pointer;z-index:500;display:none;box-shadow:0 2px 6px rgba(0,0,0,0.3);line-height:42px;text-align:center;padding:0;transition:opacity 0.4s ease;">↑</button>
 
     <div class="mobile-nav">
-        <button class="active" onclick="switchTab('inicio',this)">Inicio</button>
-        <button onclick="switchTab('escanear',this)">Escanear</button>
-        <button onclick="switchTab('historial',this)">Historial</button>
+        <button class="active" onclick="switchTab('inicio',this)"><span class="nav-icon">🏠</span>Inicio</button>
+        <button onclick="switchTab('escanear',this)"><span class="nav-icon">📷</span>Escanear</button>
+        <button onclick="switchTab('historial',this)"><span class="nav-icon">📋</span>Historial</button>
     </div>
 </div>
 
@@ -1008,14 +1015,12 @@ function volverArriba() {
         setTimeout(verScroll, 50);
     };
 
-    function ajustarAltura() {
-        var c = document.querySelector('.mobile-container');
-        if (c) c.style.height = window.innerHeight + 'px';
-    }
-    ajustarAltura();
-    window.addEventListener('resize', ajustarAltura);
-    if (window.visualViewport) window.visualViewport.addEventListener('resize', ajustarAltura);
 })();
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js').catch(function(e){ console.log(e); });
+    });
+}
 </script>
 </body>
 </html>

@@ -12,10 +12,17 @@ $error = $_GET['error'] ?? '';
 <html lang="es">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#262865" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="QR IUTECP" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <title>Sistema QR IUTECP - Iniciar Sesión</title>
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="style.css?v=<?= filemtime(__DIR__ . '/style.css') ?>" />
     <style>
         .error-msg {
             background: #f8d7da; color: #721c24; padding: 10px; border-radius: 4px;
@@ -99,12 +106,17 @@ $error = $_GET['error'] ?? '';
         <img src="k-listo-happy.png" alt="K-Listo Feliz" class="auth-mascot" />
     </div>
 
+    <?php
+    $is_prod = strpos($_SERVER['HTTP_HOST'] ?? '', 'rf.gd') !== false || strpos($_SERVER['HTTP_HOST'] ?? '', 'infinityfree') !== false;
+    if (!$is_prod):
+    ?>
     <div id="acceso-banner" style="position:fixed;bottom:0;left:0;right:0;background:var(--primary);color:#fff;text-align:center;padding:6px 10px;font-size:13px;z-index:999;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;">
         <span>🔗 <strong>Móvil (Cámara):</strong></span>
         <span id="url-acceso" style="background:rgba(255,255,255,0.2);padding:2px 10px;border-radius:3px;font-family:monospace;cursor:pointer;" onclick="copiarUrl()">https://192.168.10.9:8443</span>
         <span style="font-size:12px;opacity:0.8">(PC: https://qr-iutecp.ddev.site)</span>
         <span id="copiar-msg" style="font-size:12px;cursor:pointer;user-select:none" onclick="copiarUrl()">📋</span>
     </div>
+    <?php endif; ?>
 
     <script>
     function toggleAdminLogin() {
@@ -148,6 +160,11 @@ $error = $_GET['error'] ?? '';
         }
         document.body.removeChild(ta);
         setTimeout(function() { msg.textContent = '📋'; }, 2000);
+    }
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('/sw.js').catch(function(e){ console.log(e); });
+        });
     }
     </script>
 </body>

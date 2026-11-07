@@ -9,7 +9,7 @@ if (strpos($http_host, 'asistenciasiutecp') !== false || strpos($http_host, 'rf.
     define('DB_HOST', 'sql113.infinityfree.com');
     define('DB_NAME', 'if0_41945777_iutecp_db');
     define('DB_USER', 'if0_41945777');
-    define('DB_PASS', 'dgJiG6Kn80');
+    define('DB_PASS', 'dgJIg6Kn8O');
 } else {
     // Configuración para DDEV Local
     define('DB_HOST', getenv('DB_HOST') ?: 'db');

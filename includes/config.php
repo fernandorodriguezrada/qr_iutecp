@@ -1,13 +1,24 @@
 <?php
 // Configuración de Base de Datos
-// Por defecto se conecta a DDEV local ('db'). Para InfinityFree u otro hosting,
-// se pueden definir variables de entorno o ajustar los valores de respaldo aquí.
-define('DB_HOST', getenv('DB_HOST') ?: 'db');
-define('DB_NAME', getenv('DB_NAME') ?: 'db');
-define('DB_USER', getenv('DB_USER') ?: 'db');
-define('DB_PASS', getenv('DB_PASS') !== false ? getenv('DB_PASS') : 'db');
-define('DB_CHARSET', 'utf8mb4');
+// Detección automática de entorno: InfinityFree vs DDEV Local
 
+$http_host = $_SERVER['HTTP_HOST'] ?? '';
+
+if (strpos($http_host, 'asistenciasiutecp') !== false || strpos($http_host, 'rf.gd') !== false || strpos($http_host, 'infinityfree') !== false) {
+    // Configuración para InfinityFree (Producción)
+    define('DB_HOST', 'sql113.infinityfree.com');
+    define('DB_NAME', 'if0_41945777_iutecp_db');
+    define('DB_USER', 'if0_41945777');
+    define('DB_PASS', 'dgJiG6Kn80');
+} else {
+    // Configuración para DDEV Local
+    define('DB_HOST', getenv('DB_HOST') ?: 'db');
+    define('DB_NAME', getenv('DB_NAME') ?: 'db');
+    define('DB_USER', getenv('DB_USER') ?: 'db');
+    define('DB_PASS', getenv('DB_PASS') !== false ? getenv('DB_PASS') : 'db');
+}
+
+define('DB_CHARSET', 'utf8mb4');
 define('APP_NAME', 'Sistema QR IUTECP');
 
 $is_https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || ($_SERVER['SERVER_PORT'] ?? '') === '443';

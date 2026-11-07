@@ -876,3 +876,65 @@ body.mobile-app-body {
     width: 100%;
     margin-top: 5px;
 }
+
+/* ========================================================
+   PANTALLA DE LOGIN (Sin scroll, 100% fija y centrada en móvil)
+   ======================================================== */
+html.auth-html,
+body.auth-body {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100vw !important;
+  max-width: 100% !important;
+  height: 100% !important;
+  height: 100dvh !important;
+  min-height: 100% !important;
+  overflow: hidden !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  overscroll-behavior: none !important;
+  -webkit-overflow-scrolling: auto !important;
+  background-color: var(--accent) !important;
+}
+
+body.auth-body .auth-view {
+  width: 100% !important;
+  height: 100% !important;
+  height: 100dvh !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 16px !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 24px 20px !important;
+    max-width: 360px !important;
+    border-radius: 8px !important;
+  }
+  .auth-logo {
+    max-height: 60px !important;
+    margin-bottom: 12px !important;
+  }
+  .auth-slogan {
+    font-size: 13.5px !important;
+    margin-bottom: 14px !important;
+  }
+  .auth-divider {
+    margin-bottom: 16px !important;
+  }
+  .auth-card h2 {
+    font-size: 1.35rem !important;
+    margin-bottom: 14px !important;
+  }
+  .auth-card input {
+    padding: 9px 12px !important;
+    font-size: 15px !important;
+  }
+}

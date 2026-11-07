@@ -9,7 +9,7 @@ if (estaAutenticado()) {
 $error = $_GET['error'] ?? '';
 ?>
 <!doctype html>
-<html lang="es">
+<html lang="es" class="auth-html">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
@@ -49,8 +49,8 @@ $error = $_GET['error'] ?? '';
         .login-section { display: block; }
     </style>
 </head>
-<body>
-    <div class="auth-view" style="display: flex;">
+<body class="auth-body">
+    <div class="auth-view">
         <div class="bg-icons">
             <span style="top:10%;left:8%;transform:rotate(-15deg)" title="Informática">💻</span>
             <span style="top:15%;left:85%;transform:rotate(20deg)" title="Administración">💼</span>

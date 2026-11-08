@@ -3,15 +3,15 @@
 ?>
 <script>
 (function() {
-    // 1. Inyección de Manifest como Blob en memoria (Evita el bloqueo de InfinityFree a manifest.json / manifest.php)
     try {
+        var base = window.location.origin;
         var manifestData = {
-            "id": "/",
+            "id": base + "/",
             "name": "Sistema QR IUTECP",
             "short_name": "QR IUTECP",
             "description": "Sistema de Control de Asistencias y Gestión Académica IUTECP",
-            "start_url": "/index.php",
-            "scope": "/",
+            "start_url": base + "/index.php",
+            "scope": base + "/",
             "display": "standalone",
             "orientation": "portrait-primary",
             "background_color": "#262865",
@@ -20,25 +20,25 @@
             "categories": ["education", "productivity"],
             "icons": [
                 {
-                    "src": "/assets/icons/icon-192.png",
+                    "src": base + "/assets/icons/icon-192.png",
                     "sizes": "192x192",
                     "type": "image/png",
                     "purpose": "any"
                 },
                 {
-                    "src": "/assets/icons/icon-maskable-192.png",
+                    "src": base + "/assets/icons/icon-maskable-192.png",
                     "sizes": "192x192",
                     "type": "image/png",
                     "purpose": "maskable"
                 },
                 {
-                    "src": "/assets/icons/icon-512.png",
+                    "src": base + "/assets/icons/icon-512.png",
                     "sizes": "512x512",
                     "type": "image/png",
                     "purpose": "any"
                 },
                 {
-                    "src": "/assets/icons/icon-maskable-512.png",
+                    "src": base + "/assets/icons/icon-maskable-512.png",
                     "sizes": "512x512",
                     "type": "image/png",
                     "purpose": "maskable"

@@ -1,5 +1,5 @@
 // Service Worker para Sistema QR IUTECP (PWA)
-const CACHE_NAME = 'qr-iutecp-v2';
+const CACHE_NAME = 'qr-iutecp-v3';
 const STATIC_ASSETS = [
     '/index.php',
     '/style.css',
@@ -39,7 +39,7 @@ self.addEventListener('activate', (event) => {
     self.clients.claim();
 });
 
-// Requisito estricto de Chrome PWA: debe haber un evento fetch activo
+// Requisito PWA: manejar eventos fetch devolviendo siempre un objeto Response válido
 self.addEventListener('fetch', (event) => {
     const request = event.request;
     if (request.method !== 'GET') return;
@@ -68,9 +68,19 @@ self.addEventListener('fetch', (event) => {
             })
         );
     } else {
-        // Navegación / páginas PHP: network-first
+        // Navegación / páginas dinámicas PHP
         event.respondWith(
-            fetch(request).catch(() => caches.match(request))
+            fetch(request).catch(async () => {
+                const cached = await caches.match(request);
+                if (cached) return cached;
+                const fallback = await caches.match('/index.php');
+                if (fallback) return fallback;
+                return new Response('Sin conexión', {
+                    status: 503,
+                    statusText: 'Service Unavailable',
+                    headers: new Headers({ 'Content-Type': 'text/plain; charset=utf-8' })
+                });
+            })
         );
     }
 });

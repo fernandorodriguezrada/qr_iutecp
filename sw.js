@@ -1,7 +1,6 @@
 // Service Worker para Sistema QR IUTECP (PWA)
-const CACHE_NAME = 'qr-iutecp-v1';
+const CACHE_NAME = 'qr-iutecp-v2';
 const STATIC_ASSETS = [
-    '/',
     '/index.php',
     '/style.css',
     '/script.js',
@@ -9,7 +8,6 @@ const STATIC_ASSETS = [
     '/logoIUTECP_azul.png',
     '/k-listo-foto.png',
     '/k-listo-happy.png',
-    '/assets/js/jsqr.js',
     '/assets/icons/icon-192.png',
     '/assets/icons/icon-512.png',
     '/manifest.json'
@@ -18,9 +16,9 @@ const STATIC_ASSETS = [
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
-            return cache.addAll(STATIC_ASSETS).catch((err) => {
-                console.warn('Algunos recursos estáticos no pudieron ser cacheados:', err);
-            });
+            return Promise.allSettled(
+                STATIC_ASSETS.map((url) => cache.add(url))
+            );
         })
     );
     self.skipWaiting();
@@ -41,47 +39,38 @@ self.addEventListener('activate', (event) => {
     self.clients.claim();
 });
 
-// Estrategia Network-First para páginas dinámicas PHP y peticiones de API
+// Requisito estricto de Chrome PWA: debe haber un evento fetch activo
 self.addEventListener('fetch', (event) => {
     const request = event.request;
-    
-    // Solo manejar peticiones GET
     if (request.method !== 'GET') return;
 
-    // Si es un recurso estático (imágenes, CSS, JS, fuentes)
     const url = new URL(request.url);
-    const isStatic = url.pathname.match(/\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2)$/i);
 
-    if (isStatic) {
-        // Cache-first con actualización en segundo plano
+    // Recursos estáticos
+    if (url.pathname.match(/\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2)$/i)) {
         event.respondWith(
             caches.match(request).then((cachedResponse) => {
                 if (cachedResponse) {
-                    fetch(request).then((networkResponse) => {
-                        if (networkResponse && networkResponse.status === 200) {
-                            caches.open(CACHE_NAME).then((cache) => cache.put(request, networkResponse));
+                    fetch(request).then((netRes) => {
+                        if (netRes && netRes.status === 200) {
+                            caches.open(CACHE_NAME).then((c) => c.put(request, netRes));
                         }
                     }).catch(() => {});
                     return cachedResponse;
                 }
-                return fetch(request).then((networkResponse) => {
-                    if (networkResponse && networkResponse.status === 200) {
-                        const copy = networkResponse.clone();
-                        caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+                return fetch(request).then((netRes) => {
+                    if (netRes && netRes.status === 200) {
+                        const copy = netRes.clone();
+                        caches.open(CACHE_NAME).then((c) => c.put(request, copy));
                     }
-                    return networkResponse;
+                    return netRes;
                 });
             })
         );
     } else {
-        // Network-first para páginas PHP / navegación
+        // Navegación / páginas PHP: network-first
         event.respondWith(
-            fetch(request).catch(() => {
-                return caches.match(request).then((cachedResponse) => {
-                    if (cachedResponse) return cachedResponse;
-                    return caches.match('/index.php');
-                });
-            })
+            fetch(request).catch(() => caches.match(request))
         );
     }
 });

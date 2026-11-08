@@ -569,10 +569,11 @@ body.mobile-app-body {
 .mobile-nav {
   flex-shrink: 0;
   width: 100%;
+  min-height: 60px;
   display: flex;
   background: #e0e0e0;
   border-top: 1px solid var(--border-color);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-bottom: max(6px, env(safe-area-inset-bottom, 0px));
   position: relative;
   z-index: 100;
   user-select: none;
@@ -580,11 +581,13 @@ body.mobile-app-body {
 }
 .mobile-nav button {
   flex: 1;
-  padding: 14px 0;
+  min-height: 52px;
+  padding: 18px 0;
   border: none;
   background: transparent;
   font-weight: bold;
-  font-size: 14px;
+  font-size: 15px;
+  letter-spacing: 0.3px;
   color: var(--primary);
   cursor: pointer;
   border-right: 1px solid var(--border-color);

@@ -72,7 +72,7 @@ $cursos = $stmt->fetchAll();
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="QR IUTECP" />
-    <link rel="manifest" href="/manifest.json" />
+    <link rel="manifest" href="/manifest.php" />
     <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <title>Profesor - Sistema QR IUTECP</title>

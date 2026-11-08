@@ -1,5 +1,5 @@
 // Service Worker para Sistema QR IUTECP (PWA)
-const CACHE_NAME = 'qr-iutecp-v3';
+const CACHE_NAME = 'qr-iutecp-v4';
 const STATIC_ASSETS = [
     '/index.php',
     '/style.css',
@@ -10,7 +10,7 @@ const STATIC_ASSETS = [
     '/k-listo-happy.png',
     '/assets/icons/icon-192.png',
     '/assets/icons/icon-512.png',
-    '/manifest.json'
+    '/manifest.php'
 ];
 
 self.addEventListener('install', (event) => {
@@ -47,7 +47,7 @@ self.addEventListener('fetch', (event) => {
     const url = new URL(request.url);
 
     // Recursos estáticos
-    if (url.pathname.match(/\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2)$/i)) {
+    if (url.pathname.match(/\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2)$/i) || url.pathname === '/manifest.php') {
         event.respondWith(
             caches.match(request).then((cachedResponse) => {
                 if (cachedResponse) {

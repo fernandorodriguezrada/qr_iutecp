@@ -1,0 +1,44 @@
+<?php
+header('Content-Type: application/manifest+json; charset=utf-8');
+header('Cache-Control: no-cache, no-store, must-revalidate');
+
+echo json_encode([
+    "id" => "/",
+    "name" => "Sistema QR IUTECP",
+    "short_name" => "QR IUTECP",
+    "description" => "Sistema de Control de Asistencias y Gestión Académica IUTECP",
+    "start_url" => "/index.php",
+    "scope" => "/",
+    "display" => "standalone",
+    "orientation" => "portrait-primary",
+    "background_color" => "#262865",
+    "theme_color" => "#262865",
+    "lang" => "es",
+    "categories" => ["education", "productivity"],
+    "icons" => [
+        [
+            "src" => "/assets/icons/icon-192.png",
+            "sizes" => "192x192",
+            "type" => "image/png",
+            "purpose" => "any"
+        ],
+        [
+            "src" => "/assets/icons/icon-maskable-192.png",
+            "sizes" => "192x192",
+            "type" => "image/png",
+            "purpose" => "maskable"
+        ],
+        [
+            "src" => "/assets/icons/icon-512.png",
+            "sizes" => "512x512",
+            "type" => "image/png",
+            "purpose" => "any"
+        ],
+        [
+            "src" => "/assets/icons/icon-maskable-512.png",
+            "sizes" => "512x512",
+            "type" => "image/png",
+            "purpose" => "maskable"
+        ]
+    ]
+], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);

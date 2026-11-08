@@ -18,7 +18,7 @@ $error = $_GET['error'] ?? '';
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="QR IUTECP" />
-    <link rel="manifest" href="/manifest.php" />
+    <?php require_once __DIR__ . "/includes/pwa_head.php"; ?>
     <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <title>Sistema QR IUTECP - Iniciar Sesión</title>
@@ -161,7 +161,12 @@ $error = $_GET['error'] ?? '';
     }
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
-            navigator.serviceWorker.register('/sw.js').catch(function(e){ console.log(e); });
+            // Retardo de 500ms para asegurar que la cookie __test de InfinityFree esté activa en el navegador
+            setTimeout(function() {
+                navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' })
+                    .then(function(reg) { console.log('SW listo:', reg.scope); })
+                    .catch(function(e) { console.warn('SW aviso:', e.message); });
+            }, 500);
         });
     }
     </script>

@@ -569,20 +569,20 @@ body.mobile-app-body {
 .mobile-nav {
   flex-shrink: 0;
   width: 100%;
-  min-height: 60px;
   display: flex;
   background: #e0e0e0;
   border-top: 1px solid var(--border-color);
-  padding-bottom: max(6px, env(safe-area-inset-bottom, 0px));
+  padding-bottom: 0;
   position: relative;
   z-index: 100;
   user-select: none;
   -webkit-user-select: none;
+  align-items: stretch;
 }
 .mobile-nav button {
   flex: 1;
-  min-height: 52px;
-  padding: 18px 0;
+  min-height: 60px;
+  padding: 18px 0 calc(18px + env(safe-area-inset-bottom, 0px));
   border: none;
   background: transparent;
   font-weight: bold;

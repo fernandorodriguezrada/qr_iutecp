@@ -70,7 +70,7 @@ $cursos = $stmt->fetchAll();
     <meta name="theme-color" content="#e0e0e0" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="QR IUTECP" />
     <?php require_once __DIR__ . "/../includes/pwa_head.php"; ?>
     <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png" />

@@ -14,8 +14,8 @@
             "scope": base + "/",
             "display": "standalone",
             "orientation": "portrait-primary",
-            "background_color": "#e0e0e0",
-            "theme_color": "#e0e0e0",
+            "background_color": "#262865",
+            "theme_color": "#262865",
             "lang": "es",
             "categories": ["education", "productivity"],
             "icons": [

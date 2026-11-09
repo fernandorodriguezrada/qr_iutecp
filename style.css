@@ -498,9 +498,8 @@ body.mobile-app-body {
 
 .mobile-header {
   flex-shrink: 0;
-  background: #e0e0e0;
-  padding: 15px 18px;
-  padding-top: 15px;
+  background: var(--primary);
+  padding: 14px 18px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -510,8 +509,9 @@ body.mobile-app-body {
   -webkit-user-select: none;
 }
 .mobile-logo {
-  height: 35px;
+  height: 34px;
   object-fit: contain;
+  filter: brightness(0) invert(1);
 }
 
 .hamburger {
@@ -526,7 +526,7 @@ body.mobile-app-body {
   display: block;
   height: 3px;
   width: 100%;
-  background-color: var(--primary);
+  background-color: var(--accent);
   border-radius: 3px;
 }
 .student-side-menu {

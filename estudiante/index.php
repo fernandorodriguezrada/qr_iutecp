@@ -469,6 +469,7 @@ var videoStream = null;
 var scanInterval = null;
 
 function switchTab(tab, btn) {
+    window.scrollTo(0, 0);
     document.querySelectorAll('.mobile-content').forEach(function(el) { el.classList.add('hidden'); el.style.display = ''; });
     var el = document.getElementById('tab-' + tab);
     el.classList.remove('hidden');

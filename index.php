@@ -118,6 +118,17 @@ $error = $_GET['error'] ?? '';
     <?php endif; ?>
 
     <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('form').forEach(function(f) {
+            f.addEventListener('submit', function() {
+                if (document.activeElement && typeof document.activeElement.blur === 'function') {
+                    document.activeElement.blur();
+                }
+                window.scrollTo(0, 0);
+            });
+        });
+    });
+
     function toggleAdminLogin() {
         const loginSection = document.getElementById('login-section');
         const adminSection = document.getElementById('admin-login-section');

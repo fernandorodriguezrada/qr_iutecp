@@ -234,6 +234,7 @@ $cursos = $stmt->fetchAll();
 
 <script>
 function switchTab(tab, btn) {
+    window.scrollTo(0, 0);
     document.querySelectorAll('.mobile-content').forEach(function(el) { el.classList.add('hidden'); });
     document.getElementById('tab-' + tab).classList.remove('hidden');
     if (btn) {

@@ -1,5 +1,5 @@
 // Service Worker para Sistema QR IUTECP (PWA)
-const CACHE_NAME = 'qr-iutecp-v4';
+const CACHE_NAME = 'qr-iutecp-v5';
 const STATIC_ASSETS = [
     '/index.php',
     '/style.css',

@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 <!doctype html>
-<html lang="es">
+<html lang="es" class="auth-html">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     </style>
 </head>
-<body>
+<body class="auth-body">
     <div class="auth-view" style="display:flex;">
         <div class="bg-icons">
             <span style="top:10%;left:8%;transform:rotate(-15deg)" title="Informática">💻</span>

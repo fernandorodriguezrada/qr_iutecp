@@ -6,8 +6,8 @@ Sistema web universitario para el registro y gestión de asistencia estudiantil 
 
 ## 📌 Ramas del Proyecto
 
-* **`main`**: Rama de producción y demostración. Contiene la versión lista para desplegar en hosting (ej. InfinityFree) con el respaldo de la base de datos completa y los usuarios de prueba oficiales.
-* **`dev`**: Rama de desarrollo local. Es la rama activa de trabajo para nuevas funcionalidades, ajustes y pruebas locales en DDEV antes de fusionar hacia `main`.
+* **`main`**: Rama de producción y demostración.
+* **`dev`**: Rama de desarrollo activo para nuevas funcionalidades y pruebas locales antes de fusionar hacia `main`.
 
 ---
 
@@ -18,10 +18,9 @@ qr_iutecp/
 ├── admin/          # Panel administrativo (gestión de usuarios, cursos, auditoría, reportes)
 ├── estudiante/     # Portal del estudiante (materias inscritas, catálogo de inscripción, escáner QR de asistencia)
 ├── profesor/       # Portal del profesor (generador de QR dinámicos con temporizador, registro de asistencias por semana)
-├── includes/       # Configuraciones generales, sesiones, funciones auxiliares y librería PHP QR Code
-├── assets/         # Librerías JS cliente (jsQR para decodificación de cámara en tiempo real)
-├── database/       # Semillas y scripts de prerrequisitos por carrera
-├── sql/            # Respaldos y esquemas de la base de datos (incluye backup completo para producción)
+├── includes/       # Configuraciones generales, sesiones, funciones auxiliares, PWA e integración QR
+├── assets/         # Iconos de aplicación y librerías cliente (jsQR para decodificación de cámara)
+├── sql/            # Respaldos y esquemas de la base de datos
 └── seed/           # Archivos CSV para importación masiva de datos académicos
 ```
 
@@ -76,10 +75,3 @@ ddev stop
 * **Con HTTPS (Certificado de confianza para cámara):** `https://qr-iutecp.ddev.site`
 * **Localhost:** `http://localhost:8080`
 * **Gestor de BD (Adminer):** `https://qr-iutecp.ddev.site:9101`
-
----
-
-## 🌐 Despliegue en InfinityFree
-
-Para instrucciones detalladas paso a paso sobre cómo subir este proyecto a InfinityFree e importar la base de datos de producción, consulta la guía:
-👉 [INFINITYFREE_DEPLOY.md](INFINITYFREE_DEPLOY.md)

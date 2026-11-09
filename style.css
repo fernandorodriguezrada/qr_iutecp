@@ -499,8 +499,8 @@ body.mobile-app-body {
 .mobile-header {
   flex-shrink: 0;
   background: #e0e0e0;
-  padding: 12px 18px;
-  padding-top: max(12px, env(safe-area-inset-top));
+  padding: 15px 18px;
+  padding-top: 15px;
   display: flex;
   justify-content: space-between;
   align-items: center;

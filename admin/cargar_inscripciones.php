@@ -37,7 +37,6 @@ function findOrCreateCurso($pdo, $codigo, $seccion) {
     return $pdo->lastInsertId();
 }
 
-// --- PROCESAR CAMBIO DE PERÍODO ACTIVO ---
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["accion"])) {
     if ($_POST["accion"] === "cambiar_periodo") {
         $nuevo_periodo = limpiarInput($_POST["periodo_activo"] ?? "");
@@ -53,7 +52,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["accion"])) {
 
 $mensaje = $_GET["msg"] ?? "";
 
-// --- PROCESAR CARGA CSV ---
 $resultado_ins = null;
 $resultado_notas = null;
 $errores_ins = [];
@@ -265,7 +263,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_FILES["archivo_csv"])) {
     }
 }
 
-// --- PROCESAR CARGA NOTAS ---
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_FILES["archivo_notas"])) {
     $archivo = $_FILES["archivo_notas"];
     if ($archivo["error"] !== UPLOAD_ERR_OK) {
@@ -383,7 +380,6 @@ $periodo_activo_valor = $periodo_activo->fetchColumn() ?: obtenerPeriodoActual()
 
 $periodos_disponibles = $pdo->query("SELECT DISTINCT periodo FROM inscripciones UNION SELECT '2026-I' UNION SELECT '2026-II' UNION SELECT '2026-III' UNION SELECT '2027-I' UNION SELECT '2027-II' UNION SELECT '2027-III' ORDER BY periodo DESC")->fetchAll(PDO::FETCH_COLUMN);
 
-// --- SINCRONIZAR INSCRIPCIONES CON PÉNSUM ---
 $sync_preview = null;
 $sync_resultado = null;
 $sync_periodo_usado = $periodo_activo_valor;
@@ -597,7 +593,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["accion"])) {
 </div>
 <?php endif; ?>
 
-<!-- Período Activo -->
 <div class="card" style="margin-bottom:20px">
     <h3 style="color:var(--primary);margin-bottom:15px">Período Activo</h3>
     <p style="font-size:13px;color:#666;margin-bottom:10px">
@@ -617,7 +612,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["accion"])) {
     </form>
 </div>
 
-<!-- Carga Inscripciones -->
 <div class="card" style="margin-bottom:20px">
     <h3 style="color:var(--primary);margin-bottom:10px">📋 Inscripciones</h3>
     <p style="font-size:12px;color:#666;margin-bottom:8px">Columnas: <code>cedula, codigo_materia, periodo</code> (periodo opcional). Se importa <strong>cada período</strong>.</p>
@@ -634,7 +628,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["accion"])) {
     </p>
 </div>
 
-<!-- Carga Notas -->
 <div class="card" style="margin-bottom:20px">
     <h3 style="color:var(--primary);margin-bottom:10px">📊 Notas</h3>
     <p style="font-size:12px;color:#666;margin-bottom:8px">Columnas: <code>cedula, codigo_materia, periodo, nota</code>. Se importa <strong>constantemente</strong> (cortes, parciales, finales). Si no existe la inscripción, se crea automáticamente.</p>
@@ -652,7 +645,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["accion"])) {
     </p>
 </div>
 
-<!-- Sincronizar Inscripciones con Pénsum -->
 <div class="card" style="margin-bottom:20px">
     <h3 style="color:var(--primary);margin-bottom:10px">🔄 Avance automático de trayecto</h3>
     <p style="font-size:12px;color:#666;margin-bottom:8px">

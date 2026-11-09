@@ -17,7 +17,6 @@ if ($_SESSION['rol'] !== 'estudiante') {
 
 $estudiante_id = (int)$_SESSION['usuario_id'];
 
-// GET: historial
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['accion']) && $_GET['accion'] === 'historial') {
     $stmt = $pdo->prepare("
         SELECT c.nombre, c.codigo, a.fecha, a.hora_escaneo, a.semana
@@ -47,7 +46,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['accion']) && $_GET['acc
     exit;
 }
 
-// POST: escanear QR
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Content-Type: application/json');
     echo json_encode(['ok' => false, 'error' => 'Método no permitido']);

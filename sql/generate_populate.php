@@ -1,20 +1,9 @@
 <?php
-/**
- * Genera qr_populate.sql con el pensum real del IUTECP
- *
- * Para carreras CON código real: se usa el código textual del pensum.
- * Para Diseño Gráfico y Gastronomía (sin códigos): se generan CCC+D+T+NN+CR
- *   donde D=3(DIS) o 4(GAS), T=trayecto, NN=correlativo, CR=créditos.
- */
 
 $password_hash = '$2y$10$YbGw7dQwLNrhdRUJ0Cipqupj0c8C4ZmMeieyJF2Jv2uSRm.gVdH5O';
 
-// ============================
-// PENSUM: [nombre, codigo, trayecto, creditos, tipo]
-// ============================
 $pensum = [];
 
-// --- INFORMÁTICA (carrera_id=4) ---
 $pensum[4] = [
     ['ADMINISTRACIÓN', 'ADM1133', 1, 3, 'Obligatoria'],
     ['EDUCACIÓN CIUDADANA', 'ECI1121', 1, 1, 'Obligatoria'],
@@ -65,7 +54,6 @@ $pensum[4] = [
     ['TEATRO', 'TEA1221', 2, 1, 'Electiva'],
 ];
 
-// --- ADMINISTRACIÓN DE EMPRESAS (carrera_id=6) ---
 $pensum[6] = [
     ['ADMINISTRACIÓN', 'ADM2133', 1, 3, 'Obligatoria'],
     ['CONTABILIDAD I', 'CON2143', 1, 3, 'Obligatoria'],
@@ -115,8 +103,6 @@ $pensum[6] = [
     ['TEATRO', 'TEA2221', 2, 1, 'Electiva'],
 ];
 
-// --- DISEÑO GRÁFICO (carrera_id=5) — SIN códigos reales ---
-// Generados: CCC + 3 + T + NN + CR
 function genCode($a, $t, $n, $c) { return $a . '3' . $t . $n . $c; }
 $pensum[5] = [
     ['TEORÍA DEL DISEÑO', genCode('TDI',1,1,3), 1, 4, 'Obligatoria'],
@@ -159,7 +145,6 @@ $pensum[5] = [
     ['SERVICIO COMUNITARIO', genCode('SER',3,3,3), 4, 0, 'Obligatoria'],
 ];
 
-// --- GASTRONOMÍA (carrera_id=11) — SIN códigos reales ---
 function genCodeG($a, $t, $n, $c) { return $a . '4' . $t . $n . $c; }
 $pensum[11] = [
     ['INTRODUCCIÓN A LA GASTRONOMÍA', genCodeG('IGA',1,1,3), 1, 3, 'Obligatoria'],
@@ -203,7 +188,6 @@ $pensum[11] = [
     ['SERVICIO COMUNITARIO', genCodeG('SER',3,3,3), 4, 0, 'Obligatoria'],
 ];
 
-// --- ENFERMERÍA (carrera_id=1) ---
 $pensum[1] = [
     ['AUTODESARROLLO', 'AUD51021', 1, 1, 'Obligatoria'],
     ['BIOQUÍMICA', 'BIO51022', 1, 2, 'Obligatoria'],
@@ -236,7 +220,6 @@ $pensum[1] = [
     ['PRÁCTICAS CLÍNICAS', 'PRC56306', 6, 6, 'Obligatoria'],
 ];
 
-// --- FISIOTERAPIA (carrera_id=3) ---
 $pensum[3] = [
     ['ANATOMÍA I (SISTEMA OSTEO-ARTICULAR)', 'ANA61084', 1, 4, 'Obligatoria'],
     ['EDUCACIÓN PARA LA SALUD', 'EDS61022', 1, 2, 'Obligatoria'],
@@ -275,7 +258,6 @@ $pensum[3] = [
     ['PRÁCTICAS CLÍNICAS', 'PRC66306', 6, 6, 'Obligatoria'],
 ];
 
-// --- CONTADURÍA PÚBLICA (carrera_id=8) ---
 $pensum[8] = [
     ['ADMINISTRACIÓN', 'ADM7133', 1, 3, 'Obligatoria'],
     ['CONTABILIDAD I', 'CON7143', 1, 3, 'Obligatoria'],
@@ -319,7 +301,6 @@ $pensum[8] = [
     ['PASANTÍAS', 'PAS7616', 6, 6, 'Obligatoria'],
 ];
 
-// --- RELACIONES INDUSTRIALES (carrera_id=10) ---
 $pensum[10] = [
     ['CONTABILIDAD I', 'CON8154', 1, 4, 'Obligatoria'],
     ['EDUCACIÓN FÍSICA Y DEPORTES', 'EFD8121', 1, 1, 'Obligatoria'],
@@ -364,10 +345,6 @@ $pensum[10] = [
 
 function escape($s) { return str_replace("'", "''", $s); }
 
-// ============================
-// GENERAR SQL
-// ============================
-
 $sql = "-- ============================================
 -- qr_populate.sql
 -- Datos de prueba — Pensum oficial IUTECP
@@ -408,7 +385,6 @@ $carreras_nombre = [
 
 $carreras_tsu = [1, 3, 4, 5, 6, 8, 10, 11];
 
-// Track course IDs per carrera for inscripciones
 $curso_ids_por_carrera = [];
 $curso_id = 1;
 
@@ -496,9 +472,6 @@ foreach ($est_data as $e) {
 }
 $sql .= implode(",\n", $parts) . ";\n";
 
-// ============================
-// ASIGNAR PROFESORES Y CREAR INSCRIPCIONES
-// ============================
 $sql .= "\n\n-- ============================\n-- ASIGNAR PROFESORES A CURSOS\n-- ============================\n";
 
 $prof_id = 2;
@@ -508,7 +481,6 @@ foreach ($prof_data as $p) { $carrera_prof_count[$p[1]]++; }
 $carrera_prof_used = [];
 foreach ($carreras_tsu as $cid) { $carrera_prof_used[$cid] = 0; }
 
-// Assign ALL courses to professors (round-robin)
 foreach ($prof_data as $p) {
     $cid = $p[1];
     $ids = $curso_ids_por_carrera[$cid] ?? [];
@@ -528,7 +500,6 @@ foreach ($prof_data as $p) {
 
 $sql .= "\n\n-- ============================\n-- INSCRIPCIONES\n-- ============================\n";
 
-// Build a list of course IDs that have professors (reuse same logic)
 $cursos_con_prof_por_carrera = [];
 $carrera_prof_used2 = [];
 foreach ($carreras_tsu as $cid) { $carrera_prof_used2[$cid] = 0; }
@@ -556,7 +527,6 @@ foreach ($est_data as $i => $e) {
     $cp = $cursos_con_prof_por_carrera[$e[1]] ?? [];
     $total_cp = count($cp);
     if ($total_cp >= 2) {
-        // Each student gets 2 different courses from their carrera (round-robin)
         $c1 = $cp[($i * 2) % $total_cp];
         $c2 = $cp[($i * 2 + 1) % $total_cp];
         $insc_parts[] = "($eid, $c1, '2026-II')";

@@ -452,9 +452,6 @@ th {
   flex: 1;
 }
 
-/* ========================================================
-   APLICACIÓN MÓVIL (PWA & Mobile App View - Estudiante y Profesor)
-   ======================================================== */
 html.mobile-app-html,
 body.mobile-app-body {
   margin: 0 !important;
@@ -796,7 +793,6 @@ body.mobile-app-body {
   display: block;
 }
 
-/* --- Admin Modal System --- */
 .modal-overlay {
     display: none;
     position: fixed;
@@ -878,9 +874,6 @@ body.mobile-app-body {
     margin-top: 5px;
 }
 
-/* ========================================================
-   PANTALLA DE LOGIN (Sin scroll, 100% fija y centrada en móvil)
-   ======================================================== */
 html.auth-html,
 body.auth-body {
   margin: 0 !important;

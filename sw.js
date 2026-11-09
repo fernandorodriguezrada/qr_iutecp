@@ -1,4 +1,3 @@
-// Service Worker para Sistema QR IUTECP (PWA)
 const CACHE_NAME = 'qr-iutecp-v5';
 const STATIC_ASSETS = [
     '/index.php',
@@ -39,14 +38,12 @@ self.addEventListener('activate', (event) => {
     self.clients.claim();
 });
 
-// Requisito PWA: manejar eventos fetch devolviendo siempre un objeto Response válido
 self.addEventListener('fetch', (event) => {
     const request = event.request;
     if (request.method !== 'GET') return;
 
     const url = new URL(request.url);
 
-    // Recursos estáticos
     if (url.pathname.match(/\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2)$/i) || url.pathname === '/manifest.php') {
         event.respondWith(
             caches.match(request).then((cachedResponse) => {
@@ -68,7 +65,6 @@ self.addEventListener('fetch', (event) => {
             })
         );
     } else {
-        // Navegación / páginas dinámicas PHP
         event.respondWith(
             fetch(request).catch(async () => {
                 const cached = await caches.match(request);

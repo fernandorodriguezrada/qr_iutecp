@@ -173,7 +173,6 @@ $error = $_GET['error'] ?? '';
     }
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
-            // Retardo de 500ms para asegurar que la cookie __test de InfinityFree esté activa en el navegador
             setTimeout(function() {
                 navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' })
                     .then(function(reg) { console.log('SW listo:', reg.scope); })

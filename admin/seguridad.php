@@ -1,7 +1,6 @@
 <?php
 require_once __DIR__ . "/includes/header.php";
 global $pdo;
-/** @var PDO $pdo */
 
 $mensaje = $_GET["msg"] ?? "";
 $error = $_GET["error"] ?? "";

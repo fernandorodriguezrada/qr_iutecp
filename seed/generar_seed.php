@@ -1,8 +1,4 @@
 <?php
-/**
- * Genera archivos CSV de prueba para poblar la BD
- * Output: seed/profesores.csv, seed/estudiantes.csv, seed/inscripciones.csv, seed/notas.csv
- */
 
 $password_hash = password_hash('12345678', PASSWORD_DEFAULT);
 
@@ -32,14 +28,10 @@ $apellidos = [
     'Colmenares','Pacheco','Briceno','Chacón','Henríquez','Velásquez',
 ];
 
-// Carreras TSU con sus ids (las que tienen estudiantes)
 $carreras_tsu = [1, 3, 4, 5, 6, 8, 10, 11];
 
-// ========================================
-// GENERAR PROFESORES (20)
-// ========================================
 $prof_csv = fopen(__DIR__ . '/profesores.csv', 'w');
-fprintf($prof_csv, chr(0xEF).chr(0xBB).chr(0xBF)); // BOM UTF-8
+fprintf($prof_csv, chr(0xEF).chr(0xBB).chr(0xBF));
 fputcsv($prof_csv, ['cedula', 'nombre_completo', 'email', 'carrera_id', 'password'], ',', '"', '');
 
 for ($i = 0; $i < 20; $i++) {
@@ -57,9 +49,6 @@ for ($i = 0; $i < 20; $i++) {
 fclose($prof_csv);
 echo "✓ seed/profesores.csv (20 profesores)\n";
 
-// ========================================
-// GENERAR ESTUDIANTES (60 — 7-8 por carrera)
-// ========================================
 $est_csv = fopen(__DIR__ . '/estudiantes.csv', 'w');
 fprintf($est_csv, chr(0xEF).chr(0xBB).chr(0xBF));
 fputcsv($est_csv, ['cedula', 'nombre_completo', 'email', 'carrera_id', 'password'], ',', '"', '');
@@ -81,14 +70,10 @@ for ($i = 0; $i < 60; $i++) {
 fclose($est_csv);
 echo "✓ seed/estudiantes.csv (60 estudiantes)\n";
 
-// ========================================
-// GENERAR INSCRIPCIONES (sin notas)
-// ========================================
 $ins_csv = fopen(__DIR__ . '/inscripciones.csv', 'w');
 fprintf($ins_csv, chr(0xEF).chr(0xBB).chr(0xBF));
 fputcsv($ins_csv, ['cedula', 'codigo_materia', 'seccion', 'periodo'], ',', '"', '');
 
-// Obtener cursos de cada carrera (desde la BD)
 require_once __DIR__ . '/../includes/config.php';
 $cursos_por_carrera = [];
 foreach ($carreras_tsu as $cid) {
@@ -120,9 +105,6 @@ foreach ($estudiantes as $e) {
 fclose($ins_csv);
 echo "✓ seed/inscripciones.csv (inscripciones con seccion)\n";
 
-// ========================================
-// GENERAR NOTAS (archivo aparte — el que cambia constantemente)
-// ========================================
 $notas_csv = fopen(__DIR__ . '/notas.csv', 'w');
 fprintf($notas_csv, chr(0xEF).chr(0xBB).chr(0xBF));
 fputcsv($notas_csv, ['cedula', 'codigo_materia', 'seccion', 'periodo', 'nota'], ',', '"', '');
@@ -141,7 +123,6 @@ foreach ($estudiantes as $e) {
     $num_cursos = min(3 + ($cont % 3), $total);
     for ($j = 0; $j < $num_cursos; $j++) {
         $codigo = $cursos[($cont + $j) % $total];
-        // ~80% de las inscripciones tienen nota
         if ($cont % 5 !== 0) {
             $nota = rand(0, 100);
             fputcsv($notas_csv, [$e['cedula'], $codigo, $seccion, $periodo, $nota], ',', '"', '');

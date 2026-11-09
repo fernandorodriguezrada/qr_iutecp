@@ -1,9 +1,7 @@
 <?php
-// Generador e inyector PWA nativo compatible con InfinityFree (Bypass AES testcookie)
 ?>
 <script>
 (function() {
-    // 1. Inyección de Web App Manifest mediante Blob
     try {
         var base = window.location.origin;
         var manifestData = {
@@ -57,7 +55,6 @@
         console.warn('Error al inyectar PWA manifest blob:', e);
     }
 
-    // 2. Control de altura exacta de viewport en Android / PWA
     try {
         if ('scrollRestoration' in history) {
             history.scrollRestoration = 'manual';

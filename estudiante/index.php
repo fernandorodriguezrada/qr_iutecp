@@ -288,7 +288,6 @@ if (
         <div class="menu-item" onclick="location.href='/logout.php'" style="color:red">🚪 Cerrar Sesión</div>
     </div>
 
-    <!-- Tab: Inicio -->
     <div class="mobile-content" id="tab-inicio">
         <h2 style="color:var(--primary);margin-bottom:10px">¡Hola, <?= htmlspecialchars(
             explode(" ", $_SESSION["nombre"])[0],
@@ -335,7 +334,6 @@ if (
         <div id="sub-inscribir" class="hidden"></div>
     </div>
 
-    <!-- Tab: Escanear -->
     <div class="mobile-content hidden" id="tab-escanear" style="padding:0;">
         <div id="esc-container" style="margin:10px;border-radius:4px;border:1px solid #999;overflow:hidden;position:relative;flex:1;min-height:70vh;display:flex;flex-direction:column;">
             <div id="escanear-placeholder" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--accent);position:relative;overflow:hidden;opacity:1;">
@@ -370,7 +368,6 @@ if (
         </div>
     </div>
 
-    <!-- Tab: Historial -->
     <div class="mobile-content hidden" id="tab-historial">
         <h3 style="margin-bottom:20px;color:var(--primary)">Historial de Asistencias</h3>
         <ul class="historial-list" id="historial-lista">
@@ -378,7 +375,6 @@ if (
         </ul>
     </div>
 
-    <!-- Tab: Guía -->
     <div class="mobile-content hidden" id="tab-guia">
         <h3 style="color:var(--primary);margin-bottom:15px">Guía Rápida</h3>
         <p style="margin-bottom:15px;font-size:15px;line-height:1.5;">
@@ -399,7 +395,6 @@ if (
         </div>
     </div>
 
-    <!-- Tab: Password -->
     <div class="mobile-content hidden" id="tab-password">
         <h3 style="color:var(--primary);margin-bottom:15px">Cambiar Contraseña</h3>
         <div class="card">
@@ -415,7 +410,6 @@ if (
         </div>
     </div>
 
-    <!-- Popups -->
     <div id="popup-exito" class="scan-popup">
         <div class="popup-content">
             <span class="check-icon">✓</span>

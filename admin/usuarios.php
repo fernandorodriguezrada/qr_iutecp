@@ -1,7 +1,6 @@
 <?php
 require_once __DIR__ . "/includes/header.php";
 global $pdo;
-/** @var PDO $pdo */
 
 $mensaje = $_GET["msg"] ?? "";
 $error = $_GET["error"] ?? "";
@@ -664,13 +663,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["accion"])) {
     <?php endif; ?>
 
     <div class="management-grid">
-        <!-- Registrar Usuario -->
         <div class="card">
             <h3>Registrar Usuario</h3>
             <p>Crear un nuevo usuario (estudiante, profesor o administrativo) en el sistema.</p>
             <button class="btn btn-primary" data-open="modal-usuario">Nuevo Usuario</button>
         </div>
-        <!-- Inscribir Estudiante -->
         <div class="card">
             <h3>Inscribir Estudiante</h3>
             <p>Inscribir un estudiante en una materia para el periodo <?= htmlspecialchars(
@@ -678,31 +675,26 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["accion"])) {
             ) ?>.</p>
             <button class="btn btn-primary" data-open="modal-inscribir">Inscribir Estudiante</button>
         </div>
-        <!-- Asignar Curso a Profesor -->
         <div class="card">
             <h3>Asignar Curso</h3>
             <p>Asignar o reasignar un curso existente a un profesor.</p>
             <button class="btn btn-primary" data-open="modal-asignar">Asignar Curso</button>
         </div>
-        <!-- Desasignar Curso -->
         <div class="card">
             <h3>Desasignar Curso</h3>
             <p>Desasignar un curso individualmente o todos los cursos de un profesor.</p>
             <button class="btn btn-primary" data-open="modal-desasignar">Desasignar Curso</button>
         </div>
-        <!-- Registrar Curso -->
         <div class="card">
             <h3>Registrar Curso</h3>
             <p>Agregar un curso asignado a una carrera y a un profesor.</p>
             <button class="btn btn-primary" data-open="modal-curso">Nuevo Curso</button>
         </div>
-        <!-- Usuarios Registrados -->
         <div class="card">
             <h3>Usuarios Registrados</h3>
             <p>Gestione, busque y filtre todos los usuarios del sistema.</p>
             <a href="usuarios_lista.php" class="btn btn-secondary">Ver Usuarios</a>
         </div>
-        <!-- Cursos Registrados -->
         <div class="card">
             <h3>Cursos Registrados</h3>
             <p>Gestione, busque y filtre los cursos activos.</p>
@@ -710,7 +702,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["accion"])) {
         </div>
     </div>
 
-    <!-- Modal Crear Usuario -->
     <div id="modal-usuario" class="modal-overlay">
         <div class="modal-card">
             <div class="modal-header">
@@ -767,7 +758,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["accion"])) {
         </div>
     </div>
 
-    <!-- Modal Asignar Curso -->
     <div id="modal-asignar" class="modal-overlay">
         <div class="modal-card">
             <div class="modal-header">
@@ -820,7 +810,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["accion"])) {
         </div>
     </div>
 
-    <!-- Modal Desasignar Curso -->
     <div id="modal-desasignar" class="modal-overlay">
         <div class="modal-card">
             <div class="modal-header">
@@ -868,7 +857,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["accion"])) {
         </div>
     </div>
 
-    <!-- Modal Inscribir Estudiante -->
     <div id="modal-inscribir" class="modal-overlay">
         <div class="modal-card">
             <div class="modal-header">
@@ -909,7 +897,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["accion"])) {
         </div>
     </div>
 
-    <!-- Modal Crear Curso -->
     <div id="modal-curso" class="modal-overlay">
         <div class="modal-card">
             <div class="modal-header">
@@ -1024,7 +1011,6 @@ function agregarCursoAsignar() {
     renderCursosAsignar();
     select.value = '';
     document.querySelector('#modal-asignar .select-filter[data-target="asignar-curso"]').value = '';
-    // restore all options in the select
     var allOpts = Array.from(select.options).filter(function(o) { return o.value; }).map(function(o) { return o.cloneNode(true); });
     while (select.options.length > 1) select.remove(1);
     allOpts.forEach(function(o) { select.add(o.cloneNode(true)); });

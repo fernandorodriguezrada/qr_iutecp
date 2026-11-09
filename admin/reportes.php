@@ -4,7 +4,6 @@ require_once __DIR__ . "/../includes/session.php";
 require_once __DIR__ . "/../includes/functions.php";
 require_once __DIR__ . "/../includes/academico.php";
 global $pdo;
-/** @var PDO $pdo */
 
 redirigirSiNoAutenticado();
 if ($_SESSION['rol'] !== 'admin') {
@@ -85,7 +84,6 @@ if ($search) {
 
 $where_sql = implode(' AND ', $where_clauses);
 
-// Period and search need JOIN conditions, not WHERE, to avoid filtering out courses without inscripciones
 $join_sql = "";
 $join_params = [];
 if (!empty($periodo_selected)) {

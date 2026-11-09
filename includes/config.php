@@ -1,17 +1,13 @@
 <?php
-// Configuración de Base de Datos
-// Detección automática de entorno: InfinityFree vs DDEV Local
 
 $http_host = $_SERVER['HTTP_HOST'] ?? '';
 
 if (strpos($http_host, 'asistenciasiutecp') !== false || strpos($http_host, 'rf.gd') !== false || strpos($http_host, 'infinityfree') !== false) {
-    // Configuración para InfinityFree (Producción)
     define('DB_HOST', 'sql113.infinityfree.com');
     define('DB_NAME', 'if0_41945777_iutecp_db');
     define('DB_USER', 'if0_41945777');
     define('DB_PASS', 'dgJIg6Kn8O');
 } else {
-    // Configuración para DDEV Local
     define('DB_HOST', getenv('DB_HOST') ?: 'db');
     define('DB_NAME', getenv('DB_NAME') ?: 'db');
     define('DB_USER', getenv('DB_USER') ?: 'db');

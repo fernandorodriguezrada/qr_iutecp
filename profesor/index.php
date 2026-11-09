@@ -93,7 +93,6 @@ $cursos = $stmt->fetchAll();
         <div class="menu-item" onclick="location.href='/logout.php'" style="color:red">🚪 Cerrar Sesión</div>
     </div>
 
-    <!-- Tab: Generar QR -->
     <div class="mobile-content" id="tab-generar">
         <h2 style="color:var(--primary);margin-bottom:10px">¡Hola, <?= htmlspecialchars(explode(' ', $_SESSION['nombre'])[0]) ?>!</h2>
         <p style="margin-bottom:20px;color:#666">Gestión de Aula IUTECP</p>
@@ -130,7 +129,6 @@ $cursos = $stmt->fetchAll();
         </div>
     </div>
 
-    <!-- Tab: Asistencias -->
     <div class="mobile-content hidden" id="tab-asistencia">
         <div id="asistencia-lista">
             <h2 style="color:var(--primary);margin-bottom:10px">Registro de Asistencias</h2>
@@ -165,7 +163,6 @@ $cursos = $stmt->fetchAll();
         </div>
     </div>
 
-    <!-- Tab: Ajustes -->
     <div class="mobile-content hidden" id="tab-ajustes">
         <h2 style="color:var(--primary);margin-bottom:10px">Ajustes de Escaneo QR</h2>
         <p style="margin-bottom:20px;color:#666">Configuración de seguridad y expiración</p>
@@ -182,7 +179,6 @@ $cursos = $stmt->fetchAll();
         </div>
     </div>
 
-    <!-- Tab: Password -->
     <div class="mobile-content hidden" id="tab-password">
         <h3 style="color:var(--primary);margin-bottom:15px">Cambiar Contraseña</h3>
         <div class="card">
@@ -198,13 +194,11 @@ $cursos = $stmt->fetchAll();
         </div>
     </div>
 
-    <!-- Tab: Diagnóstico -->
     <div class="mobile-content hidden" id="tab-diagnostico">
         <h3 style="color:var(--primary);margin-bottom:15px">Diagnóstico de Sistema</h3>
         <p id="diag-info" style="margin-bottom:20px;color:#666">Cargando...</p>
     </div>
 
-    <!-- Popups -->
     <div id="popup-exito" class="scan-popup">
         <div class="popup-content">
             <span class="check-icon">✓</span>

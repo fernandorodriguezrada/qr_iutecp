@@ -9,9 +9,6 @@ $counts = [
 ];
 
 try {
-    // ========================================
-    // STEP 1 — DDL
-    // ========================================
     $stmt = $pdo->query("SHOW COLUMNS FROM carreras LIKE 'tipo_periodo'");
     if (!$stmt->fetch()) {
         $pdo->exec("ALTER TABLE carreras ADD COLUMN tipo_periodo ENUM('Trimestre','Cuatrimestre') NOT NULL DEFAULT 'Cuatrimestre' AFTER codigo");
@@ -41,9 +38,6 @@ try {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci");
     $counts['calificaciones_table'] = 1;
 
-    // ========================================
-    // STEP 2 — UPDATE tipo_periodo for carreras
-    // ========================================
     $stmtC = $pdo->prepare("UPDATE carreras SET tipo_periodo = ? WHERE codigo = ?");
     $cuatrimestre = ['ENF-TSU','ENF-LIC','FIS-TSU','INF-TSU','ADM-TSU','ADM-LIC','CON-TSU','CON-LIC','RIN-TSU'];
     $trimestre    = ['DIS-TSU','GAS-TSU'];
@@ -56,12 +50,8 @@ try {
         $counts['carreras_updated'] += $stmtC->rowCount();
     }
 
-    // ========================================
-    // STEP 3 — $mapeo array
-    // ========================================
     $mapeo = [];
 
-    // --- INFORMÁTICA ---
     $mapeo['ADM1133'] = ['trayecto' => 1, 'creditos' => 3, 'tipo' => 'Obligatoria'];
     $mapeo['ECI1121'] = ['trayecto' => 1, 'creditos' => 1, 'tipo' => 'Obligatoria'];
     $mapeo['EFD1121'] = ['trayecto' => 1, 'creditos' => 1, 'tipo' => 'Obligatoria'];
@@ -110,7 +100,6 @@ try {
     $mapeo['RLO1543'] = ['trayecto' => 5, 'creditos' => 3, 'tipo' => 'Obligatoria'];
     $mapeo['PAS1616'] = ['trayecto' => 6, 'creditos' => 6, 'tipo' => 'Obligatoria'];
 
-    // --- ADMINISTRACIÓN DE EMPRESAS ---
     $mapeo['ADM2133'] = ['trayecto' => 1, 'creditos' => 3, 'tipo' => 'Obligatoria'];
     $mapeo['CON2143'] = ['trayecto' => 1, 'creditos' => 3, 'tipo' => 'Obligatoria'];
     $mapeo['EFD2121'] = ['trayecto' => 1, 'creditos' => 1, 'tipo' => 'Obligatoria'];
@@ -158,7 +147,6 @@ try {
     $mapeo['TAU2543'] = ['trayecto' => 5, 'creditos' => 3, 'tipo' => 'Obligatoria'];
     $mapeo['PAS2616'] = ['trayecto' => 6, 'creditos' => 6, 'tipo' => 'Obligatoria'];
 
-    // --- RELACIONES INDUSTRIALES ---
     $mapeo['CON8154'] = ['trayecto' => 1, 'creditos' => 4, 'tipo' => 'Obligatoria'];
     $mapeo['EFD8121'] = ['trayecto' => 1, 'creditos' => 1, 'tipo' => 'Obligatoria'];
     $mapeo['FAD8123'] = ['trayecto' => 1, 'creditos' => 3, 'tipo' => 'Obligatoria'];
@@ -199,7 +187,6 @@ try {
     $mapeo['RCO8543'] = ['trayecto' => 5, 'creditos' => 3, 'tipo' => 'Obligatoria'];
     $mapeo['PAS86126'] = ['trayecto' => 6, 'creditos' => 6, 'tipo' => 'Obligatoria'];
 
-    // --- CONTADURÍA PÚBLICA ---
     $mapeo['ADM7133'] = ['trayecto' => 1, 'creditos' => 3, 'tipo' => 'Obligatoria'];
     $mapeo['CON7143'] = ['trayecto' => 1, 'creditos' => 3, 'tipo' => 'Obligatoria'];
     $mapeo['ECO7142'] = ['trayecto' => 1, 'creditos' => 2, 'tipo' => 'Obligatoria'];
@@ -241,7 +228,6 @@ try {
     $mapeo['SPA7543'] = ['trayecto' => 5, 'creditos' => 3, 'tipo' => 'Obligatoria'];
     $mapeo['PAS7616'] = ['trayecto' => 6, 'creditos' => 6, 'tipo' => 'Obligatoria'];
 
-    // --- ENFERMERÍA ---
     $mapeo['AUD51021'] = ['trayecto' => 1, 'creditos' => 1, 'tipo' => 'Obligatoria'];
     $mapeo['BIO51022'] = ['trayecto' => 1, 'creditos' => 2, 'tipo' => 'Obligatoria'];
     $mapeo['EFD51021'] = ['trayecto' => 1, 'creditos' => 1, 'tipo' => 'Obligatoria'];
@@ -272,7 +258,6 @@ try {
     $mapeo['EMQ55129'] = ['trayecto' => 5, 'creditos' => 9, 'tipo' => 'Obligatoria'];
     $mapeo['PRC56306'] = ['trayecto' => 6, 'creditos' => 6, 'tipo' => 'Obligatoria'];
 
-    // --- FISIOTERAPIA ---
     $mapeo['ANA61084'] = ['trayecto' => 1, 'creditos' => 4, 'tipo' => 'Obligatoria'];
     $mapeo['EDS61022'] = ['trayecto' => 1, 'creditos' => 2, 'tipo' => 'Obligatoria'];
     $mapeo['EFD61021'] = ['trayecto' => 1, 'creditos' => 1, 'tipo' => 'Obligatoria'];
@@ -309,7 +294,6 @@ try {
     $mapeo['TIF65085'] = ['trayecto' => 5, 'creditos' => 5, 'tipo' => 'Obligatoria'];
     $mapeo['PRC66306'] = ['trayecto' => 6, 'creditos' => 6, 'tipo' => 'Obligatoria'];
 
-    // --- GASTRONOMÍA (generated codes from generate_populate.php) ---
     $mapeo['IGA4113'] = ['trayecto' => 1, 'creditos' => 3, 'tipo' => 'Obligatoria'];
     $mapeo['GAS4113'] = ['trayecto' => 2, 'creditos' => 3, 'tipo' => 'Obligatoria'];
     $mapeo['GAS4213'] = ['trayecto' => 3, 'creditos' => 3, 'tipo' => 'Obligatoria'];
@@ -350,7 +334,6 @@ try {
     $mapeo['ADM4313'] = ['trayecto' => 3, 'creditos' => 2, 'tipo' => 'Obligatoria'];
     $mapeo['SER4333'] = ['trayecto' => 4, 'creditos' => 0, 'tipo' => 'Obligatoria'];
 
-    // --- DISEÑO GRÁFICO (generated codes from generate_populate.php) ---
     $mapeo['TDI3113'] = ['trayecto' => 1, 'creditos' => 4, 'tipo' => 'Obligatoria'];
     $mapeo['TDI3123'] = ['trayecto' => 1, 'creditos' => 4, 'tipo' => 'Obligatoria'];
     $mapeo['TFO3112'] = ['trayecto' => 1, 'creditos' => 2, 'tipo' => 'Obligatoria'];
@@ -390,18 +373,12 @@ try {
     $mapeo['TWE3322'] = ['trayecto' => 5, 'creditos' => 2, 'tipo' => 'Electiva'];
     $mapeo['PAS3666'] = ['trayecto' => 6, 'creditos' => 12, 'tipo' => 'Obligatoria'];
 
-    // ========================================
-    // STEP 4 — UPDATE cursos
-    // ========================================
     $stmtU = $pdo->prepare("UPDATE cursos SET trayecto = ?, creditos = ?, tipo = ? WHERE codigo = ?");
     foreach ($mapeo as $codigo => $data) {
         $stmtU->execute([$data['trayecto'], $data['creditos'], $data['tipo'], $codigo]);
         $counts['cursos_updated'] += $stmtU->rowCount();
     }
 
-    // ========================================
-    // OUTPUT
-    // ========================================
     echo "✓ Migración completada\n";
     echo "Columnas agregadas/modificadas: {$counts['columns_added']}\n";
     echo "Carreras actualizadas: {$counts['carreras_updated']}\n";

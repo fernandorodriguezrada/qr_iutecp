@@ -13,7 +13,6 @@ if ($_SESSION['rol'] !== 'admin') {
 $message = '';
 $message_type = '';
 
-// --- IMPORTAR SEED (modal) ---
 $seed_resultados = [];
 
 function seed_importar_profesores($pdo, $archivo) {
@@ -339,7 +338,6 @@ $total_profesores = $pdo->query("SELECT COUNT(*) FROM usuarios WHERE rol='profes
         </div>
     </div>
 
-    <!-- Modal Importar Semilla -->
     <div id="modal-seed" class="modal-overlay<?= $seed_open ? ' active' : '' ?>">
         <div class="modal-card">
             <div class="modal-header">
@@ -398,7 +396,6 @@ $total_profesores = $pdo->query("SELECT COUNT(*) FROM usuarios WHERE rol='profes
         </div>
     </div>
 
-    <!-- Gestión de Períodos -->
     <div class="card" style="margin-bottom:20px">
         <h3 style="color:var(--primary);margin-bottom:15px">📅 Gestión de Períodos</h3>
         <p style="font-size:13px;color:#666;margin-bottom:15px">

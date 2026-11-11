@@ -685,6 +685,10 @@ body.mobile-app-body {
   color: red;
   font-weight: bold;
 }
+.status-justified {
+  color: #008b8b;
+  font-weight: bold;
+}
 .status-pending {
   color: gray;
   font-style: italic;
@@ -931,4 +935,144 @@ body.auth-body .auth-view {
     padding: 9px 12px !important;
     font-size: 15px !important;
   }
+}
+
+/* Pull-to-refresh */
+.ptr-indicator {
+  position: absolute;
+  top: 50px;
+  left: 0;
+  right: 0;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #666;
+  pointer-events: none;
+  z-index: 100;
+  transform: translateY(-100%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.ptr-indicator.pulling,
+.ptr-indicator.refreshing {
+  opacity: 1;
+}
+.ptr-icon {
+  font-size: 16px;
+  transition: transform 0.2s ease;
+  display: inline-block;
+}
+.ptr-icon.flip {
+  transform: rotate(180deg);
+}
+.ptr-spinner {
+  display: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ccc;
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+.ptr-indicator.refreshing .ptr-icon {
+  display: none;
+}
+.ptr-indicator.refreshing .ptr-spinner {
+  display: inline-block;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Profesor Select */
+.prof-select {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 15px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background-color: #fff;
+  color: var(--text-dark);
+  margin-bottom: 12px;
+  box-sizing: border-box;
+}
+
+/* Acordeón de Estudiantes en Detalle de Asistencia */
+.student-accordion {
+  background: var(--white);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+.student-accordion summary {
+  padding: 15px;
+  font-weight: bold;
+  background: var(--bg-light);
+  color: var(--primary);
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+}
+.student-accordion summary::-webkit-details-marker {
+  display: none;
+}
+.student-accordion summary::marker {
+  display: none;
+}
+.student-accordion summary::after {
+  content: "\25BC";
+  font-size: 12px;
+  color: var(--accent);
+  margin-left: 6px;
+}
+.student-accordion[open] summary::after {
+  content: "\25B2";
+  color: var(--accent);
+}
+.student-accordion[open] summary {
+  background: var(--bg-light);
+  border-bottom: 1px solid var(--border-color);
+}
+.student-name {
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--primary);
+  flex: 1;
+}
+.student-status {
+  font-size: 13.5px;
+  font-weight: bold;
+  margin-left: auto;
+  margin-right: 8px;
+}
+.student-details-body {
+  padding: 10px 15px;
+  background: var(--white);
+}
+.detail-row {
+  padding: 8px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  border-bottom: 1px solid #eee;
+}
+.detail-row:last-child {
+  border-bottom: none;
+}
+.detail-label {
+  color: #666;
+  font-size: 14px;
+}
+.detail-value {
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--text-dark);
 }

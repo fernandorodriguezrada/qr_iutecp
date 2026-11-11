@@ -282,6 +282,11 @@ if (
             <span></span><span></span><span></span>
         </div>
     </div>
+    <div id="ptr-indicator" class="ptr-indicator">
+        <span id="ptr-icon" class="ptr-icon">↓</span>
+        <span class="ptr-spinner"></span>
+        <span id="ptr-text">Desliza para actualizar</span>
+    </div>
     <div id="side-menu" class="student-side-menu">
         <div class="menu-item" onclick="switchTab('guia');toggleMenu();">📘 Guía Rápida</div>
         <div class="menu-item" onclick="switchTab('password');toggleMenu();">🔑 Cambiar Contraseña</div>
@@ -518,10 +523,28 @@ function cargarEstadoSemanas() {
                     spans.forEach(function(sp) {
                         var sesiones = s.sesiones || 0;
                         var misAsis = s.mis_asistencias || 0;
+                        var misJust = s.mis_justificados || 0;
                         if (sesiones > 0) {
-                            if (misAsis > 0) {
+                            if (misAsis === sesiones) {
                                 sp.className = 'status-present semana-status';
                                 sp.textContent = misAsis + '/' + sesiones + ' sesiones';
+                            } else if (misJust === sesiones) {
+                                sp.className = 'status-justified semana-status';
+                                sp.textContent = sesiones > 1 ? 'Justificado (' + misJust + '/' + sesiones + ')' : 'Justificado';
+                            } else if (misAsis + misJust === sesiones) {
+                                sp.className = 'status-present semana-status';
+                                sp.textContent = misAsis + '/' + sesiones + ' (+' + misJust + ' just.)';
+                            } else if (misAsis > 0 || misJust > 0) {
+                                if (misAsis > 0 && misJust > 0) {
+                                    sp.className = 'status-present semana-status';
+                                    sp.textContent = misAsis + '/' + sesiones + ' (+' + misJust + ' just.)';
+                                } else if (misJust > 0) {
+                                    sp.className = 'status-justified semana-status';
+                                    sp.textContent = misJust + '/' + sesiones + ' justificado';
+                                } else {
+                                    sp.className = 'status-present semana-status';
+                                    sp.textContent = misAsis + '/' + sesiones + ' sesiones';
+                                }
                             } else {
                                 sp.className = 'status-absent semana-status';
                                 sp.textContent = 'Ausente (' + sesiones + ' sesiones)';
@@ -554,8 +577,23 @@ function cargarHistorial() {
             if (r.registros.length === 0) { ul.innerHTML = '<li style="text-align:center;color:#999;padding:30px;">No hay registros de asistencia.</li>'; return; }
             var html = '';
             r.registros.forEach(function(reg) {
-                html += '<li><strong>' + reg.curso + ' (' + reg.codigo + ')</strong><br />';
-                html += '<span style="font-size:12px;color:#666;">' + reg.fecha + ' ' + reg.hora + ' - Semana ' + reg.semana + '</span></li>';
+                var badge = '';
+                if (reg.estado === 'justificado') {
+                    badge = '<span style="font-size:11px;color:#008b8b;background:#e0f7f7;padding:2px 7px;border-radius:4px;font-weight:bold;">Justificado</span>';
+                } else if (reg.estado === 'presente') {
+                    badge = '<span style="font-size:11px;color:#2e7d32;background:#e8f5e9;padding:2px 7px;border-radius:4px;font-weight:bold;">Presente</span>';
+                } else if (reg.estado === 'ausente') {
+                    badge = '<span style="font-size:11px;color:#c62828;background:#ffebee;padding:2px 7px;border-radius:4px;font-weight:bold;">Ausente</span>';
+                }
+                html += '<li style="padding:12px;margin-bottom:8px;">';
+                html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
+                html += '<strong>' + reg.curso + ' (' + reg.codigo + ')</strong>' + badge;
+                html += '</div>';
+                html += '<div style="font-size:12px;color:#666;margin-top:4px;">' + reg.fecha + (reg.hora && reg.hora !== '--:--' ? ' ' + reg.hora : '') + ' - Semana ' + reg.semana + '</div>';
+                if (reg.estado === 'justificado' && reg.justificacion) {
+                    html += '<div style="font-size:12px;color:#008b8b;margin-top:6px;background:#f0faf8;padding:6px 10px;border-radius:4px;border-left:3px solid #008b8b;"><strong>Motivo:</strong> ' + reg.justificacion + '</div>';
+                }
+                html += '</li>';
             });
             ul.innerHTML = html;
         } catch(e) { ul.innerHTML = '<li style="text-align:center;color:red;padding:30px;">Error al procesar</li>'; }
@@ -673,6 +711,8 @@ function procesarCodigo(codigo) {
             var r = JSON.parse(xhr.responseText);
             if (r.ok) {
                 mostrarPopup('¡Escaneo<br />Exitoso!');
+                cargarEstadoSemanas();
+                cargarHistorial();
             } else {
                 mostrarPopupError(r.error || 'Código<br />inválido');
             }
@@ -952,10 +992,98 @@ function htmlspecialchars(str) {
     return div.innerHTML;
 }
 
+function initPullToRefresh() {
+    var container = document.querySelector('.mobile-container');
+    var indicator = document.getElementById('ptr-indicator');
+    var ptrIcon = document.getElementById('ptr-icon');
+    var ptrText = document.getElementById('ptr-text');
+    if (!container || !indicator) return;
+
+    var startY = 0;
+    var pullDistance = 0;
+    var isPulling = false;
+    var activeContent = null;
+
+    container.addEventListener('touchstart', function(e) {
+        activeContent = document.querySelector('.mobile-content:not(.hidden)');
+        if (!activeContent) return;
+        if (activeContent.scrollTop <= 0) {
+            startY = e.touches[0].clientY;
+            isPulling = true;
+            pullDistance = 0;
+        } else {
+            isPulling = false;
+        }
+    }, { passive: true });
+
+    container.addEventListener('touchmove', function(e) {
+        if (!isPulling || !activeContent) return;
+        if (activeContent.scrollTop > 0) {
+            isPulling = false;
+            indicator.classList.remove('pulling');
+            indicator.style.transform = '';
+            activeContent.style.transform = '';
+            return;
+        }
+        var currentY = e.touches[0].clientY;
+        var diff = currentY - startY;
+        if (diff > 0) {
+            pullDistance = Math.min(diff * 0.45, 75);
+            if (pullDistance > 8) {
+                indicator.classList.add('pulling');
+                indicator.style.transform = 'translateY(' + pullDistance + 'px)';
+                activeContent.style.transition = 'none';
+                activeContent.style.transform = 'translateY(' + pullDistance + 'px)';
+                if (pullDistance >= 46) {
+                    ptrIcon.classList.add('flip');
+                    ptrText.textContent = 'Suelta para actualizar';
+                } else {
+                    ptrIcon.classList.remove('flip');
+                    ptrText.textContent = 'Desliza para actualizar';
+                }
+            }
+        } else {
+            pullDistance = 0;
+            indicator.classList.remove('pulling');
+            indicator.style.transform = '';
+            activeContent.style.transform = '';
+        }
+    }, { passive: true });
+
+    container.addEventListener('touchend', function() {
+        if (!isPulling) return;
+        isPulling = false;
+        indicator.classList.remove('pulling');
+        if (pullDistance >= 46) {
+            indicator.classList.add('refreshing');
+            indicator.style.transform = 'translateY(50px)';
+            if (activeContent) {
+                activeContent.style.transition = 'transform 0.2s ease';
+                activeContent.style.transform = 'translateY(50px)';
+            }
+            ptrText.textContent = 'Actualizando...';
+            setTimeout(function() {
+                window.location.reload();
+            }, 350);
+        } else {
+            indicator.style.transform = '';
+            if (activeContent) {
+                activeContent.style.transition = 'transform 0.2s ease';
+                activeContent.style.transform = '';
+                setTimeout(function() {
+                    if (activeContent) activeContent.style.transition = '';
+                }, 200);
+            }
+        }
+        pullDistance = 0;
+    }, { passive: true });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     <?php if (!empty($cursos)): ?>
     cargarEstadoSemanas();
     <?php endif; ?>
+    initPullToRefresh();
 });
 
 var timerScrollTop = null;

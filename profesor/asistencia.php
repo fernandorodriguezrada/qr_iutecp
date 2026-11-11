@@ -80,17 +80,27 @@ if ($accion === 'estado_semanas' && $curso_id > 0) {
 
     $resultado = [];
     foreach ($semanas as $s) {
+        if (empty($s['semana'])) continue;
         $row = [
             'semana' => (int)$s['semana'],
-            'contador' => (int)$s['contador'],
+            'contador' => $total_inscritos > 0 ? $total_inscritos : (int)$s['contador'],
             'completas' => (int)$s['completas'],
             'total_inscritos' => $total_inscritos,
             'sesiones' => (int)$s['sesiones'],
         ];
         if ($es_estudiante) {
-            $stmt3 = $pdo->prepare("SELECT COUNT(*) FROM asistencias a JOIN inscripciones i ON i.id = a.inscripcion_id WHERE i.estudiante_id = ? AND i.curso_id = ? AND i.periodo = ? AND a.semana = ? AND a.estado = 'presente'");
+            $stmt3 = $pdo->prepare("
+                SELECT 
+                    SUM(CASE WHEN a.estado = 'presente' THEN 1 ELSE 0 END) as presentes,
+                    SUM(CASE WHEN a.estado = 'justificado' THEN 1 ELSE 0 END) as justificados
+                FROM asistencias a 
+                JOIN inscripciones i ON i.id = a.inscripcion_id 
+                WHERE i.estudiante_id = ? AND i.curso_id = ? AND i.periodo = ? AND a.semana = ?
+            ");
             $stmt3->execute([$_SESSION['usuario_id'], $curso_id, $periodo, $s['semana']]);
-            $row['mis_asistencias'] = (int)$stmt3->fetchColumn();
+            $conteo = $stmt3->fetch(PDO::FETCH_ASSOC);
+            $row['mis_asistencias'] = (int)($conteo['presentes'] ?? 0);
+            $row['mis_justificados'] = (int)($conteo['justificados'] ?? 0);
         }
         $resultado[] = $row;
     }
@@ -173,6 +183,34 @@ if ($accion === 'detalle' && $curso_id > 0) {
     exit;
 }
 
+if ($accion === 'cancelar_sesion' && $curso_id > 0) {
+    if (!$es_profesor) {
+        header('Content-Type: application/json');
+        echo json_encode(['ok' => false, 'error' => 'Solo profesores']);
+        exit;
+    }
+
+    $sesion_id = (int)($_GET['sesion_id'] ?? 0);
+    $codigo_qr = $_GET['codigo_qr'] ?? '';
+
+    $stmt = $pdo->prepare("SELECT id, codigo_qr, curso_id, semana, fecha FROM sesiones_qr WHERE (id = ? OR codigo_qr = ?) AND profesor_id = ? AND curso_id = ?");
+    $stmt->execute([$sesion_id, $codigo_qr, $profesor_id, $curso_id]);
+    $sesion = $stmt->fetch();
+
+    if ($sesion) {
+        if (!empty($sesion['codigo_qr'])) {
+            $pdo->prepare("DELETE FROM asistencias WHERE qr_code = ?")->execute([$sesion['codigo_qr']]);
+        }
+        $pdo->prepare("DELETE a FROM asistencias a JOIN inscripciones i ON i.id = a.inscripcion_id WHERE i.curso_id = ? AND a.semana = ? AND a.fecha = ?")->execute([$sesion['curso_id'], $sesion['semana'], $sesion['fecha']]);
+        $pdo->prepare("DELETE FROM sesiones_qr WHERE id = ?")->execute([$sesion['id']]);
+        registrarAuditoria($pdo, $profesor_id, 'Cancelar QR', "Curso ID: $curso_id, Sesion ID: " . $sesion['id']);
+    }
+
+    header('Content-Type: application/json');
+    echo json_encode(['ok' => true]);
+    exit;
+}
+
 if ($accion === 'finalizar_sesion' && $curso_id > 0) {
     if (!$es_profesor) {
         header('Content-Type: application/json');
@@ -231,6 +269,39 @@ if ($accion === 'justificar' && $curso_id > 0 && $_SERVER['REQUEST_METHOD'] === 
         $stmt = $pdo->prepare("UPDATE asistencias SET estado = 'justificado', justificacion = ? WHERE inscripcion_id = ? AND semana = ? AND fecha = ?");
         $stmt->execute([$justificacion, $inscripcion_id, $semana, $fecha]);
     }
+
+    header('Content-Type: application/json');
+    echo json_encode(['ok' => true]);
+    exit;
+}
+
+if ($accion === 'eliminar_justificacion' && $curso_id > 0 && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!$es_profesor) {
+        header('Content-Type: application/json');
+        echo json_encode(['ok' => false, 'error' => 'Solo profesores']);
+        exit;
+    }
+
+    $stmt = $pdo->prepare("SELECT id FROM cursos WHERE id = ? AND profesor_id = ? AND activo = 1");
+    $stmt->execute([$curso_id, $profesor_id]);
+    if (!$stmt->fetch()) {
+        header('Content-Type: application/json');
+        echo json_encode(['ok' => false, 'error' => 'Curso no válido']);
+        exit;
+    }
+
+    $inscripcion_id = (int)($_POST['inscripcion_id'] ?? 0);
+    $semana = (int)($_POST['semana'] ?? 0);
+    $fecha = $_POST['fecha'] ?? '';
+
+    if (!$inscripcion_id || !$semana || !$fecha) {
+        header('Content-Type: application/json');
+        echo json_encode(['ok' => false, 'error' => 'Datos incompletos']);
+        exit;
+    }
+
+    $stmt = $pdo->prepare("UPDATE asistencias SET estado = 'ausente', justificacion = NULL WHERE inscripcion_id = ? AND semana = ? AND fecha = ?");
+    $stmt->execute([$inscripcion_id, $semana, $fecha]);
 
     header('Content-Type: application/json');
     echo json_encode(['ok' => true]);

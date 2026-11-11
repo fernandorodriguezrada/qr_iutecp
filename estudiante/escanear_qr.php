@@ -19,12 +19,12 @@ $estudiante_id = (int)$_SESSION['usuario_id'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['accion']) && $_GET['accion'] === 'historial') {
     $stmt = $pdo->prepare("
-        SELECT c.nombre, c.codigo, a.fecha, a.hora_escaneo, a.semana
+        SELECT c.nombre, c.codigo, a.fecha, a.hora_escaneo, a.semana, a.estado, a.justificacion
         FROM asistencias a
         JOIN inscripciones i ON i.id = a.inscripcion_id
         JOIN cursos c ON c.id = i.curso_id
         WHERE i.estudiante_id = ?
-        ORDER BY a.fecha DESC, a.hora_escaneo DESC
+        ORDER BY a.fecha DESC, a.hora_escaneo DESC, a.id DESC
         LIMIT 50
     ");
     $stmt->execute([$estudiante_id]);
@@ -38,6 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['accion']) && $_GET['acc
             'fecha' => $r['fecha'],
             'hora' => $r['hora_escaneo'] ? date('h:i A', strtotime($r['hora_escaneo'])) : '--:--',
             'semana' => (int)$r['semana'],
+            'estado' => $r['estado'] ?? 'presente',
+            'justificacion' => !empty($r['justificacion']) ? htmlspecialchars($r['justificacion']) : null,
         ];
     }
 

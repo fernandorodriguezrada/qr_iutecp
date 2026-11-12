@@ -30,15 +30,31 @@ $error = $_GET['error'] ?? '';
             margin-bottom: 15px; font-size: 14px; border: 1px solid #f5c6cb;
         }
         .cedula-input-wrapper {
-            display: flex; align-items: center; margin-bottom: 15px;
+            display: flex;
+            align-items: stretch;
+            margin-bottom: 15px;
         }
         .cedula-prefix {
-            background: #e9ecef; border: 1px solid var(--border-color);
-            border-right: none; padding: 8px 12px; border-radius: 4px 0 0 4px;
-            font-weight: bold; color: var(--primary); font-size: 15px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #e9ecef;
+            border: 1px solid var(--border-color);
+            border-right: none;
+            padding: 8px 12px;
+            border-radius: 4px 0 0 4px;
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 15px;
+            line-height: 1;
+            box-sizing: border-box;
+            user-select: none;
         }
         .cedula-input-wrapper input {
-            margin-bottom: 0; border-radius: 0 4px 4px 0;
+            margin-bottom: 0 !important;
+            border-radius: 0 4px 4px 0 !important;
+            flex: 1;
+            width: 100%;
         }
         .admin-toggle-link {
             display: block; margin-top: 5px; margin-bottom: 15px;

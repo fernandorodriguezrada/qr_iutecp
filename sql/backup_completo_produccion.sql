@@ -1,6 +1,6 @@
 -- MariaDB dump 10.20-11.8.9-MariaDB, for debian-linux-gnu (x86_64)
 --
--- Host: localhost    Database: db
+-- Host: db    Database: db
 -- ------------------------------------------------------
 -- Server version	11.8.9-MariaDB-ubu2404-log
 
@@ -27,15 +27,16 @@ CREATE TABLE `asistencias` (
   `inscripcion_id` int(11) NOT NULL,
   `semana` int(11) NOT NULL,
   `fecha` date NOT NULL,
+  `bloque_horario` varchar(100) NOT NULL DEFAULT '',
   `hora_escaneo` time DEFAULT NULL,
-  `estado` enum('presente','ausente','justificado') DEFAULT 'ausente',
+  `estado` enum('presente','ausente','justificado','tarde') DEFAULT 'ausente',
   `justificacion` text DEFAULT NULL,
   `qr_code` varchar(100) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_asistencia` (`inscripcion_id`,`semana`,`fecha`),
+  UNIQUE KEY `unique_asistencia` (`inscripcion_id`,`semana`,`fecha`,`bloque_horario`),
   CONSTRAINT `asistencias_ibfk_1` FOREIGN KEY (`inscripcion_id`) REFERENCES `inscripciones` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -45,6 +46,17 @@ CREATE TABLE `asistencias` (
 SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `asistencias` WRITE;
 /*!40000 ALTER TABLE `asistencias` DISABLE KEYS */;
+INSERT INTO `asistencias` VALUES
+(7,79,1,'2026-11-09','','20:56:31','justificado','test','qr_222222','2026-11-10 00:56:31'),
+(11,79,2,'2026-11-10','','10:19:57','presente',NULL,'165d246e11f6bb7311fc63f3bb795224','2026-11-10 14:19:57'),
+(12,83,2,'2026-11-10','','20:07:21','tarde',NULL,NULL,'2026-11-10 14:24:54'),
+(13,79,10,'2026-11-10','','14:42:46','presente',NULL,'da8067ff97ebf6a6a5d092a9e236f6ac','2026-11-10 18:42:46'),
+(14,83,10,'2026-11-10','',NULL,'justificado','enfermo....',NULL,'2026-11-10 18:46:09'),
+(17,83,1,'2026-11-09','',NULL,'justificado','test',NULL,'2026-11-11 20:42:06'),
+(22,80,10,'2026-11-11','Jueves 07:00 - 08:30','20:09:53','presente',NULL,'3a2ed8e9fd8e4a993c8058b3949d023b','2026-11-12 00:09:53'),
+(23,84,10,'2026-11-11','Jueves 07:00 - 08:30',NULL,'justificado','test',NULL,'2026-11-12 00:11:49'),
+(24,80,10,'2026-11-11','Viernes 08:45 - 10:15','20:12:47','presente',NULL,'22375065045a01f8d15bef012d466e86','2026-11-12 00:12:47'),
+(25,84,10,'2026-11-11','Viernes 08:45 - 10:15',NULL,'ausente',NULL,NULL,'2026-11-12 00:14:44');
 /*!40000 ALTER TABLE `asistencias` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -67,7 +79,7 @@ CREATE TABLE `auditoria` (
   PRIMARY KEY (`id`),
   KEY `usuario_id` (`usuario_id`),
   CONSTRAINT `auditoria_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=43 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=108 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -119,7 +131,72 @@ INSERT INTO `auditoria` VALUES
 (39,13,'Inicio de sesión','Inicio de sesión exitoso','172.19.0.1','2026-11-07 00:15:31'),
 (40,5,'Cierre de sesión','Sesión cerrada voluntariamente','172.18.0.6','2026-11-07 00:20:30'),
 (41,13,'Inicio de sesión','Inicio de sesión exitoso','172.18.0.6','2026-11-07 00:22:39'),
-(42,13,'Ajustes QR','Exp:5min Rot:10seg GPS:50m','172.18.0.6','2026-11-07 00:47:48');
+(42,13,'Ajustes QR','Exp:5min Rot:10seg GPS:50m','172.18.0.6','2026-11-07 00:47:48'),
+(43,2,'Inicio de sesión','Inicio de sesión exitoso','172.19.0.1','2026-11-09 21:32:50'),
+(44,2,'Cierre de sesión','Sesión cerrada voluntariamente','172.19.0.1','2026-11-09 22:19:38'),
+(45,3,'Inicio de sesión','Inicio de sesión exitoso','172.19.0.1','2026-11-09 22:19:44'),
+(46,3,'Cierre de sesión','Sesión cerrada voluntariamente','172.19.0.1','2026-11-09 22:20:12'),
+(47,13,'Inicio de sesión','Inicio de sesión exitoso','172.19.0.1','2026-11-09 22:20:24'),
+(48,13,'Generar QR','Curso ID: 55, Semana: 10, Sesion QR ID: 3','172.19.0.1','2026-11-09 22:20:31'),
+(49,13,'Generar QR','Curso ID: 55, Semana: 10, Sesion QR ID: 4','172.19.0.1','2026-11-09 23:01:50'),
+(50,13,'Generar QR','Curso ID: 55, Semana: 10, Sesion QR ID: 5','172.19.0.1','2026-11-09 23:12:50'),
+(51,13,'Generar QR','Curso ID: 55, Semana: 10, Sesion QR ID: 6','172.19.0.1','2026-11-09 23:20:39'),
+(52,13,'Generar QR','Curso ID: 55, Semana: 10, Sesion QR ID: 7','172.19.0.1','2026-11-09 23:20:43'),
+(53,13,'Generar QR','Curso ID: 55, Semana: 10, Sesion QR ID: 8','172.19.0.1','2026-11-09 23:20:47'),
+(54,13,'Generar QR','Curso ID: 55, Semana: 10, Sesion QR ID: 9','172.19.0.1','2026-11-09 23:22:42'),
+(55,13,'Generar QR','Curso ID: 55, Semana: 10, Sesion QR ID: 10','172.19.0.1','2026-11-09 23:22:55'),
+(56,13,'Generar QR','Curso ID: 55, Semana: 10, Sesion QR ID: 11','172.19.0.1','2026-11-09 23:24:41'),
+(57,13,'Generar QR','Curso ID: 55, Semana: 10, Sesion QR ID: 12','172.19.0.1','2026-11-09 23:24:55'),
+(58,13,'Generar QR','Curso ID: 55, Semana: 10, Sesion QR ID: 13','172.19.0.1','2026-11-09 23:26:25'),
+(59,13,'Generar QR','Curso ID: 55, Semana: 10, Sesion QR ID: 14','172.19.0.1','2026-11-09 23:27:08'),
+(60,13,'Generar QR','Curso ID: 55, Semana: 10, Sesion QR ID: 15','172.19.0.1','2026-11-09 23:27:43'),
+(61,13,'Generar QR','Curso ID: 55, Semana: 10, Sesion QR ID: 16','172.19.0.1','2026-11-09 23:36:36'),
+(62,13,'Cancelar QR','Curso ID: 55, Sesion ID: 16','172.19.0.1','2026-11-09 23:36:44'),
+(63,13,'Generar QR','Curso ID: 55, Semana: 10, Sesion QR ID: 17','172.19.0.1','2026-11-09 23:36:48'),
+(64,13,'Cancelar QR','Curso ID: 55, Sesion ID: 17','172.19.0.1','2026-11-09 23:37:51'),
+(65,13,'Generar QR','Curso ID: 55, Semana: 10, Sesion QR ID: 18','172.19.0.1','2026-11-09 23:41:26'),
+(66,13,'Cierre de sesión','Sesión cerrada voluntariamente','172.19.0.1','2026-11-10 00:10:16'),
+(67,3,'Inicio de sesión','Inicio de sesión exitoso','172.19.0.1','2026-11-10 00:10:29'),
+(68,3,'Generar QR','Curso ID: 56, Semana: 10, Sesion QR ID: 25','172.19.0.1','2026-11-10 01:37:27'),
+(69,3,'Cancelar QR','Curso ID: 56, Sesion ID: 25','172.19.0.1','2026-11-10 01:37:53'),
+(70,3,'Generar QR','Curso ID: 56, Semana: 10, Sesion QR ID: 26','172.19.0.1','2026-11-10 01:38:08'),
+(71,2,'Inicio de sesión','Inicio de sesión exitoso','172.18.0.6','2026-11-10 14:12:30'),
+(72,2,'Inicio de sesión','Inicio de sesión exitoso','192.168.10.12','2026-11-10 14:16:47'),
+(73,3,'Inicio de sesión','Inicio de sesión exitoso','172.18.0.6','2026-11-10 14:16:56'),
+(74,3,'Generar QR','Curso ID: 56, Semana: 2, Sesion QR ID: 28','172.18.0.6','2026-11-10 14:19:54'),
+(75,2,'Escaneo QR','Curso: AUDITORIA DE SISTEMAS COMPUTARIZADO (ASC1532), Semana: 2','192.168.10.12','2026-11-10 14:19:57'),
+(76,3,'Inicio de sesión','Inicio de sesión exitoso','172.18.0.6','2026-11-10 18:40:53'),
+(77,2,'Inicio de sesión','Inicio de sesión exitoso','192.168.41.208','2026-11-10 18:42:02'),
+(78,3,'Generar QR','Curso ID: 56, Semana: 10, Sesion QR ID: 29','172.18.0.6','2026-11-10 18:42:21'),
+(79,2,'Escaneo QR','Curso: AUDITORIA DE SISTEMAS COMPUTARIZADO (ASC1532), Semana: 10','192.168.41.208','2026-11-10 18:42:46'),
+(80,3,'Cierre de sesión','Sesión cerrada voluntariamente','172.18.0.6','2026-11-10 18:52:33'),
+(81,1,'Inicio de sesión','Inicio de sesión exitoso','172.18.0.6','2026-11-10 18:52:38'),
+(82,3,'Inicio de sesión','Inicio de sesión exitoso','172.18.0.6','2026-11-11 16:06:37'),
+(83,2,'Inicio de sesión','Inicio de sesión exitoso','172.18.0.6','2026-11-11 19:51:07'),
+(84,3,'Generar QR','Curso ID: 56, Semana: 3, Sesion QR ID: 30','172.18.0.6','2026-11-11 19:55:04'),
+(85,3,'Generar QR','Curso ID: 56, Semana: 3, Sesion QR ID: 31','0.0.0.0','2026-11-11 22:37:53'),
+(86,4,'Escaneo QR','Curso: AUDITORIA DE SISTEMAS COMPUTARIZADO (ASC1532), Semana: 3, Estado: presente','0.0.0.0','2026-11-11 22:38:14'),
+(87,2,'Escaneo QR','Curso: AUDITORIA DE SISTEMAS COMPUTARIZADO (ASC1532), Semana: 3, Estado: tarde','0.0.0.0','2026-11-11 22:38:28'),
+(88,3,'Cancelar QR','Curso ID: 56, Sesion ID: 31','172.18.0.6','2026-11-11 22:47:54'),
+(89,3,'Generar QR','Curso ID: 56, Semana: 10, Sesion QR ID: 32','172.18.0.6','2026-11-11 22:49:15'),
+(90,3,'Cancelar QR','Curso ID: 56, Sesion ID: 32','172.18.0.6','2026-11-11 23:10:43'),
+(91,3,'Generar QR','Curso ID: 57, Semana: 1, Sesion QR ID: 33','0.0.0.0','2026-11-11 23:45:05'),
+(92,4,'Escaneo QR','Curso: PROGRAMACIÓN IV (PRO1554), Semana: 1, Estado: presente','0.0.0.0','2026-11-11 23:45:20'),
+(93,3,'Generar QR','Curso ID: 56, Semana: 10, Sesion QR ID: 34','172.18.0.6','2026-11-11 23:48:20'),
+(94,3,'Cancelar QR','Curso ID: 56, Sesion ID: 34','172.18.0.6','2026-11-11 23:48:22'),
+(95,2,'Cierre de sesión','Sesión cerrada voluntariamente','172.18.0.6','2026-11-11 23:53:40'),
+(96,2,'Inicio de sesión','Inicio de sesión exitoso','192.168.10.12','2026-11-11 23:54:27'),
+(97,3,'Generar QR','Curso ID: 57, Semana: 10, Sesion QR ID: 35','172.18.0.6','2026-11-11 23:54:42'),
+(98,2,'Escaneo QR','Curso: PROGRAMACIÓN IV (PRO1554), Semana: 10, Estado: presente','192.168.10.12','2026-11-11 23:54:49'),
+(99,3,'Cancelar QR','Curso ID: 57, Sesion ID: 35','172.18.0.6','2026-11-11 23:57:16'),
+(100,2,'Inicio de sesión','Inicio de sesión exitoso','172.18.0.6','2026-11-12 00:07:48'),
+(101,3,'Ajustes QR','Exp:2min Tol:1min Rot:30seg GPS:50m','172.18.0.6','2026-11-12 00:09:36'),
+(102,3,'Generar QR','Curso ID: 57, Semana: 10, Sesion QR ID: 36','172.18.0.6','2026-11-12 00:09:49'),
+(103,2,'Escaneo QR','Curso: PROGRAMACIÓN IV (PRO1554), Semana: 10, Estado: presente','192.168.10.12','2026-11-12 00:09:53'),
+(104,3,'Generar QR','Curso ID: 57, Semana: 10, Sesion QR ID: 37','172.18.0.6','2026-11-12 00:12:44'),
+(105,2,'Escaneo QR','Curso: PROGRAMACIÓN IV (PRO1554), Semana: 10, Estado: presente','192.168.10.12','2026-11-12 00:12:47'),
+(106,3,'Cambio manual de asistencia','Estudiante: Fernando Rodríguez Rada (V31853086) | Semana 10 | Fecha: 2026-11-11 [Jueves 07:00 - 08:30] | Estado: justificado -> presente','172.18.0.6','2026-11-12 01:45:33'),
+(107,3,'Cambio manual de asistencia','Estudiante: Fernando Rodríguez Rada (V31853086) | Semana 10 | Fecha: 2026-11-11 [Jueves 07:00 - 08:30] | Estado: presente -> ausente','172.18.0.6','2026-11-12 01:45:41');
 /*!40000 ALTER TABLE `auditoria` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -141,7 +218,7 @@ CREATE TABLE `calificaciones` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `inscripcion_id` (`inscripcion_id`),
   CONSTRAINT `calificaciones_ibfk_1` FOREIGN KEY (`inscripcion_id`) REFERENCES `inscripciones` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=76 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=113 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -188,7 +265,44 @@ INSERT INTO `calificaciones` VALUES
 (35,35,18.00,'Aprobada','2026-11-06 23:39:44'),
 (36,36,18.00,'Aprobada','2026-11-06 23:39:44'),
 (37,37,18.00,'Aprobada','2026-11-06 23:39:44'),
-(38,38,18.00,'Aprobada','2026-11-06 23:39:44');
+(38,38,18.00,'Aprobada','2026-11-06 23:39:44'),
+(76,41,18.00,'Aprobada','2026-11-09 23:48:30'),
+(77,42,18.00,'Aprobada','2026-11-09 23:48:30'),
+(78,43,18.00,'Aprobada','2026-11-09 23:48:30'),
+(79,44,18.00,'Aprobada','2026-11-09 23:48:30'),
+(80,45,18.00,'Aprobada','2026-11-09 23:48:30'),
+(81,46,18.00,'Aprobada','2026-11-09 23:48:30'),
+(82,47,18.00,'Aprobada','2026-11-09 23:48:30'),
+(83,48,18.00,'Aprobada','2026-11-09 23:48:30'),
+(84,49,18.00,'Aprobada','2026-11-09 23:48:30'),
+(85,50,18.00,'Aprobada','2026-11-09 23:48:30'),
+(86,51,18.00,'Aprobada','2026-11-09 23:48:30'),
+(87,52,18.00,'Aprobada','2026-11-09 23:48:30'),
+(88,53,18.00,'Aprobada','2026-11-09 23:48:30'),
+(89,54,18.00,'Aprobada','2026-11-09 23:48:30'),
+(90,55,18.00,'Aprobada','2026-11-09 23:48:30'),
+(91,56,18.00,'Aprobada','2026-11-09 23:48:30'),
+(92,57,18.00,'Aprobada','2026-11-09 23:48:30'),
+(93,58,18.00,'Aprobada','2026-11-09 23:48:30'),
+(94,59,18.00,'Aprobada','2026-11-09 23:48:30'),
+(95,60,18.00,'Aprobada','2026-11-09 23:48:30'),
+(96,61,18.00,'Aprobada','2026-11-09 23:48:30'),
+(97,62,18.00,'Aprobada','2026-11-09 23:48:30'),
+(98,63,18.00,'Aprobada','2026-11-09 23:48:30'),
+(99,64,18.00,'Aprobada','2026-11-09 23:48:30'),
+(100,65,18.00,'Aprobada','2026-11-09 23:48:30'),
+(101,66,18.00,'Aprobada','2026-11-09 23:48:30'),
+(102,67,18.00,'Aprobada','2026-11-09 23:48:30'),
+(103,68,18.00,'Aprobada','2026-11-09 23:48:30'),
+(104,69,18.00,'Aprobada','2026-11-09 23:48:30'),
+(105,70,18.00,'Aprobada','2026-11-09 23:48:30'),
+(106,71,18.00,'Aprobada','2026-11-09 23:48:30'),
+(107,72,18.00,'Aprobada','2026-11-09 23:48:30'),
+(108,73,18.00,'Aprobada','2026-11-09 23:48:30'),
+(109,74,18.00,'Aprobada','2026-11-09 23:48:30'),
+(110,75,18.00,'Aprobada','2026-11-09 23:48:30'),
+(111,76,18.00,'Aprobada','2026-11-09 23:48:30'),
+(112,77,18.00,'Aprobada','2026-11-09 23:48:30');
 /*!40000 ALTER TABLE `calificaciones` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -277,6 +391,7 @@ CREATE TABLE `configuracion_profesor` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `profesor_id` int(11) NOT NULL,
   `expiracion_minutos` int(11) NOT NULL DEFAULT 5,
+  `tolerancia_minutos` int(11) NOT NULL DEFAULT 10,
   `rotacion_segundos` int(11) NOT NULL DEFAULT 30,
   `radio_gps` int(11) NOT NULL DEFAULT 50,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
@@ -284,7 +399,7 @@ CREATE TABLE `configuracion_profesor` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `profesor_id` (`profesor_id`),
   CONSTRAINT `configuracion_profesor_ibfk_1` FOREIGN KEY (`profesor_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -295,15 +410,16 @@ SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `configuracion_profesor` WRITE;
 /*!40000 ALTER TABLE `configuracion_profesor` DISABLE KEYS */;
 INSERT INTO `configuracion_profesor` VALUES
-(1,5,5,30,50,'2026-11-06 23:39:44','2026-11-06 23:39:44'),
-(2,6,5,30,50,'2026-11-07 00:14:32','2026-11-07 00:14:32'),
-(3,7,5,30,50,'2026-11-07 00:14:32','2026-11-07 00:14:32'),
-(4,8,5,30,50,'2026-11-07 00:14:32','2026-11-07 00:14:32'),
-(5,9,5,30,50,'2026-11-07 00:14:32','2026-11-07 00:14:32'),
-(6,10,5,30,50,'2026-11-07 00:14:32','2026-11-07 00:14:32'),
-(7,11,5,30,50,'2026-11-07 00:14:32','2026-11-07 00:14:32'),
-(8,12,5,30,50,'2026-11-07 00:14:32','2026-11-07 00:14:32'),
-(9,13,5,10,50,'2026-11-07 00:14:32','2026-11-07 00:47:48');
+(1,5,5,10,30,50,'2026-11-06 23:39:44','2026-11-06 23:39:44'),
+(2,6,5,10,30,50,'2026-11-07 00:14:32','2026-11-07 00:14:32'),
+(3,7,5,10,30,50,'2026-11-07 00:14:32','2026-11-07 00:14:32'),
+(4,8,5,10,30,50,'2026-11-07 00:14:32','2026-11-07 00:14:32'),
+(5,9,5,10,30,50,'2026-11-07 00:14:32','2026-11-07 00:14:32'),
+(6,10,5,10,30,50,'2026-11-07 00:14:32','2026-11-07 00:14:32'),
+(7,11,5,10,30,50,'2026-11-07 00:14:32','2026-11-07 00:14:32'),
+(8,12,5,10,30,50,'2026-11-07 00:14:32','2026-11-07 00:14:32'),
+(9,13,5,10,10,50,'2026-11-07 00:14:32','2026-11-07 00:47:48'),
+(10,3,2,1,30,50,'2026-11-12 00:09:36','2026-11-12 00:09:36');
 /*!40000 ALTER TABLE `configuracion_profesor` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -335,7 +451,7 @@ CREATE TABLE `cursos` (
   KEY `carrera_id` (`carrera_id`),
   CONSTRAINT `cursos_ibfk_1` FOREIGN KEY (`profesor_id`) REFERENCES `usuarios` (`id`),
   CONSTRAINT `cursos_ibfk_2` FOREIGN KEY (`carrera_id`) REFERENCES `carreras` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=56 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=60 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -393,7 +509,11 @@ INSERT INTO `cursos` VALUES
 (52,'PROGRAMACIÓN IV','PRO1554',4,10,'L2','1D1','Jueves 07:00 - 08:30 / Viernes 08:45 - 10:15',5,4,'Obligatoria',1,'2026-11-07 00:14:32'),
 (53,'INVESTIGACIÓN DE OPERACIONES','IOP1543',4,11,'A4','1D1','Jueves 08:45 - 10:15',5,3,'Obligatoria',1,'2026-11-07 00:14:32'),
 (54,'REDES II','RED1532',4,12,'A14','1D1','Viernes 07:00 - 08:30',5,2,'Obligatoria',1,'2026-11-07 00:14:32'),
-(55,'AUDITORIA DE SISTEMAS COMPUTARIZADO','ASC1532',4,13,'A11','1D1','Viernes 10:15 - 11:45',5,2,'Obligatoria',1,'2026-11-07 00:14:32');
+(55,'AUDITORIA DE SISTEMAS COMPUTARIZADO','ASC1532',4,13,'A11','1D1','Viernes 10:15 - 11:45',5,2,'Obligatoria',1,'2026-11-07 00:14:32'),
+(56,'AUDITORIA DE SISTEMAS COMPUTARIZADO','ASC1532',4,3,'A11','1D1','Viernes 10:15 - 11:45',5,2,'Obligatoria',1,'2026-11-09 23:48:30'),
+(57,'PROGRAMACIÓN IV','PRO1554',4,3,'L2','1D1','Jueves 07:00 - 08:30 / Viernes 08:45 - 10:15',5,4,'Obligatoria',1,'2026-11-09 23:48:30'),
+(58,'REDES II','RED1532',4,3,'A14','1D1','Viernes 07:00 - 08:30',5,2,'Obligatoria',1,'2026-11-09 23:48:30'),
+(59,'PLANIFICACIÓN DE PROYECTO','PPR1543',4,3,'A3','1D1','Lunes 07:45 - 10:15',5,3,'Obligatoria',1,'2026-11-09 23:48:30');
 /*!40000 ALTER TABLE `cursos` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -417,7 +537,7 @@ CREATE TABLE `inscripciones` (
   KEY `curso_id` (`curso_id`),
   CONSTRAINT `inscripciones_ibfk_1` FOREIGN KEY (`estudiante_id`) REFERENCES `usuarios` (`id`),
   CONSTRAINT `inscripciones_ibfk_2` FOREIGN KEY (`curso_id`) REFERENCES `cursos` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=86 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -464,7 +584,52 @@ INSERT INTO `inscripciones` VALUES
 (35,4,44,'2026-I','Activa'),
 (36,4,45,'2026-I','Activa'),
 (37,4,46,'2026-I','Activa'),
-(38,4,47,'2026-I','Activa');
+(38,4,47,'2026-I','Activa'),
+(41,2,1,'2026-I','Activa'),
+(42,2,2,'2026-I','Activa'),
+(43,2,3,'2026-I','Activa'),
+(44,2,4,'2026-I','Activa'),
+(45,2,5,'2026-I','Activa'),
+(46,2,6,'2026-I','Activa'),
+(47,2,7,'2026-I','Activa'),
+(48,2,8,'2026-I','Activa'),
+(49,2,9,'2026-I','Activa'),
+(50,2,11,'2026-I','Activa'),
+(51,2,12,'2026-I','Activa'),
+(52,2,13,'2026-I','Activa'),
+(53,2,14,'2026-I','Activa'),
+(54,2,15,'2026-I','Activa'),
+(55,2,16,'2026-I','Activa'),
+(56,2,17,'2026-I','Activa'),
+(57,2,18,'2026-I','Activa'),
+(58,2,19,'2026-I','Activa'),
+(59,2,20,'2026-I','Activa'),
+(60,2,21,'2026-I','Activa'),
+(61,2,22,'2026-I','Activa'),
+(62,2,23,'2026-I','Activa'),
+(63,2,24,'2026-I','Activa'),
+(64,2,25,'2026-I','Activa'),
+(65,2,26,'2026-I','Activa'),
+(66,2,27,'2026-I','Activa'),
+(67,2,28,'2026-I','Activa'),
+(68,2,29,'2026-I','Activa'),
+(69,2,30,'2026-I','Activa'),
+(70,2,32,'2026-I','Activa'),
+(71,2,33,'2026-I','Activa'),
+(72,2,34,'2026-I','Activa'),
+(73,2,43,'2026-I','Activa'),
+(74,2,44,'2026-I','Activa'),
+(75,2,45,'2026-I','Activa'),
+(76,2,46,'2026-I','Activa'),
+(77,2,47,'2026-I','Activa'),
+(78,2,55,'2026-III','Activa'),
+(79,2,56,'2026-III','Activa'),
+(80,2,57,'2026-III','Activa'),
+(81,2,58,'2026-III','Activa'),
+(82,4,55,'2026-III','Activa'),
+(83,4,56,'2026-III','Activa'),
+(84,4,57,'2026-III','Activa'),
+(85,4,58,'2026-III','Activa');
 /*!40000 ALTER TABLE `inscripciones` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -589,8 +754,11 @@ CREATE TABLE `sesiones_qr` (
   `codigo_qr` varchar(100) NOT NULL,
   `fecha` date NOT NULL,
   `hora_inicio` time NOT NULL,
+  `hora_tolerancia` time DEFAULT NULL,
+  `tolerancia_minutos` int(11) DEFAULT 10,
   `hora_expiracion` time NOT NULL,
   `semana` int(11) NOT NULL,
+  `bloque_horario` varchar(100) NOT NULL DEFAULT '',
   `activo` tinyint(1) DEFAULT 1,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
@@ -599,7 +767,7 @@ CREATE TABLE `sesiones_qr` (
   KEY `profesor_id` (`profesor_id`),
   CONSTRAINT `sesiones_qr_ibfk_1` FOREIGN KEY (`curso_id`) REFERENCES `cursos` (`id`),
   CONSTRAINT `sesiones_qr_ibfk_2` FOREIGN KEY (`profesor_id`) REFERENCES `usuarios` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -609,6 +777,14 @@ CREATE TABLE `sesiones_qr` (
 SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, @@AUTOCOMMIT=0;
 LOCK TABLES `sesiones_qr` WRITE;
 /*!40000 ALTER TABLE `sesiones_qr` DISABLE KEYS */;
+INSERT INTO `sesiones_qr` VALUES
+(24,56,3,'qr_222222','2026-11-09','20:56:31',NULL,10,'21:01:31',1,'',0,'2026-11-10 00:56:31'),
+(26,56,3,'ac422bf1c76a70cfdf7571d78ba4bf73','2026-11-09','21:38:08',NULL,10,'21:43:08',10,'',0,'2026-11-10 01:38:08'),
+(28,56,3,'165d246e11f6bb7311fc63f3bb795224','2026-11-10','10:19:54',NULL,10,'10:24:54',2,'',0,'2026-11-10 14:19:54'),
+(29,56,3,'da8067ff97ebf6a6a5d092a9e236f6ac','2026-11-10','14:42:21',NULL,10,'14:47:21',10,'',0,'2026-11-10 18:42:21'),
+(30,56,3,'433856cb2d4e6f6f027316d5d5c4fb6b','2026-11-11','15:55:04',NULL,10,'16:00:04',3,'',0,'2026-11-11 19:55:04'),
+(36,57,3,'3a2ed8e9fd8e4a993c8058b3949d023b','2026-11-11','20:09:49','20:10:49',1,'20:11:49',10,'Jueves 07:00 - 08:30',0,'2026-11-12 00:09:49'),
+(37,57,3,'22375065045a01f8d15bef012d466e86','2026-11-11','20:12:44','20:13:44',1,'20:14:44',10,'Viernes 08:45 - 10:15',0,'2026-11-12 00:12:44');
 /*!40000 ALTER TABLE `sesiones_qr` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -656,8 +832,8 @@ LOCK TABLES `usuarios` WRITE;
 /*!40000 ALTER TABLE `usuarios` DISABLE KEYS */;
 INSERT INTO `usuarios` VALUES
 (1,'admin','admin','Administrador','admin@iutecp.edu.ve',NULL,NULL,'admin','$2y$12$fdB85BmYRGO6m9p.tOqJPO8aI7IlPRBunbjfqBDACAmtbIip46a1O',0,1,0,NULL,'2026-11-06 22:18:13','2026-11-06 22:18:13'),
-(2,'alumno','alumno','Alumno','alumno@iutecp.edu.ve',NULL,NULL,'estudiante','$2y$12$b7iwYelzujGsQScJFzHUretwvxwGCbBbr8tSOSfN0F8xWr9kdVxIu',0,1,0,NULL,'2026-11-06 22:18:14','2026-11-06 22:18:14'),
-(3,'profesor','profesor','Profesor','profesor@iutecp.edu.ve',NULL,NULL,'profesor','$2y$12$TNaybCn0NkleBRtXMh.VPe3j2692u2mk964J5rE3g3s3XxhSTKUDK',0,1,0,NULL,'2026-11-06 22:18:14','2026-11-06 22:18:14'),
+(2,'alumno','alumno','Alumno','alumno@iutecp.edu.ve',4,NULL,'estudiante','$2y$12$b7iwYelzujGsQScJFzHUretwvxwGCbBbr8tSOSfN0F8xWr9kdVxIu',0,1,0,NULL,'2026-11-06 22:18:14','2026-11-09 23:48:30'),
+(3,'profesor','profesor','Profesor','profesor@iutecp.edu.ve',4,NULL,'profesor','$2y$12$TNaybCn0NkleBRtXMh.VPe3j2692u2mk964J5rE3g3s3XxhSTKUDK',0,1,0,NULL,'2026-11-06 22:18:14','2026-11-09 23:48:30'),
 (4,'V31853086','31853086','Fernando Rodríguez Rada','fernando.rodriguez@iutecp.edu.ve',4,NULL,'estudiante','$2y$12$c995rWc3B8fEkkLGnO8sMOY9HxHUVwulvKUJ6GsVVIeAhOJbLQjaG',0,1,0,NULL,'2026-11-06 23:39:44','2026-11-06 23:39:44'),
 (5,'V18189189','18189189','Alejandro Ojeda Chacón','alejandro.ojeda@iutecp.edu.ve',4,NULL,'profesor','$2y$12$c995rWc3B8fEkkLGnO8sMOY9HxHUVwulvKUJ6GsVVIeAhOJbLQjaG',0,1,0,NULL,'2026-11-06 23:39:44','2026-11-06 23:39:44'),
 (6,'V11486263','11486263','Rosangela Fernandez','rosangela.fernandez@iutecp.edu.ve',4,NULL,'profesor','$2y$12$VFrgWVxCyK.97ka2tBuD2eRCEPXdt/pJ0l6R2k4HIWG.3014kVbFC',0,1,0,NULL,'2026-11-07 00:14:32','2026-11-07 00:14:32'),
@@ -682,4 +858,4 @@ SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2026-11-06 20:58:03
+-- Dump completed on 2026-11-12 18:36:09

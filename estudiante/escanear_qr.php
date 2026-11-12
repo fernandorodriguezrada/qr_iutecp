@@ -19,7 +19,7 @@ $estudiante_id = (int)$_SESSION['usuario_id'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['accion']) && $_GET['accion'] === 'historial') {
     $stmt = $pdo->prepare("
-        SELECT c.nombre, c.codigo, a.fecha, a.hora_escaneo, a.semana, a.estado, a.justificacion
+        SELECT c.nombre, c.codigo, a.fecha, a.bloque_horario, a.hora_escaneo, a.semana, a.estado, a.justificacion
         FROM asistencias a
         JOIN inscripciones i ON i.id = a.inscripcion_id
         JOIN cursos c ON c.id = i.curso_id
@@ -36,6 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['accion']) && $_GET['acc
             'curso' => htmlspecialchars($r['nombre']),
             'codigo' => htmlspecialchars($r['codigo']),
             'fecha' => $r['fecha'],
+            'bloque_horario' => htmlspecialchars($r['bloque_horario'] ?? ''),
             'hora' => $r['hora_escaneo'] ? date('h:i A', strtotime($r['hora_escaneo'])) : '--:--',
             'semana' => (int)$r['semana'],
             'estado' => $r['estado'] ?? 'presente',
@@ -63,7 +64,7 @@ if (empty($codigo_qr)) {
 }
 
 $stmt = $pdo->prepare("
-    SELECT sq.id, sq.curso_id, sq.semana, sq.hora_inicio, sq.hora_expiracion, sq.fecha, sq.activo,
+    SELECT sq.id, sq.curso_id, sq.semana, sq.bloque_horario, sq.hora_inicio, sq.hora_tolerancia, sq.hora_expiracion, sq.fecha, sq.activo,
            c.nombre as curso_nombre, c.codigo as curso_codigo
     FROM sesiones_qr sq
     JOIN cursos c ON c.id = sq.curso_id
@@ -103,17 +104,17 @@ $stmt = $pdo->prepare("UPDATE sesiones_qr SET activo = 0 WHERE id = ? AND CONCAT
 $stmt->execute([$sesion['id']]);
 
 $periodo_escaner = obtenerPeriodoActual();
-$stmt = $pdo->prepare("SELECT id, semana, fecha FROM sesiones_qr WHERE curso_id = ? AND activo = 1 AND CONCAT(fecha, ' ', hora_expiracion) <= NOW()");
+$stmt = $pdo->prepare("SELECT id, semana, fecha, bloque_horario FROM sesiones_qr WHERE curso_id = ? AND activo = 1 AND CONCAT(fecha, ' ', hora_expiracion) <= NOW()");
 $stmt->execute([$sesion['curso_id']]);
 foreach ($stmt->fetchAll() as $expirada) {
     $pdo->prepare("UPDATE sesiones_qr SET activo = 0 WHERE id = ?")->execute([$expirada['id']]);
     $insc = $pdo->prepare("SELECT i.id FROM inscripciones i WHERE i.curso_id = ? AND i.periodo = ?");
     $insc->execute([$sesion['curso_id'], $periodo_escaner]);
     foreach ($insc->fetchAll() as $i) {
-        $chk = $pdo->prepare("SELECT COUNT(*) FROM asistencias WHERE inscripcion_id = ? AND semana = ? AND fecha = ?");
-        $chk->execute([$i['id'], $expirada['semana'], $expirada['fecha']]);
+        $chk = $pdo->prepare("SELECT COUNT(*) FROM asistencias WHERE inscripcion_id = ? AND semana = ? AND fecha = ? AND bloque_horario = ?");
+        $chk->execute([$i['id'], $expirada['semana'], $expirada['fecha'], $expirada['bloque_horario']]);
         if ($chk->fetchColumn() == 0) {
-            $pdo->prepare("INSERT INTO asistencias (inscripcion_id, semana, fecha, estado) VALUES (?, ?, ?, 'ausente')")->execute([$i['id'], $expirada['semana'], $expirada['fecha']]);
+            $pdo->prepare("INSERT INTO asistencias (inscripcion_id, semana, fecha, bloque_horario, estado) VALUES (?, ?, ?, ?, 'ausente')")->execute([$i['id'], $expirada['semana'], $expirada['fecha'], $expirada['bloque_horario']]);
         }
     }
 }
@@ -135,30 +136,45 @@ if (!$inscripcion) {
 
 $stmt = $pdo->prepare("
     SELECT id, estado FROM asistencias
-    WHERE inscripcion_id = ? AND semana = ? AND fecha = ?
+    WHERE inscripcion_id = ? AND semana = ? AND fecha = ? AND (bloque_horario = ? OR (bloque_horario = '' AND ? = ''))
 ");
-$stmt->execute([$inscripcion['id'], $sesion['semana'], $fecha_actual]);
+$stmt->execute([$inscripcion['id'], $sesion['semana'], $fecha_actual, $sesion['bloque_horario'], $sesion['bloque_horario']]);
 $asistencia_existente = $stmt->fetch();
+
+$nuevo_estado = 'presente';
+if (!empty($sesion['hora_tolerancia']) && $hora_actual > $sesion['hora_tolerancia']) {
+    $nuevo_estado = 'tarde';
+}
 
 if ($asistencia_existente) {
     if ($asistencia_existente['estado'] === 'presente') {
         header('Content-Type: application/json');
-        echo json_encode(['ok' => true, 'mensaje' => 'Ya tenías registrada esta asistencia']);
+        echo json_encode(['ok' => true, 'mensaje' => 'Ya tenías registrada tu asistencia (Presente)', 'estado' => 'presente']);
         exit;
     }
-    $stmt = $pdo->prepare("UPDATE asistencias SET estado = 'presente', hora_escaneo = ?, qr_code = ? WHERE id = ?");
-    $stmt->execute([$hora_actual, $codigo_qr, $asistencia_existente['id']]);
+    if ($asistencia_existente['estado'] === 'tarde' && $nuevo_estado === 'tarde') {
+        header('Content-Type: application/json');
+        echo json_encode(['ok' => true, 'mensaje' => 'Ya tenías registrada tu asistencia (Tarde)', 'estado' => 'tarde']);
+        exit;
+    }
+    $stmt = $pdo->prepare("UPDATE asistencias SET estado = ?, hora_escaneo = ?, qr_code = ?, bloque_horario = ? WHERE id = ?");
+    $stmt->execute([$nuevo_estado, $hora_actual, $codigo_qr, $sesion['bloque_horario'], $asistencia_existente['id']]);
 } else {
-    $stmt = $pdo->prepare("INSERT INTO asistencias (inscripcion_id, semana, fecha, hora_escaneo, estado, qr_code) VALUES (?, ?, ?, ?, 'presente', ?)");
-    $stmt->execute([$inscripcion['id'], $sesion['semana'], $fecha_actual, $hora_actual, $codigo_qr]);
+    $stmt = $pdo->prepare("INSERT INTO asistencias (inscripcion_id, semana, fecha, bloque_horario, hora_escaneo, estado, qr_code) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $stmt->execute([$inscripcion['id'], $sesion['semana'], $fecha_actual, $sesion['bloque_horario'], $hora_actual, $nuevo_estado, $codigo_qr]);
 }
 
-registrarAuditoria($pdo, $estudiante_id, 'Escaneo QR', "Curso: {$sesion['curso_nombre']} ({$sesion['curso_codigo']}), Semana: {$sesion['semana']}");
+registrarAuditoria($pdo, $estudiante_id, 'Escaneo QR', "Curso: {$sesion['curso_nombre']} ({$sesion['curso_codigo']}), Semana: {$sesion['semana']}, Estado: $nuevo_estado");
+
+$mensaje_exito = ($nuevo_estado === 'tarde') 
+    ? '¡Asistencia registrada (Tarde)!' 
+    : '¡Asistencia registrada exitosamente!';
 
 header('Content-Type: application/json');
 echo json_encode([
     'ok' => true,
-    'mensaje' => 'Asistencia registrada exitosamente',
+    'mensaje' => $mensaje_exito,
+    'estado' => $nuevo_estado,
     'curso' => $sesion['curso_nombre'],
     'semana' => (int)$sesion['semana'],
 ]);

@@ -201,7 +201,7 @@ function viewReportDetalle(cursoId, semana, cursoNombre, periodo) {
             var html = '';
             data.estudiantes.forEach(function(e) {
                 var estado = e.estado || 'pendiente';
-                var color = estado === 'presente' ? 'green' : (estado === 'ausente' ? 'red' : '#888');
+                var color = estado === 'presente' ? 'green' : (estado === 'tarde' ? '#e67e22' : (estado === 'justificado' ? '#008b8b' : (estado === 'ausente' ? 'red' : '#888')));
                 var fecha = e.fecha || '--';
                 var hora = e.hora_escaneo ? e.hora_escaneo.substring(0, 5) : '--:--';
                 html += '<tr>' +

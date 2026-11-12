@@ -61,6 +61,47 @@ $stmt = $pdo->prepare("
 ");
 $stmt->execute([$profesor_id]);
 $cursos = $stmt->fetchAll();
+
+$sesion_activa = null;
+$qr_activo_segundos = 0;
+$qr_tolerancia_segundos = 0;
+$qr_data_url = '';
+
+$stmt_activa = $pdo->prepare("
+    SELECT sq.*, c.nombre as curso_nombre, c.seccion, car.nombre as carrera_nombre
+    FROM sesiones_qr sq
+    JOIN cursos c ON c.id = sq.curso_id
+    JOIN carreras car ON car.id = c.carrera_id
+    WHERE sq.profesor_id = ? AND sq.activo = 1 
+      AND sq.fecha = CURDATE() 
+      AND CONCAT(sq.fecha, ' ', sq.hora_expiracion) > NOW()
+    ORDER BY sq.id DESC LIMIT 1
+");
+$stmt_activa->execute([$profesor_id]);
+$sesion_activa = $stmt_activa->fetch();
+
+if ($sesion_activa) {
+    require_once __DIR__ . '/../includes/phpqrcode/qrlib.php';
+    $cache_dir = __DIR__ . '/../includes/phpqrcode/cache/';
+    $qr_filename = 'qr_' . $sesion_activa['id'] . '.png';
+    $qr_filepath = $cache_dir . $qr_filename;
+    if (!file_exists($qr_filepath)) {
+        QRcode::png($sesion_activa['codigo_qr'], $qr_filepath, QR_ECLEVEL_L, 6);
+    }
+    if (file_exists($qr_filepath)) {
+        $qr_data_url = 'data:image/png;base64,' . base64_encode(file_get_contents($qr_filepath));
+    } else {
+        $qr_data_url = '/includes/phpqrcode/cache/' . $qr_filename . '?v=' . time();
+    }
+
+    header('Content-Type: text/html; charset=UTF-8');
+    $now = time();
+    $exp_time = strtotime($sesion_activa['fecha'] . ' ' . $sesion_activa['hora_expiracion']);
+    $tol_time = !empty($sesion_activa['hora_tolerancia']) ? strtotime($sesion_activa['fecha'] . ' ' . $sesion_activa['hora_tolerancia']) : $exp_time;
+    
+    $qr_activo_segundos = max(0, $exp_time - $now);
+    $qr_tolerancia_segundos = max(0, $tol_time - $now);
+}
 ?>
 <!doctype html>
 <html lang="es" class="mobile-app-html">
@@ -102,7 +143,7 @@ $cursos = $stmt->fetchAll();
         <h2 style="color:var(--primary);margin-bottom:5px">¡Hola, <?= htmlspecialchars(explode(' ', $_SESSION['nombre'])[0]) ?>!</h2>
         <p style="margin-bottom:15px;color:#666">Gestión de Aula IUTECP</p>
 
-        <div class="card" id="form-generar-container" style="margin-bottom:15px;padding:15px 18px;">
+        <div class="card <?= $sesion_activa ? 'hidden' : '' ?>" id="form-generar-container" style="margin-bottom:15px;padding:15px 18px;">
             <?php if (empty($cursos)): ?>
                 <p style="color:#999;font-size:14px;text-align:center;padding:10px 0;">No tienes cursos asignados actualmente.</p>
             <?php else: ?>
@@ -144,11 +185,11 @@ $cursos = $stmt->fetchAll();
             <?php endif; ?>
         </div>
 
-        <div class="card hidden" id="qr-display-area" style="text-align:center;padding:15px 18px;margin-bottom:15px;">
+        <div class="card <?= $sesion_activa ? '' : 'hidden' ?>" id="qr-display-area" style="text-align:center;padding:15px 18px;margin-bottom:15px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px solid var(--border-color);padding-bottom:8px;">
                 <div style="text-align:left;">
-                    <strong id="active-materia-title" style="color:var(--primary);font-size:15px;display:block;">Materia</strong>
-                    <span id="active-materia-sub" style="color:#666;font-size:12.5px;">Sec: - - Semana -</span>
+                    <strong id="active-materia-title" style="color:var(--primary);font-size:15px;display:block;"><?= $sesion_activa ? htmlspecialchars($sesion_activa['curso_nombre']) : 'Materia' ?></strong>
+                    <span id="active-materia-sub" style="color:#666;font-size:12.5px;"><?= $sesion_activa ? 'Sec: ' . htmlspecialchars($sesion_activa['seccion'] ?: '-') . ' - Semana ' . $sesion_activa['semana'] . (!empty($sesion_activa['bloque_horario']) ? ' (' . htmlspecialchars($sesion_activa['bloque_horario']) . ')' : '') : 'Sec: - - Semana -' ?></span>
                 </div>
                 <button type="button" class="btn btn-danger" style="padding:6px 10px;font-size:14px;line-height:1;display:inline-flex;align-items:center;justify-content:center;" onclick="cancelarQR()" title="Cancelar sesión de asistencia">
                     <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
@@ -156,6 +197,7 @@ $cursos = $stmt->fetchAll();
             </div>
 
             <div id="qr-image" style="width:185px;height:185px;margin:0 auto 12px;border:1px solid var(--border-color);display:flex;align-items:center;justify-content:center;background:#fff;padding:6px;">
+                <?= $sesion_activa ? '<img src="' . $qr_data_url . '" alt="QR" style="width:100%;height:100%;object-fit:contain;" />' : '' ?>
             </div>
 
             <div class="timer" id="qr-timer" style="font-size:1.3rem;font-weight:bold;color:var(--primary);margin-bottom:12px">Expira en 05:00</div>
@@ -181,7 +223,7 @@ $cursos = $stmt->fetchAll();
                     <?php for ($s = 1; $s <= 12; $s++): ?>
                     <li class="clickable-week" data-curso="<?= $c['id'] ?>" data-semana="<?= $s ?>" onclick="verAsistencia(this)">
                         <span>Semana <?= $s ?></span>
-                        <span class="status-pending" style="font-weight:bold">Pendiente</span>
+                        <span class="status-pending status-slot" style="font-weight:bold">Pendiente</span>
                     </li>
                     <?php endfor; ?>
                 </ul>
@@ -201,8 +243,10 @@ $cursos = $stmt->fetchAll();
         <p style="margin-bottom:20px;color:#666">Configuración de seguridad y expiración</p>
         <div class="card">
             <form id="ajustes-form" onsubmit="return guardarAjustes(event)">
-                <label>Tiempo de expiración base (Minutos)</label>
-                <input type="number" name="expiracion_minutos" id="cfg-expiracion" value="5" min="1" max="60" required />
+                <label>Tiempo de expiración total (Minutos)</label>
+                <input type="number" name="expiracion_minutos" id="cfg-expiracion" value="20" min="1" max="120" required />
+                <label>Tiempo de puntualidad / tolerancia (Minutos)</label>
+                <input type="number" name="tolerancia_minutos" id="cfg-tolerancia" value="10" min="1" max="120" required />
                 <label>Frecuencia de rotación dinámica (Segundos)</label>
                 <input type="number" name="rotacion_segundos" id="cfg-rotacion" value="30" min="10" max="300" required />
                 <label>Radio de validación GPS (Metros)</label>
@@ -267,6 +311,58 @@ $cursos = $stmt->fetchAll();
             <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px;">
                 <button class="btn" onclick="cerrarJustificar()" style="padding:8px 16px;">Cerrar</button>
                 <button id="btn-guardar-justificar" class="btn btn-primary" onclick="guardarJustificacion()" style="padding:8px 16px;display:none;">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="popup-bloque-horario" class="scan-popup" style="transition:none;" onclick="if(event.target===this)cerrarModalBloque()">
+        <div class="popup-content" style="max-width:90%;width:380px;padding:20px;border-radius:8px;transform:none;transition:none;text-align:left;" onclick="event.stopPropagation()">
+            <h4 style="color:var(--primary);margin:0 0 6px 0;font-size:16px;">Seleccionar Clase de Hoy</h4>
+            <p style="font-size:13px;color:#666;margin:0 0 14px 0;">Esta materia tiene varios horarios asignados. Elige qué clase vas a dar:</p>
+            <div id="bloques-lista" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;"></div>
+            <div style="display:flex;gap:8px;justify-content:flex-end;">
+                <button type="button" class="btn" onclick="cerrarModalBloque()" style="padding:8px 16px;background:#eee;color:var(--text-dark);">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="confirmarBloqueYGenerar()" style="padding:8px 16px;">Continuar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="popup-cambiar-estado" class="scan-popup" style="transition:none;" onclick="if(event.target===this)cerrarModalEstado()">
+        <div class="popup-content" style="max-width:90%;width:380px;padding:22px;border-radius:8px;transform:none;transition:none;text-align:left;" onclick="event.stopPropagation()">
+            <h4 style="color:var(--primary);margin:0 0 4px 0;font-size:16px;">Cambiar Estado de Asistencia</h4>
+            <p id="cambiar-estado-estudiante" style="font-size:13.5px;color:#555;margin:0 0 14px 0;"></p>
+            
+            <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+                <label class="opcion-cambio-label" style="display:flex;align-items:center;gap:12px;padding:12px 14px;border:1.5px solid #cbd5e1;border-radius:6px;cursor:pointer;background:#fff;" onclick="seleccionarOpcionEstado(this)">
+                    <input type="radio" name="cambio_estado_radio" value="presente" style="width:18px !important;height:18px !important;min-width:18px;max-width:18px;margin:0 !important;padding:0 !important;flex-shrink:0;cursor:pointer;accent-color:var(--primary);">
+                    <div style="flex:1;display:flex;flex-direction:column;gap:2px;">
+                        <strong style="color:green;font-size:14px;line-height:1.2;">Presente</strong>
+                        <span style="font-size:12px;color:#666;line-height:1.2;">Asistió a la clase</span>
+                    </div>
+                </label>
+                <label class="opcion-cambio-label" style="display:flex;align-items:center;gap:12px;padding:12px 14px;border:1.5px solid #cbd5e1;border-radius:6px;cursor:pointer;background:#fff;" onclick="seleccionarOpcionEstado(this)">
+                    <input type="radio" name="cambio_estado_radio" value="tarde" style="width:18px !important;height:18px !important;min-width:18px;max-width:18px;margin:0 !important;padding:0 !important;flex-shrink:0;cursor:pointer;accent-color:var(--primary);">
+                    <div style="flex:1;display:flex;flex-direction:column;gap:2px;">
+                        <strong style="color:#e67e22;font-size:14px;line-height:1.2;">Tarde</strong>
+                        <span style="font-size:12px;color:#666;line-height:1.2;">Llegó tarde a la clase</span>
+                    </div>
+                </label>
+                <label class="opcion-cambio-label" style="display:flex;align-items:center;gap:12px;padding:12px 14px;border:1.5px solid #cbd5e1;border-radius:6px;cursor:pointer;background:#fff;" onclick="seleccionarOpcionEstado(this)">
+                    <input type="radio" name="cambio_estado_radio" value="ausente" style="width:18px !important;height:18px !important;min-width:18px;max-width:18px;margin:0 !important;padding:0 !important;flex-shrink:0;cursor:pointer;accent-color:var(--primary);">
+                    <div style="flex:1;display:flex;flex-direction:column;gap:2px;">
+                        <strong style="color:red;font-size:14px;line-height:1.2;">Ausente</strong>
+                        <span style="font-size:12px;color:#666;line-height:1.2;">No asistió a la clase</span>
+                    </div>
+                </label>
+            </div>
+
+            <p style="font-size:12px;color:#666;margin:0 0 16px 0;line-height:1.4;">
+                🔒 Este cambio manual quedará registrado en la bitácora del sistema con tu usuario y la fecha actual.
+            </p>
+
+            <div style="display:flex;gap:8px;justify-content:flex-end;">
+                <button type="button" class="btn" onclick="cerrarModalEstado()" style="padding:8px 16px;background:#eee;color:var(--text-dark);">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="confirmarCambioEstado()" style="padding:8px 16px;">Guardar Cambio</button>
             </div>
         </div>
     </div>
@@ -339,11 +435,89 @@ function handleAccionQR() {
         var qrArea = document.getElementById('qr-display-area');
         if (qrArea) qrArea.classList.remove('hidden');
     } else {
-        generarQR();
+        iniciarFlujoGenerarQR();
     }
 }
 
+function iniciarFlujoGenerarQR() {
+    var cursoSelect = document.getElementById('qr-curso');
+    if (!cursoSelect) return;
+    var opt = cursoSelect.selectedOptions[0];
+    if (!opt) return;
+
+    var horarioStr = opt.getAttribute('data-horario') || '';
+    var bloques = horarioStr.split('/').map(function(s) { return s.trim(); }).filter(function(s) { return s.length > 0; });
+
+    if (bloques.length > 1) {
+        abrirModalBloque(bloques);
+    } else {
+        ejecutarGenerarQR(bloques[0] || '');
+    }
+}
+
+function abrirModalBloque(bloques) {
+    var dias = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
+    var diasAcc = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+    var diaHoyNum = new Date().getDay();
+    var diaHoy = dias[diaHoyNum];
+    var diaHoyAcc = diasAcc[diaHoyNum];
+
+    var matchIndex = 0;
+    var preseleccionado = false;
+    bloques.forEach(function(b, idx) {
+        var bLower = b.toLowerCase();
+        if (!preseleccionado && (bLower.indexOf(diaHoy) !== -1 || bLower.indexOf(diaHoyAcc) !== -1)) {
+            matchIndex = idx;
+            preseleccionado = true;
+        }
+    });
+
+    var html = '';
+    bloques.forEach(function(b, idx) {
+        var isChecked = (idx === matchIndex) ? 'checked' : '';
+        var isMatch = (idx === matchIndex && preseleccionado);
+        var borderStyle = isChecked ? 'border: 2px solid var(--primary); background: #f0f4ff;' : 'border: 1px solid var(--border-color); background: var(--bg-light);';
+        var badgeHoy = isMatch ? ' <span style="font-size:11px;background:var(--primary);color:#fff;padding:2px 6px;border-radius:4px;margin-left:6px;font-weight:normal;">Hoy</span>' : '';
+
+        html += '<label class="opcion-bloque-label" style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:6px;cursor:pointer;' + borderStyle + '" onclick="seleccionarOpcionBloque(this)">';
+        html += '<input type="radio" name="radio_bloque_modal" value="' + encodeURIComponent(b) + '" ' + isChecked + ' style="margin:0;accent-color:var(--primary);width:18px;height:18px;flex-shrink:0;cursor:pointer;">';
+        html += '<div style="flex:1;display:flex;align-items:center;line-height:1.2;">';
+        html += '<strong style="color:var(--primary);font-size:14px;">' + b + '</strong>' + badgeHoy;
+        html += '</div>';
+        html += '</label>';
+    });
+
+    document.getElementById('bloques-lista').innerHTML = html;
+    document.getElementById('popup-bloque-horario').classList.add('show');
+}
+
+function seleccionarOpcionBloque(labelEl) {
+    document.querySelectorAll('#bloques-lista .opcion-bloque-label').forEach(function(l) {
+        l.style.border = '1px solid var(--border-color)';
+        l.style.background = 'var(--bg-light)';
+    });
+    labelEl.style.border = '2px solid var(--primary)';
+    labelEl.style.background = '#f0f4ff';
+    var radio = labelEl.querySelector('input[type="radio"]');
+    if (radio) radio.checked = true;
+}
+
+function cerrarModalBloque() {
+    document.getElementById('popup-bloque-horario').classList.remove('show');
+}
+
+function confirmarBloqueYGenerar() {
+    var radio = document.querySelector('input[name="radio_bloque_modal"]:checked');
+    var bloque = radio ? decodeURIComponent(radio.value) : '';
+    cerrarModalBloque();
+    ejecutarGenerarQR(bloque);
+}
+
 function generarQR() {
+    iniciarFlujoGenerarQR();
+}
+
+function ejecutarGenerarQR(bloqueHorario) {
     var cursoSelect = document.getElementById('qr-curso');
     if (!cursoSelect) return;
     var cursoId = cursoSelect.value;
@@ -388,7 +562,8 @@ function generarQR() {
             document.getElementById('qr-image').innerHTML = '<img src="' + r.qr_url + '" alt="QR" style="width:100%;height:100%;object-fit:contain;" />';
 
             document.getElementById('active-materia-title').textContent = nombreCurso;
-            document.getElementById('active-materia-sub').textContent = 'Sec: ' + seccion + ' - Semana ' + semana;
+            var bloqueStr = r.bloque_horario ? ' (' + r.bloque_horario + ')' : '';
+            document.getElementById('active-materia-sub').textContent = 'Sec: ' + seccion + ' - Semana ' + semana + bloqueStr;
 
             var formContainer = document.getElementById('form-generar-container');
             if (formContainer) formContainer.classList.add('hidden');
@@ -396,8 +571,9 @@ function generarQR() {
             var qrArea = document.getElementById('qr-display-area');
             qrArea.classList.remove('hidden');
 
-            var segundos = r.expiracion_segundos || 300;
-            mostrarTemporizador(segundos);
+            var segundos = r.expiracion_segundos || 1200;
+            var segTol = r.tolerancia_segundos || 600;
+            mostrarTemporizador(segundos, segTol);
         } catch(e) {
             if (btn) btn.textContent = 'Generar QR';
             console.error('Respuesta recibida:', xhr.responseText);
@@ -411,16 +587,18 @@ function generarQR() {
         }
         alert('Error de conexión');
     };
-    xhr.send('curso_id=' + encodeURIComponent(cursoId) + '&semana=' + encodeURIComponent(semana));
+    xhr.send('curso_id=' + encodeURIComponent(cursoId) + '&semana=' + encodeURIComponent(semana) + '&bloque_horario=' + encodeURIComponent(bloqueHorario || ''));
 }
 
-function mostrarTemporizador(segundos) {
+function mostrarTemporizador(segundos, segundosTolerancia) {
     if (qrInterval) clearInterval(qrInterval);
     var total = segundos;
+    var tol = (typeof segundosTolerancia !== 'undefined') ? segundosTolerancia : 0;
 
     function actualizar() {
+        var timerEl = document.getElementById('qr-timer');
         if (total <= 0) {
-            document.getElementById('qr-timer').textContent = 'EXPIRADO';
+            timerEl.innerHTML = '<span style="color:#dc3545;">EXPIRADO</span>';
             qrActivo = false;
             var btn = document.getElementById('btn-generar-qr');
             if (btn) btn.textContent = 'Generar QR';
@@ -433,10 +611,20 @@ function mostrarTemporizador(segundos) {
             }
             return;
         }
+
         var m = Math.floor(total / 60);
         var s = total % 60;
-        var formatted = 'Expira en ' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
-        document.getElementById('qr-timer').textContent = formatted;
+        var formatted = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+
+        if (tol > 0) {
+            var mTol = Math.floor(tol / 60);
+            var sTol = tol % 60;
+            var fmtTol = String(mTol).padStart(2,'0') + ':' + String(sTol).padStart(2,'0');
+            timerEl.innerHTML = '<span style="color:#2e7d32;">Puntual: ' + fmtTol + '</span><div style="font-size:12px;color:#666;font-weight:normal;margin-top:3px;">Cierre total en ' + formatted + '</div>';
+            tol--;
+        } else {
+            timerEl.innerHTML = '<span style="color:#e67e22;">Tarde</span><div style="font-size:12px;color:#666;font-weight:normal;margin-top:3px;">Cierre total en ' + formatted + '</div>';
+        }
         total--;
     }
     actualizar();
@@ -562,17 +750,12 @@ function cargarEstadoSemanas() {
                 r.semanas.forEach(function(s) {
                     items.forEach(function(li) {
                         if (parseInt(li.getAttribute('data-semana')) === parseInt(s.semana)) {
-                            var span = li.querySelector('span:last-child');
+                            var targetSlot = li.querySelector('.status-slot') || li.querySelector('.btn-ver-asistencia') || li.querySelector('span:last-child');
                             var sesiones = s.sesiones || 0;
-                            if (s.contador > 0) {
-                                span.className = s.completas === s.contador ? 'status-present' : 'status-absent';
-                                span.textContent = s.completas + '/' + s.contador + ' Presentes';
-                                if (sesiones > 1) {
-                                    span.textContent += ' (' + sesiones + ' sesiones)';
-                                }
+                            if (sesiones > 0) {
+                                targetSlot.outerHTML = '<button type="button" class="btn btn-ver-asistencia" onclick="event.stopPropagation(); verAsistenciaDesdeBtn(this)" style="padding:5px 12px;font-size:12.5px;background:var(--primary);color:#fff;border-radius:4px;border:none;font-weight:600;cursor:pointer;">Ver asistencias</button>';
                             } else {
-                                span.className = 'status-pending';
-                                span.textContent = 'Pendiente';
+                                targetSlot.outerHTML = '<span class="status-pending status-slot" style="font-weight:bold;color:gray;font-style:italic;">Pendiente</span>';
                             }
                         }
                     });
@@ -585,6 +768,11 @@ function cargarEstadoSemanas() {
 
 var cursoIdActual = 0;
 var semanaActual = 0;
+
+function verAsistenciaDesdeBtn(btn) {
+    var li = btn.closest('li.clickable-week');
+    if (li) verAsistencia(li);
+}
 
 function verAsistencia(el) {
     cursoIdActual = parseInt(el.getAttribute('data-curso'));
@@ -610,11 +798,12 @@ function verAsistencia(el) {
             var html = '';
             r.sesiones.forEach(function(ses) {
                 var fechaLabel = ses.fecha ? new Date(ses.fecha + 'T12:00:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }) : 'Sin asistencia registrada';
-                html += '<h4 style="color:var(--primary);margin:12px 0 10px;font-size:13.5px;border-bottom:1px solid #e0e0e0;padding-bottom:5px;">📅 ' + fechaLabel + '</h4>';
+                var tituloSesion = ses.bloque_horario ? ses.bloque_horario + ' (' + fechaLabel + ')' : fechaLabel;
+                html += '<h4 style="color:var(--primary);margin:12px 0 10px;font-size:13.5px;border-bottom:1px solid #e0e0e0;padding-bottom:5px;">📅 ' + tituloSesion + '</h4>';
 
                 ses.estudiantes.forEach(function(e, i) {
-                    var color = e.estado === 'presente' ? 'green' : (e.estado === 'justificado' ? '#008b8b' : (e.estado === 'ausente' ? 'red' : '#999'));
-                    var txtEstado = e.estado === 'justificado' ? 'Justificado' : (e.estado ? e.estado.charAt(0).toUpperCase() + e.estado.slice(1) : 'Pendiente');
+                    var color = e.estado === 'presente' ? 'green' : (e.estado === 'tarde' ? '#e67e22' : (e.estado === 'justificado' ? '#008b8b' : (e.estado === 'ausente' ? 'red' : '#999')));
+                    var txtEstado = e.estado === 'justificado' ? 'Justificado' : (e.estado === 'tarde' ? 'Tarde' : (e.estado ? e.estado.charAt(0).toUpperCase() + e.estado.slice(1) : 'Pendiente'));
 
                     html += '<details class="student-accordion">';
                     html += '<summary>';
@@ -624,20 +813,22 @@ function verAsistencia(el) {
                     html += '<div class="student-details-body">';
                     html += '<div class="detail-row"><span class="detail-label">Cédula</span><span class="detail-value">' + e.cedula + '</span></div>';
                     html += '<div class="detail-row"><span class="detail-label">Hora</span><span class="detail-value">' + (e.hora || '--:--') + '</span></div>';
+                    var bloqueAttr = ' data-bloque="' + encodeURIComponent(ses.bloque_horario || '') + '"';
+                    var commonAttrs = ' data-inscripcion="' + e.inscripcion_id + '" data-nombre="' + encodeURIComponent(e.nombre || '') + '" data-fecha="' + encodeURIComponent(ses.fecha || '') + '" data-estado="' + (e.estado || 'ausente') + '"' + bloqueAttr;
+                    html += '<div class="detail-row" style="align-items:center;padding-top:5px;padding-bottom:2px;">';
+                    html += '<span class="detail-label">Acción</span>';
+                    html += '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">';
                     if (e.estado === 'justificado') {
-                        if (e.justificacion) {
-                            html += '<div class="detail-row" style="flex-direction:column;align-items:flex-start;gap:4px;"><span class="detail-label">Motivo de justificación</span><span class="detail-value" style="font-weight:normal;color:#008b8b;font-style:italic;">' + e.justificacion + '</span></div>';
-                        }
-                        html += '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px;padding-top:4px;">';
-                        html += '<button type="button" class="btn btn-ver-just" data-inscripcion="' + e.inscripcion_id + '" data-nombre="' + encodeURIComponent(e.nombre || '') + '" data-justificacion="' + encodeURIComponent(e.justificacion || '') + '" data-fecha="' + encodeURIComponent(ses.fecha || '') + '" style="padding:5px 12px;font-size:12.5px;background:#eee;color:var(--text-dark);border:1px solid #ccc;border-radius:4px;">Ver</button>';
-                        html += '<button type="button" class="btn btn-editar-just" data-inscripcion="' + e.inscripcion_id + '" data-nombre="' + encodeURIComponent(e.nombre || '') + '" data-justificacion="' + encodeURIComponent(e.justificacion || '') + '" data-fecha="' + encodeURIComponent(ses.fecha || '') + '" style="padding:5px 12px;font-size:12.5px;background:var(--secondary);color:#fff;border-radius:4px;">Editar</button>';
-                        html += '<button type="button" class="btn btn-danger btn-eliminar-just" data-inscripcion="' + e.inscripcion_id + '" data-fecha="' + encodeURIComponent(ses.fecha || '') + '" style="padding:5px 12px;font-size:12.5px;border-radius:4px;">Quitar</button>';
-                        html += '</div>';
+                        html += '<button type="button" class="btn btn-ver-just"' + commonAttrs + ' data-justificacion="' + encodeURIComponent(e.justificacion || '') + '" style="padding:7px 13px;font-size:13px;font-weight:600;background:#008b8b;color:#fff;border:none;border-radius:4px;">Ver</button>';
+                        html += '<button type="button" class="btn btn-editar-just"' + commonAttrs + ' data-justificacion="' + encodeURIComponent(e.justificacion || '') + '" style="padding:7px 13px;font-size:13px;font-weight:600;background:#008b8b;color:#fff;border:none;border-radius:4px;">Editar</button>';
+                        html += '<span style="color:#cbd5e1;font-size:16px;user-select:none;margin:0 2px;">|</span>';
                     } else {
-                        html += '<div style="display:flex;justify-content:flex-end;margin-top:10px;padding-top:4px;">';
-                        html += '<button type="button" class="btn btn-primary btn-crear-just" data-inscripcion="' + e.inscripcion_id + '" data-nombre="' + encodeURIComponent(e.nombre || '') + '" data-fecha="' + encodeURIComponent(ses.fecha || '') + '" style="padding:6px 14px;font-size:13px;border-radius:4px;">Justificar inasistencia</button>';
-                        html += '</div>';
+                        html += '<button type="button" class="btn btn-crear-just"' + commonAttrs + ' style="padding:7px 13px;font-size:13px;font-weight:600;background:#008b8b;color:#fff;border:none;border-radius:4px;">Justificar</button>';
+                        html += '<span style="color:#cbd5e1;font-size:16px;user-select:none;margin:0 2px;">|</span>';
                     }
+                    html += '<button type="button" class="btn btn-cambiar-estado"' + commonAttrs + ' style="padding:7px 13px;font-size:13px;font-weight:600;background:var(--primary);color:#fff;border:none;border-radius:4px;">Cambiar Estado</button>';
+                    html += '</div>';
+                    html += '</div>';
                     html += '</div>';
                     html += '</details>';
                 });
@@ -653,7 +844,8 @@ function verAsistencia(el) {
                         decodeURIComponent(this.getAttribute('data-nombre')),
                         'ver',
                         decodeURIComponent(this.getAttribute('data-justificacion')),
-                        decodeURIComponent(this.getAttribute('data-fecha'))
+                        decodeURIComponent(this.getAttribute('data-fecha')),
+                        decodeURIComponent(this.getAttribute('data-bloque') || '')
                     );
                 };
             });
@@ -664,7 +856,8 @@ function verAsistencia(el) {
                         decodeURIComponent(this.getAttribute('data-nombre')),
                         'editar',
                         decodeURIComponent(this.getAttribute('data-justificacion')),
-                        decodeURIComponent(this.getAttribute('data-fecha'))
+                        decodeURIComponent(this.getAttribute('data-fecha')),
+                        decodeURIComponent(this.getAttribute('data-bloque') || '')
                     );
                 };
             });
@@ -672,7 +865,17 @@ function verAsistencia(el) {
                 b.onclick = function() {
                     eliminarJustificacion(
                         parseInt(this.getAttribute('data-inscripcion')),
-                        decodeURIComponent(this.getAttribute('data-fecha'))
+                        decodeURIComponent(this.getAttribute('data-fecha')),
+                        decodeURIComponent(this.getAttribute('data-bloque') || '')
+                    );
+                };
+            });
+            container.querySelectorAll('.btn-marcar-tarde').forEach(function(b) {
+                b.onclick = function() {
+                    marcarTardeManual(
+                        parseInt(this.getAttribute('data-inscripcion')),
+                        decodeURIComponent(this.getAttribute('data-fecha')),
+                        decodeURIComponent(this.getAttribute('data-bloque') || '')
                     );
                 };
             });
@@ -683,7 +886,19 @@ function verAsistencia(el) {
                         decodeURIComponent(this.getAttribute('data-nombre')),
                         'crear',
                         '',
-                        decodeURIComponent(this.getAttribute('data-fecha'))
+                        decodeURIComponent(this.getAttribute('data-fecha')),
+                        decodeURIComponent(this.getAttribute('data-bloque') || '')
+                    );
+                };
+            });
+            container.querySelectorAll('.btn-cambiar-estado').forEach(function(b) {
+                b.onclick = function() {
+                    abrirCambiarEstado(
+                        parseInt(this.getAttribute('data-inscripcion')),
+                        decodeURIComponent(this.getAttribute('data-nombre')),
+                        this.getAttribute('data-estado'),
+                        decodeURIComponent(this.getAttribute('data-fecha')),
+                        decodeURIComponent(this.getAttribute('data-bloque') || '')
                     );
                 };
             });
@@ -697,12 +912,103 @@ function volverClases() {
     document.getElementById('asistencia-detalle').classList.add('hidden');
 }
 
+var cambioEstadoInscripcion = 0;
+var cambioEstadoFecha = '';
+var cambioEstadoBloque = '';
+var cambioEstadoActual = '';
+
+function seleccionarOpcionEstado(labelEl) {
+    var radio = labelEl.querySelector('input[type="radio"]');
+    if (radio) radio.checked = true;
+    actualizarEstilosRadiosEstado();
+}
+
+function actualizarEstilosRadiosEstado() {
+    var labels = document.querySelectorAll('#popup-cambiar-estado .opcion-cambio-label');
+    labels.forEach(function(l) {
+        var r = l.querySelector('input[type="radio"]');
+        if (r && r.checked) {
+            l.style.borderColor = 'var(--primary)';
+            l.style.background = '#f0f4ff';
+        } else {
+            l.style.borderColor = '#cbd5e1';
+            l.style.background = '#fff';
+        }
+    });
+}
+
+function abrirCambiarEstado(inscripcionId, nombre, estadoActual, fecha, bloque) {
+    cambioEstadoInscripcion = inscripcionId;
+    cambioEstadoFecha = fecha;
+    cambioEstadoBloque = bloque || '';
+    cambioEstadoActual = estadoActual || 'ausente';
+
+    var txtEstado = cambioEstadoActual === 'justificado' ? 'Justificado' : (cambioEstadoActual === 'tarde' ? 'Tarde' : (cambioEstadoActual ? cambioEstadoActual.charAt(0).toUpperCase() + cambioEstadoActual.slice(1) : 'Pendiente'));
+    document.getElementById('cambiar-estado-estudiante').innerHTML = '<strong>' + nombre + '</strong><br><span style="font-size:12.5px;color:#666;">Estado actual: <strong>' + txtEstado + '</strong></span>';
+
+    var radios = document.getElementsByName('cambio_estado_radio');
+    radios.forEach(function(r) {
+        r.checked = (r.value === cambioEstadoActual);
+    });
+    actualizarEstilosRadiosEstado();
+
+    document.getElementById('popup-cambiar-estado').classList.add('show');
+}
+
+function cerrarModalEstado() {
+    document.getElementById('popup-cambiar-estado').classList.remove('show');
+}
+
+function confirmarCambioEstado() {
+    var radios = document.getElementsByName('cambio_estado_radio');
+    var seleccionado = '';
+    for (var i = 0; i < radios.length; i++) {
+        if (radios[i].checked) { seleccionado = radios[i].value; break; }
+    }
+
+    if (!seleccionado) {
+        cerrarModalEstado();
+        return;
+    }
+
+    if (seleccionado === cambioEstadoActual) {
+        cerrarModalEstado();
+        return;
+    }
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', 'asistencia.php?accion=cambiar_estado&curso_id=' + cursoIdActual, true);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.onload = function() {
+        cerrarModalEstado();
+        if (xhr.status === 200) {
+            try {
+                var r = JSON.parse(xhr.responseText);
+                if (r.ok) {
+                    mostrarPopup('Estado<br />actualizado');
+                    var cursoEl = document.querySelector('[data-curso="' + cursoIdActual + '"][data-semana="' + semanaActual + '"]');
+                    if (cursoEl) verAsistencia(cursoEl);
+                    return;
+                }
+            } catch(e) {}
+        }
+        mostrarPopupError('Error al<br />actualizar');
+    };
+    xhr.onerror = function() {
+        cerrarModalEstado();
+        mostrarPopupError('Error de<br />conexión');
+    };
+    xhr.send('inscripcion_id=' + cambioEstadoInscripcion + '&semana=' + semanaActual + '&fecha=' + encodeURIComponent(cambioEstadoFecha) + '&bloque_horario=' + encodeURIComponent(cambioEstadoBloque) + '&nuevo_estado=' + encodeURIComponent(seleccionado));
+}
+
 var inscripcionJustificar = 0;
 var fechaJustificar = '';
+var bloqueJustificar = '';
 
-function abrirJustificar(inscripcionId, estudianteNombre, modo, justificacion, fecha) {
+function abrirJustificar(inscripcionId, estudianteNombre, modo, justificacion, fecha, bloque) {
     inscripcionJustificar = inscripcionId;
     fechaJustificar = fecha;
+    bloqueJustificar = bloque || '';
     var popup = document.getElementById('popup-justificar');
     var textarea = document.getElementById('justificar-texto');
     var lectura = document.getElementById('justificar-lectura');
@@ -737,7 +1043,7 @@ function abrirJustificar(inscripcionId, estudianteNombre, modo, justificacion, f
     popup.classList.add('show');
 }
 
-function eliminarJustificacion(inscripcionId, fecha) {
+function eliminarJustificacion(inscripcionId, fecha, bloque) {
     mostrarConfirmacion(
         'Eliminar justificación',
         '¿Deseas eliminar la justificación? El estudiante volverá a estar en estado Ausente.',
@@ -761,7 +1067,7 @@ function eliminarJustificacion(inscripcionId, fecha) {
                 } catch(e) { mostrarPopupError('Error al<br />procesar'); }
             };
             xhr.onerror = function() { mostrarPopupError('Error de<br />conexión'); };
-            xhr.send('inscripcion_id=' + inscripcionId + '&semana=' + semanaActual + '&fecha=' + encodeURIComponent(fecha));
+            xhr.send('inscripcion_id=' + inscripcionId + '&semana=' + semanaActual + '&fecha=' + encodeURIComponent(fecha) + '&bloque_horario=' + encodeURIComponent(bloque || ''));
         }
     );
 }
@@ -792,7 +1098,7 @@ function guardarJustificacion() {
         } catch(e) { mostrarPopupError('Error al<br />procesar'); }
     };
     xhr.onerror = function() { mostrarPopupError('Error de<br />conexión'); };
-    xhr.send('inscripcion_id=' + inscripcionJustificar + '&semana=' + semanaActual + '&fecha=' + encodeURIComponent(fechaJustificar) + '&justificacion=' + encodeURIComponent(texto));
+    xhr.send('inscripcion_id=' + inscripcionJustificar + '&semana=' + semanaActual + '&fecha=' + encodeURIComponent(fechaJustificar) + '&bloque_horario=' + encodeURIComponent(bloqueJustificar) + '&justificacion=' + encodeURIComponent(texto));
 }
 
 function guardarAjustes(e) {
@@ -813,6 +1119,22 @@ function guardarAjustes(e) {
     return false;
 }
 
+function marcarTardeManual(inscripcionId, fecha, bloque) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', 'asistencia.php?accion=marcar_tarde&curso_id=' + cursoIdActual, true);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            mostrarPopup('Marcado<br />como Tarde');
+            var cursoEl = document.querySelector('[data-curso="' + cursoIdActual + '"][data-semana="' + semanaActual + '"]');
+            if (cursoEl) verAsistencia(cursoEl);
+        } else {
+            mostrarPopupError('Error al<br />marcar');
+        }
+    };
+    xhr.send('inscripcion_id=' + inscripcionId + '&semana=' + semanaActual + '&fecha=' + encodeURIComponent(fecha) + '&bloque_horario=' + encodeURIComponent(bloque || ''));
+}
+
 function cargarAjustes() {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', 'ajustes.php', true);
@@ -822,6 +1144,9 @@ function cargarAjustes() {
             var r = JSON.parse(xhr.responseText);
             if (r.ok && r.config) {
                 document.getElementById('cfg-expiracion').value = r.config.expiracion_minutos;
+                if (document.getElementById('cfg-tolerancia') && r.config.tolerancia_minutos) {
+                    document.getElementById('cfg-tolerancia').value = r.config.tolerancia_minutos;
+                }
                 document.getElementById('cfg-rotacion').value = r.config.rotacion_segundos;
                 document.getElementById('cfg-radio').value = r.config.radio_gps;
             }
@@ -952,6 +1277,15 @@ document.addEventListener('DOMContentLoaded', function() {
     actualizarInfoCurso();
     cargarAjustes();
     initPullToRefresh();
+    <?php if ($sesion_activa): ?>
+    qrActivo = true;
+    sesionActivaId = <?= (int)$sesion_activa['id'] ?>;
+    codigoQRActivo = <?= json_encode($sesion_activa['codigo_qr']) ?>;
+    cursoQRActivo = <?= (int)$sesion_activa['curso_id'] ?>;
+    var btn = document.getElementById('btn-generar-qr');
+    if (btn) btn.textContent = 'Ver QR Activo';
+    mostrarTemporizador(<?= (int)$qr_activo_segundos ?>, <?= (int)$qr_tolerancia_segundos ?>);
+    <?php endif; ?>
 });
 
 if ('serviceWorker' in navigator) {

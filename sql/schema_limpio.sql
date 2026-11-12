@@ -102,14 +102,15 @@ CREATE TABLE IF NOT EXISTS asistencias (
     inscripcion_id INT NOT NULL,
     semana INT NOT NULL,
     fecha DATE NOT NULL,
+    bloque_horario VARCHAR(100) NOT NULL DEFAULT "",
     hora_escaneo TIME,
-    estado ENUM('presente', 'ausente', 'justificado') DEFAULT 'ausente',
+    estado ENUM('presente', 'ausente', 'justificado', 'tarde') DEFAULT 'ausente',
     justificacion TEXT NULL,                 -- Migración 005
     qr_code VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (inscripcion_id) REFERENCES inscripciones(id),
     -- clave única por (inscripcion, semana, fecha): evita duplicados por sesión (Migración 004)
-    UNIQUE KEY unique_asistencia (inscripcion_id, semana, fecha)
+    UNIQUE KEY unique_asistencia (inscripcion_id, semana, fecha, bloque_horario)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 
 -- ============================
@@ -124,6 +125,7 @@ CREATE TABLE IF NOT EXISTS sesiones_qr (
     hora_inicio TIME NOT NULL,
     hora_expiracion TIME NOT NULL,
     semana INT NOT NULL,
+    bloque_horario VARCHAR(100) NOT NULL DEFAULT "",
     activo BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (curso_id) REFERENCES cursos(id),

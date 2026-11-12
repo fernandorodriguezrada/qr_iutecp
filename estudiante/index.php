@@ -294,49 +294,57 @@ if (
     </div>
 
     <div class="mobile-content" id="tab-inicio">
-        <h2 style="color:var(--primary);margin-bottom:10px">¡Hola, <?= htmlspecialchars(
-            explode(" ", $_SESSION["nombre"])[0],
-        ) ?>!</h2>
-        <p style="margin-bottom:20px;color:#666">
-            <?= htmlspecialchars($carrera_nombre) ?> | Periodo <?= htmlspecialchars($periodo) ?>
-        </p>
-        <div style="display:flex;border-bottom:2px solid var(--border-color);margin-bottom:15px;">
-            <button class="sub-tab active" onclick="switchSubTab('mismaterias',this)" style="flex:1;padding:10px 0;border:none;background:none;font-weight:bold;color:var(--primary);cursor:pointer;text-align:center;border-bottom:3px solid var(--accent);margin-bottom:-2px;">Mis Materias</button>
-            <button class="sub-tab" onclick="switchSubTab('inscribir',this)" style="flex:1;padding:10px 0;border:none;background:none;font-weight:bold;color:#888;cursor:pointer;text-align:center;border-bottom:3px solid transparent;margin-bottom:-2px;">Inscribir Materias</button>
-        </div>
-
-        <div id="sub-mismaterias">
-        <?php if (empty($cursos)): ?>
-            <div class="card" style="text-align:center;padding:30px;">
-                <p style="color:#999;font-size:14px;">No tienes materias inscritas para el periodo <?= htmlspecialchars(
-                    $periodo,
-                ) ?>.</p>
+        <div id="est-inicio-lista">
+            <h2 style="color:var(--primary);margin-bottom:10px">¡Hola, <?= htmlspecialchars(
+                explode(" ", $_SESSION["nombre"])[0],
+            ) ?>!</h2>
+            <p style="margin-bottom:20px;color:#666">
+                <?= htmlspecialchars($carrera_nombre) ?> | Periodo <?= htmlspecialchars($periodo) ?>
+            </p>
+            <div style="display:flex;border-bottom:2px solid var(--border-color);margin-bottom:15px;">
+                <button class="sub-tab active" onclick="switchSubTab('mismaterias',this)" style="flex:1;padding:10px 0;border:none;background:none;font-weight:bold;color:var(--primary);cursor:pointer;text-align:center;border-bottom:3px solid var(--accent);margin-bottom:-2px;">Mis Materias</button>
+                <button class="sub-tab" onclick="switchSubTab('inscribir',this)" style="flex:1;padding:10px 0;border:none;background:none;font-weight:bold;color:#888;cursor:pointer;text-align:center;border-bottom:3px solid transparent;margin-bottom:-2px;">Inscribir Materias</button>
             </div>
-        <?php else: ?>
-        <?php foreach ($cursos as $c): ?>
-        <div style="font-size:13px;font-weight:bold;color:var(--primary);margin:15px 0 8px 0;"><?= htmlspecialchars(
-            $c["profesor_nombre"],
-        ) ?><?= $c["seccion"] ? " - " . htmlspecialchars($c["seccion"]) : "" ?><?= $c["trayecto"] ? " - Nivel " . nivelRomano((int)$c["trayecto"]) : "" ?></div>
-        <details class="class-accordion">
-            <summary style="font-size:14px;"><?= htmlspecialchars(
-                $c["nombre"],
-            ) ?></summary>
-            <ul class="weeks-list" data-curso="<?= $c["id"] ?>">
-                <?php for ($s = 1; $s <= 12; $s++): ?>
-                <li>
-                    <span>Semana <?= $s ?></span>
-                    <span class="status-pending semana-status" data-curso="<?= $c[
-                        "id"
-                    ] ?>" data-semana="<?= $s ?>">Pendiente</span>
-                </li>
-                <?php endfor; ?>
-            </ul>
-        </details>
-        <?php endforeach; ?>
-        <?php endif; ?>
+
+            <div id="sub-mismaterias">
+            <?php if (empty($cursos)): ?>
+                <div class="card" style="text-align:center;padding:30px;">
+                    <p style="color:#999;font-size:14px;">No tienes materias inscritas para el periodo <?= htmlspecialchars(
+                        $periodo,
+                    ) ?>.</p>
+                </div>
+            <?php else: ?>
+            <?php foreach ($cursos as $c): ?>
+            <div style="font-size:13px;font-weight:bold;color:var(--primary);margin:15px 0 8px 0;"><?= htmlspecialchars(
+                $c["profesor_nombre"],
+            ) ?><?= $c["seccion"] ? " - " . htmlspecialchars($c["seccion"]) : "" ?><?= $c["trayecto"] ? " - Nivel " . nivelRomano((int)$c["trayecto"]) : "" ?></div>
+            <details class="class-accordion">
+                <summary style="font-size:14px;"><?= htmlspecialchars(
+                    $c["nombre"],
+                ) ?></summary>
+                <ul class="weeks-list" data-curso="<?= $c["id"] ?>">
+                    <?php for ($s = 1; $s <= 12; $s++): ?>
+                    <li>
+                        <span>Semana <?= $s ?></span>
+                        <span class="status-pending semana-status status-slot" data-curso="<?= $c[
+                            "id"
+                        ] ?>" data-semana="<?= $s ?>">Pendiente</span>
+                    </li>
+                    <?php endfor; ?>
+                </ul>
+            </details>
+            <?php endforeach; ?>
+            <?php endif; ?>
+            </div>
+
+            <div id="sub-inscribir" class="hidden"></div>
         </div>
 
-        <div id="sub-inscribir" class="hidden"></div>
+        <div id="est-asistencia-detalle" class="hidden">
+            <button class="btn" style="margin-bottom:15px;background:#eee;color:var(--text-dark);" onclick="volverMaterias()">⬅ Volver a materias</button>
+            <h3 id="est-detalle-titulo" style="color:var(--primary);margin-bottom:12px;font-size:15px;line-height:1.35;word-break:break-word;">Materia - Semana</h3>
+            <div id="est-detalle-container"></div>
+        </div>
     </div>
 
     <div class="mobile-content hidden" id="tab-escanear" style="padding:0;">
@@ -477,7 +485,7 @@ function switchTab(tab, btn) {
         document.querySelectorAll('.mobile-nav button').forEach(function(b) { b.classList.remove('active'); });
         btn.classList.add('active');
     }
-    if (tab === 'inicio') cargarEstadoSemanas();
+    if (tab === 'inicio') { volverMaterias(); cargarEstadoSemanas(); }
     if (tab === 'historial') cargarHistorial();
     if (tab !== 'escanear') detenerCamara();
 }
@@ -519,42 +527,13 @@ function cargarEstadoSemanas() {
                 var r = JSON.parse(xhr.responseText);
                 if (!r.ok) return;
                 r.semanas.forEach(function(s) {
-                    var spans = document.querySelectorAll('.semana-status[data-curso="' + cursoId + '"][data-semana="' + s.semana + '"]');
-                    spans.forEach(function(sp) {
+                    var slots = ul.querySelectorAll('.status-slot[data-semana="' + s.semana + '"], .btn-ver-asistencia-est[data-semana="' + s.semana + '"]');
+                    slots.forEach(function(sp) {
                         var sesiones = s.sesiones || 0;
-                        var misAsis = s.mis_asistencias || 0;
-                        var misJust = s.mis_justificados || 0;
                         if (sesiones > 0) {
-                            if (misAsis === sesiones) {
-                                sp.className = 'status-present semana-status';
-                                sp.textContent = misAsis + '/' + sesiones + ' sesiones';
-                            } else if (misJust === sesiones) {
-                                sp.className = 'status-justified semana-status';
-                                sp.textContent = sesiones > 1 ? 'Justificado (' + misJust + '/' + sesiones + ')' : 'Justificado';
-                            } else if (misAsis + misJust === sesiones) {
-                                sp.className = 'status-present semana-status';
-                                sp.textContent = misAsis + '/' + sesiones + ' (+' + misJust + ' just.)';
-                            } else if (misAsis > 0 || misJust > 0) {
-                                if (misAsis > 0 && misJust > 0) {
-                                    sp.className = 'status-present semana-status';
-                                    sp.textContent = misAsis + '/' + sesiones + ' (+' + misJust + ' just.)';
-                                } else if (misJust > 0) {
-                                    sp.className = 'status-justified semana-status';
-                                    sp.textContent = misJust + '/' + sesiones + ' justificado';
-                                } else {
-                                    sp.className = 'status-present semana-status';
-                                    sp.textContent = misAsis + '/' + sesiones + ' sesiones';
-                                }
-                            } else {
-                                sp.className = 'status-absent semana-status';
-                                sp.textContent = 'Ausente (' + sesiones + ' sesiones)';
-                            }
-                        } else if (s.total_inscritos > 0) {
-                            sp.className = 'status-absent semana-status';
-                            sp.textContent = 'Ausente';
+                            sp.outerHTML = '<button type="button" class="btn btn-ver-asistencia-est" data-curso="' + cursoId + '" data-semana="' + s.semana + '" onclick="verAsistenciaEstudiante(this, ' + cursoId + ', ' + s.semana + ')" style="padding:5px 12px;font-size:12.5px;background:var(--primary);color:#fff;border-radius:4px;border:none;font-weight:600;cursor:pointer;">Ver asistencias</button>';
                         } else {
-                            sp.className = 'status-pending semana-status';
-                            sp.textContent = 'Pendiente';
+                            sp.outerHTML = '<span class="status-pending semana-status status-slot" data-curso="' + cursoId + '" data-semana="' + s.semana + '" style="font-weight:bold;color:gray;font-style:italic;">Pendiente</span>';
                         }
                     });
                 });
@@ -562,6 +541,77 @@ function cargarEstadoSemanas() {
         };
         xhr.send();
     });
+}
+
+function verAsistenciaEstudiante(btn, cursoId, semana) {
+    var detailsEl = btn.closest('details');
+    var cursoNombre = detailsEl ? detailsEl.querySelector('summary').textContent.trim() : 'Materia';
+    var profHeader = detailsEl && detailsEl.previousElementSibling ? detailsEl.previousElementSibling.textContent.trim() : '';
+    
+    document.getElementById('est-detalle-titulo').textContent = cursoNombre + (profHeader ? ' (' + profHeader + ')' : '') + ' - Semana ' + semana;
+    document.getElementById('est-inicio-lista').classList.add('hidden');
+    document.getElementById('est-asistencia-detalle').classList.remove('hidden');
+
+    var container = document.getElementById('est-detalle-container');
+    container.innerHTML = '<p style="text-align:center;padding:20px;color:#999;">Cargando...</p>';
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '../profesor/asistencia.php?accion=detalle&curso_id=' + cursoId + '&semana=' + semana, true);
+    xhr.onload = function() {
+        if (xhr.status !== 200) { container.innerHTML = '<p style="color:red;text-align:center;">Error al cargar</p>'; return; }
+        try {
+            var r = JSON.parse(xhr.responseText);
+            if (!r.ok) { container.innerHTML = '<p style="color:#999;text-align:center;">' + (r.error || 'Sin datos') + '</p>'; return; }
+            if (!r.sesiones || r.sesiones.length === 0) {
+                container.innerHTML = '<p style="color:#999;text-align:center;padding:20px;">No hay asistencias registradas esta semana.</p>';
+                return;
+            }
+
+            var html = '';
+            r.sesiones.forEach(function(ses) {
+                var fechaTexto = '--';
+                var diaYHoraTexto = '--';
+                if (ses.fecha) {
+                    var dt = new Date(ses.fecha + 'T12:00:00');
+                    fechaTexto = dt.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+                    var diaSemana = dt.toLocaleDateString('es-ES', { weekday: 'long' });
+                    diaSemana = diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1);
+                    var horaStr = (ses.hora && ses.hora !== '--:--') ? ses.hora : '--:--';
+                    diaYHoraTexto = diaSemana + ', ' + horaStr;
+                }
+
+                var color = ses.estado === 'presente' ? 'green' : (ses.estado === 'tarde' ? '#e67e22' : (ses.estado === 'justificado' ? '#008b8b' : (ses.estado === 'ausente' ? 'red' : '#999')));
+                var txtEstado = ses.estado === 'justificado' ? 'Justificado' : (ses.estado === 'tarde' ? 'Tarde' : (ses.estado ? ses.estado.charAt(0).toUpperCase() + ses.estado.slice(1) : 'Pendiente'));
+                var tituloCard = ses.bloque_horario ? ses.bloque_horario : 'Mi Asistencia';
+
+                html += '<details class="student-accordion" style="margin-bottom:12px;">';
+                html += '<summary>';
+                html += '<span class="student-name">' + tituloCard + '</span>';
+                html += '<span class="student-status" style="color:' + color + ';">' + txtEstado + '</span>';
+                html += '</summary>';
+                html += '<div class="student-details-body">';
+                html += '<div class="detail-row"><span class="detail-label">Fecha</span><span class="detail-value">' + fechaTexto + '</span></div>';
+                html += '<div class="detail-row"><span class="detail-label">Día y hora</span><span class="detail-value">' + diaYHoraTexto + '</span></div>';
+                if (ses.estado === 'justificado') {
+                    var justifTexto = ses.justificacion ? ses.justificacion : '(Sin motivo especificado)';
+                    html += '<div class="detail-row" style="flex-direction:column;align-items:flex-start;gap:4px;margin-top:6px;"><span class="detail-label">Motivo de justificación:</span><span class="detail-value" style="font-weight:normal;color:#008b8b;font-style:italic;background:#f0faf8;padding:8px 10px;border-radius:4px;border-left:3px solid #008b8b;width:100%;box-sizing:border-box;">' + justifTexto + '</span></div>';
+                }
+                html += '</div>';
+                html += '</details>';
+            });
+            container.innerHTML = html;
+        } catch(e) {
+            container.innerHTML = '<p style="color:red;text-align:center;">Error al procesar datos</p>';
+        }
+    };
+    xhr.send();
+}
+
+function volverMaterias() {
+    var det = document.getElementById('est-asistencia-detalle');
+    if (det) det.classList.add('hidden');
+    var lista = document.getElementById('est-inicio-lista');
+    if (lista) lista.classList.remove('hidden');
 }
 
 function cargarHistorial() {
@@ -580,6 +630,8 @@ function cargarHistorial() {
                 var badge = '';
                 if (reg.estado === 'justificado') {
                     badge = '<span style="font-size:11px;color:#008b8b;background:#e0f7f7;padding:2px 7px;border-radius:4px;font-weight:bold;">Justificado</span>';
+                } else if (reg.estado === 'tarde') {
+                    badge = '<span style="font-size:11px;color:#d35400;background:#fdebd0;padding:2px 7px;border-radius:4px;font-weight:bold;">Tarde</span>';
                 } else if (reg.estado === 'presente') {
                     badge = '<span style="font-size:11px;color:#2e7d32;background:#e8f5e9;padding:2px 7px;border-radius:4px;font-weight:bold;">Presente</span>';
                 } else if (reg.estado === 'ausente') {
@@ -589,7 +641,8 @@ function cargarHistorial() {
                 html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
                 html += '<strong>' + reg.curso + ' (' + reg.codigo + ')</strong>' + badge;
                 html += '</div>';
-                html += '<div style="font-size:12px;color:#666;margin-top:4px;">' + reg.fecha + (reg.hora && reg.hora !== '--:--' ? ' ' + reg.hora : '') + ' - Semana ' + reg.semana + '</div>';
+                var bloqueTxt = reg.bloque_horario ? '<span style="color:var(--primary);font-weight:600;">' + reg.bloque_horario + '</span> - ' : '';
+                html += '<div style="font-size:12px;color:#666;margin-top:4px;">' + bloqueTxt + reg.fecha + (reg.hora && reg.hora !== '--:--' ? ' ' + reg.hora : '') + ' - Semana ' + reg.semana + '</div>';
                 if (reg.estado === 'justificado' && reg.justificacion) {
                     html += '<div style="font-size:12px;color:#008b8b;margin-top:6px;background:#f0faf8;padding:6px 10px;border-radius:4px;border-left:3px solid #008b8b;"><strong>Motivo:</strong> ' + reg.justificacion + '</div>';
                 }

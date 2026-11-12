@@ -304,7 +304,7 @@ if ($sesion_activa) {
                             </summary>
                             <ul class="weeks-list" data-curso="<?= $c['id'] ?>">
                                 <?php for ($s = 1; $s <= 12; $s++): ?>
-                                <li class="clickable-week" data-curso="<?= $c['id'] ?>" data-semana="<?= $s ?>" onclick="verAsistencia(this)">
+                                <li class="clickable-week" data-curso="<?= $c['id'] ?>" data-semana="<?= $s ?>">
                                     <span>Semana <?= $s ?></span>
                                     <span class="status-pending status-slot" style="font-weight:bold">Pendiente</span>
                                 </li>

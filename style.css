@@ -705,24 +705,20 @@ html.mobile-app-html::-webkit-scrollbar {
   background: #aaaaaa;
 }
 .weeks-list li {
-  padding: 8px 0;
+  padding: 6px 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: 14px;
   border-bottom: 1px solid #eee;
+  min-height: 44px;
+  box-sizing: border-box;
 }
 .weeks-list li:last-child {
   border-bottom: none;
 }
 .clickable-week {
-  cursor: pointer;
-  padding: 8px 5px !important;
-  margin: 0 -5px;
-  transition: background-color 0.2s ease;
-}
-.clickable-week:hover {
-  background-color: var(--bg-light);
+  cursor: default;
 }
 .status-present {
   color: green;

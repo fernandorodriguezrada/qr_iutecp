@@ -51,16 +51,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['
     }
 }
 
+if (!function_exists('nivelRomano')) {
+    function nivelRomano($n) {
+        $romanos = [1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV', 5 => 'V', 6 => 'VI'];
+        return $romanos[(int)$n] ?? (string)$n;
+    }
+}
+
 $stmt = $pdo->prepare("
-    SELECT c.id, c.nombre, c.codigo, c.seccion, c.horario, c.aula,
+    SELECT c.id, c.nombre, c.codigo, c.seccion, c.horario, c.aula, c.trayecto,
            cr.nombre as carrera_nombre
     FROM cursos c
     JOIN carreras cr ON c.carrera_id = cr.id
     WHERE c.profesor_id = ? AND c.activo = 1
-    ORDER BY cr.nombre, c.nombre
+    ORDER BY cr.nombre, c.trayecto, c.seccion, c.nombre
 ");
 $stmt->execute([$profesor_id]);
 $cursos = $stmt->fetchAll();
+
+$secciones_disponibles = [];
+$niveles_disponibles = [];
+$bloques_cursos = [];
+
+foreach ($cursos as $c) {
+    $sec = $c['seccion'] ?: 'Sin sección';
+    $tray = (int)($c['trayecto'] ?: 1);
+    $niv = 'Nivel ' . nivelRomano($tray);
+
+    if (!empty($c['seccion']) && !in_array($c['seccion'], $secciones_disponibles)) {
+        $secciones_disponibles[] = $c['seccion'];
+    }
+    if (!empty($c['trayecto']) && !in_array((int)$c['trayecto'], $niveles_disponibles)) {
+        $niveles_disponibles[] = (int)$c['trayecto'];
+    }
+
+    $bloque_key = $sec . '___' . $tray;
+    if (!isset($bloques_cursos[$bloque_key])) {
+        $bloques_cursos[$bloque_key] = [
+            'seccion' => $sec,
+            'trayecto' => $tray,
+            'nivel' => $niv,
+            'cursos' => []
+        ];
+    }
+    $bloques_cursos[$bloque_key]['cursos'][] = $c;
+}
+sort($secciones_disponibles);
+sort($niveles_disponibles);
 
 $sesion_activa = null;
 $qr_activo_segundos = 0;
@@ -208,27 +245,80 @@ if ($sesion_activa) {
 
     <div class="mobile-content hidden" id="tab-asistencia">
         <div id="asistencia-lista">
-            <h2 style="color:var(--primary);margin-bottom:10px">Registro de Asistencias</h2>
-            <p style="margin-bottom:20px;color:#666">Seleccione una materia y semana</p>
+            <h2 style="color:var(--primary);margin-bottom:6px">Registro de Asistencias</h2>
+            <p style="margin-bottom:14px;color:#666;font-size:13.5px;">Seleccione una materia y semana</p>
+
+            <div class="asistencia-search-toolbar" style="display:flex;gap:8px;margin-bottom:12px;align-items:center;">
+                <div style="position:relative;flex:1;">
+                    <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:13px;color:#888;pointer-events:none;">🔍</span>
+                    <input type="text" id="filtro-materia-input" placeholder="Buscar materia..." autocomplete="off"
+                           style="width:100%;padding:8px 30px 8px 32px;margin-bottom:0 !important;border:1px solid var(--border-color);border-radius:20px;font-size:13.5px;outline:none;background:#fff;"
+                           oninput="onBusquedaMateriaInput()" />
+                    <span id="btn-limpiar-busqueda" onclick="limpiarBusquedaTexto()"
+                          style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:13px;color:#999;cursor:pointer;display:none;padding:2px 4px;user-select:none;">✕</span>
+                </div>
+                <button type="button" class="btn" id="btn-abrir-filtros" onclick="abrirModalFiltros()"
+                        style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:#fff;border:1px solid var(--border-color);border-radius:20px;color:var(--primary);font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer;">
+                    <span>Filtros</span>
+                    <span id="filtro-badge-activo" style="display:none;width:8px;height:8px;background:#e67e22;border-radius:50%;"></span>
+                </button>
+            </div>
+
+            <div id="active-filters-chips" style="display:none;gap:6px;flex-wrap:wrap;margin-bottom:14px;align-items:center;">
+                <span id="chip-nivel" class="filter-chip" style="display:none;"></span>
+                <span id="chip-seccion" class="filter-chip" style="display:none;"></span>
+                <span id="chip-semana" class="filter-chip" style="display:none;"></span>
+                <button type="button" onclick="limpiarTodosFiltros()" style="background:none;border:none;color:#dc3545;font-size:12px;font-weight:600;cursor:pointer;padding:2px 6px;">Borrar filtros</button>
+            </div>
+
+            <div id="no-cursos-filtro" style="display:none;text-align:center;padding:28px 14px;color:#888;">
+                <p style="font-size:14px;margin-bottom:8px;">No se encontraron materias con los filtros aplicados.</p>
+                <button type="button" class="btn" onclick="limpiarTodosFiltros()" style="font-size:12.5px;padding:6px 14px;background:#eee;color:var(--text-dark);border-radius:4px;border:none;cursor:pointer;">Restablecer filtros</button>
+            </div>
+
             <?php if (empty($cursos)): ?>
                 <p style="color:#999;font-size:14px;">No tienes cursos asignados.</p>
             <?php else: ?>
-            <?php foreach ($cursos as $c):
-                $semana_inicio = 1;
-                $semana_hoy = $semana_actual;
-            ?>
-            <details class="class-accordion">
-                <summary><?= htmlspecialchars($c['nombre'] . ' - Sec: ' . ($c['seccion'] ?: '-') . ($c['horario'] ? ' (' . $c['horario'] . ')' : '')) ?></summary>
-                <ul class="weeks-list" data-curso="<?= $c['id'] ?>">
-                    <?php for ($s = 1; $s <= 12; $s++): ?>
-                    <li class="clickable-week" data-curso="<?= $c['id'] ?>" data-semana="<?= $s ?>" onclick="verAsistencia(this)">
-                        <span>Semana <?= $s ?></span>
-                        <span class="status-pending status-slot" style="font-weight:bold">Pendiente</span>
-                    </li>
-                    <?php endfor; ?>
-                </ul>
-            </details>
-            <?php endforeach; ?>
+                <div id="bloques-cursos-container">
+                <?php foreach ($bloques_cursos as $bKey => $bloque): ?>
+                    <div class="bloque-seccion-group" data-seccion="<?= htmlspecialchars($bloque['seccion']) ?>" data-trayecto="<?= $bloque['trayecto'] ?>" style="margin-bottom:16px;">
+                        <div class="bloque-header" style="display:flex;align-items:center;gap:6px;margin:0 0 8px 2px;">
+                            <span style="background:rgba(38, 40, 101, 0.08);color:var(--primary);padding:3px 10px;border-radius:12px;font-size:12px;font-weight:700;letter-spacing:0.2px;">Sección <?= htmlspecialchars($bloque['seccion']) ?></span>
+                            <span style="background:rgba(255, 224, 1, 0.4);color:#6b5300;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:700;"><?= htmlspecialchars($bloque['nivel']) ?></span>
+                        </div>
+                        <?php foreach ($bloque['cursos'] as $c): ?>
+                        <details class="class-accordion curso-item-accordion"
+                                 data-curso-id="<?= $c['id'] ?>"
+                                 data-curso-nombre="<?= htmlspecialchars(mb_strtolower($c['nombre'])) ?>"
+                                 data-curso-nombre-full="<?= htmlspecialchars($c['nombre']) ?>"
+                                 data-seccion="<?= htmlspecialchars($c['seccion'] ?: '') ?>"
+                                 data-horario="<?= htmlspecialchars($c['horario'] ?: '') ?>"
+                                 data-trayecto="<?= (int)$c['trayecto'] ?>"
+                                 style="margin-bottom:8px;">
+                            <summary style="font-size:14px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;">
+                                <div style="flex:1;min-width:0;padding-right:8px;">
+                                    <div class="curso-title" style="font-weight:bold;color:var(--primary);line-height:1.25;font-size:13.5px;"><?= htmlspecialchars($c['nombre']) ?></div>
+                                    <?php if (!empty($c['horario'])): ?>
+                                    <div style="font-size:11.5px;color:#666;font-weight:normal;margin-top:3px;display:flex;align-items:center;gap:4px;">
+                                        <span>🕒</span>
+                                        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><?= htmlspecialchars($c['horario']) ?></span>
+                                    </div>
+                                    <?php endif; ?>
+                                </div>
+                            </summary>
+                            <ul class="weeks-list" data-curso="<?= $c['id'] ?>">
+                                <?php for ($s = 1; $s <= 12; $s++): ?>
+                                <li class="clickable-week" data-curso="<?= $c['id'] ?>" data-semana="<?= $s ?>" onclick="verAsistencia(this)">
+                                    <span>Semana <?= $s ?></span>
+                                    <span class="status-pending status-slot" style="font-weight:bold">Pendiente</span>
+                                </li>
+                                <?php endfor; ?>
+                            </ul>
+                        </details>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endforeach; ?>
+                </div>
             <?php endif; ?>
         </div>
         <div id="asistencia-detalle" class="hidden">
@@ -363,6 +453,50 @@ if ($sesion_activa) {
             <div style="display:flex;gap:8px;justify-content:flex-end;">
                 <button type="button" class="btn" onclick="cerrarModalEstado()" style="padding:8px 16px;background:#eee;color:var(--text-dark);">Cancelar</button>
                 <button type="button" class="btn btn-primary" onclick="confirmarCambioEstado()" style="padding:8px 16px;">Guardar Cambio</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="popup-filtros-asistencia" class="scan-popup" style="transition:none;" onclick="if(event.target===this)cerrarModalFiltros()">
+        <div class="popup-content" style="max-width:90%;width:350px;padding:22px;border-radius:8px;transform:none;transition:none;text-align:left;" onclick="event.stopPropagation()">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                <h4 style="color:var(--primary);margin:0;font-size:16px;">Filtrar Asistencias</h4>
+                <button type="button" onclick="cerrarModalFiltros()" style="background:none;border:none;font-size:18px;color:#888;cursor:pointer;padding:0 4px;line-height:1;">✕</button>
+            </div>
+
+            <div style="margin-bottom:14px;">
+                <label style="font-weight:bold;font-size:13px;color:var(--primary);display:block;margin-bottom:5px;">Nivel</label>
+                <select id="filtro-modal-nivel" class="prof-select" style="margin-bottom:0;padding:8px 12px;font-size:14px;">
+                    <option value="">Todos los niveles</option>
+                    <?php foreach ($niveles_disponibles as $niv): ?>
+                    <option value="<?= $niv ?>">Nivel <?= nivelRomano($niv) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div style="margin-bottom:14px;">
+                <label style="font-weight:bold;font-size:13px;color:var(--primary);display:block;margin-bottom:5px;">Sección</label>
+                <select id="filtro-modal-seccion" class="prof-select" style="margin-bottom:0;padding:8px 12px;font-size:14px;">
+                    <option value="">Todas las secciones</option>
+                    <?php foreach ($secciones_disponibles as $sec): ?>
+                    <option value="<?= htmlspecialchars($sec) ?>">Sección <?= htmlspecialchars($sec) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div style="margin-bottom:18px;">
+                <label style="font-weight:bold;font-size:13px;color:var(--primary);display:block;margin-bottom:5px;">Semana</label>
+                <select id="filtro-modal-semana" class="prof-select" style="margin-bottom:0;padding:8px 12px;font-size:14px;">
+                    <option value="">Todas las semanas</option>
+                    <?php for ($s = 1; $s <= 12; $s++): ?>
+                    <option value="<?= $s ?>">Semana <?= $s ?></option>
+                    <?php endfor; ?>
+                </select>
+            </div>
+
+            <div style="display:flex;gap:10px;justify-content:flex-end;">
+                <button type="button" class="btn" onclick="limpiarFiltrosDesdeModal()" style="padding:8px 16px;background:#eee;color:var(--text-dark);">Limpiar</button>
+                <button type="button" class="btn btn-primary" onclick="aplicarFiltrosDesdeModal()" style="padding:8px 16px;">Aplicar</button>
             </div>
         </div>
     </div>
@@ -779,9 +913,18 @@ function verAsistencia(el) {
     semanaActual = parseInt(el.getAttribute('data-semana'));
     var cursoId = cursoIdActual;
     var semana = semanaActual;
-    var cursoNombre = el.closest('details').querySelector('summary').textContent.trim();
+    
+    var details = el.closest('details');
+    var cursoNombre = details ? (details.getAttribute('data-curso-nombre-full') || details.querySelector('.curso-title')?.textContent.trim()) : 'Materia';
+    var seccion = details ? details.getAttribute('data-seccion') : '';
+    var horario = details ? details.getAttribute('data-horario') : '';
 
-    document.getElementById('detalle-titulo').textContent = cursoNombre + ' - Semana ' + semana;
+    var headerText = cursoNombre;
+    if (seccion) headerText += ' - Sec: ' + seccion;
+    if (horario) headerText += ' (' + horario + ')';
+    headerText += ' - Semana ' + semana;
+
+    document.getElementById('detalle-titulo').textContent = headerText;
     document.getElementById('asistencia-lista').classList.add('hidden');
     document.getElementById('asistencia-detalle').classList.remove('hidden');
 
@@ -910,6 +1053,205 @@ function verAsistencia(el) {
 function volverClases() {
     document.getElementById('asistencia-lista').classList.remove('hidden');
     document.getElementById('asistencia-detalle').classList.add('hidden');
+}
+
+var filtroTexto = '';
+var filtroNivel = '';
+var filtroSeccion = '';
+var filtroSemana = '';
+
+function onBusquedaMateriaInput() {
+    var val = document.getElementById('filtro-materia-input').value;
+    filtroTexto = val.trim().toLowerCase();
+    
+    var btnLimpiar = document.getElementById('btn-limpiar-busqueda');
+    if (btnLimpiar) {
+        btnLimpiar.style.display = filtroTexto.length > 0 ? 'block' : 'none';
+    }
+    
+    aplicarFiltrosVisuales();
+}
+
+function limpiarBusquedaTexto() {
+    var input = document.getElementById('filtro-materia-input');
+    if (input) {
+        input.value = '';
+        input.focus();
+    }
+    filtroTexto = '';
+    var btnLimpiar = document.getElementById('btn-limpiar-busqueda');
+    if (btnLimpiar) btnLimpiar.style.display = 'none';
+    aplicarFiltrosVisuales();
+}
+
+function abrirModalFiltros() {
+    if (document.getElementById('filtro-modal-nivel')) document.getElementById('filtro-modal-nivel').value = filtroNivel;
+    if (document.getElementById('filtro-modal-seccion')) document.getElementById('filtro-modal-seccion').value = filtroSeccion;
+    if (document.getElementById('filtro-modal-semana')) document.getElementById('filtro-modal-semana').value = filtroSemana;
+    var p = document.getElementById('popup-filtros-asistencia');
+    if (p) p.classList.add('show');
+}
+
+function cerrarModalFiltros() {
+    var p = document.getElementById('popup-filtros-asistencia');
+    if (p) p.classList.remove('show');
+}
+
+function limpiarFiltrosDesdeModal() {
+    if (document.getElementById('filtro-modal-nivel')) document.getElementById('filtro-modal-nivel').value = '';
+    if (document.getElementById('filtro-modal-seccion')) document.getElementById('filtro-modal-seccion').value = '';
+    if (document.getElementById('filtro-modal-semana')) document.getElementById('filtro-modal-semana').value = '';
+    filtroNivel = '';
+    filtroSeccion = '';
+    filtroSemana = '';
+    cerrarModalFiltros();
+    aplicarFiltrosVisuales();
+}
+
+function aplicarFiltrosDesdeModal() {
+    var elNiv = document.getElementById('filtro-modal-nivel');
+    var elSec = document.getElementById('filtro-modal-seccion');
+    var elSem = document.getElementById('filtro-modal-semana');
+    
+    filtroNivel = elNiv ? elNiv.value : '';
+    filtroSeccion = elSec ? elSec.value : '';
+    filtroSemana = elSem ? elSem.value : '';
+    
+    cerrarModalFiltros();
+    aplicarFiltrosVisuales();
+}
+
+function limpiarTodosFiltros() {
+    limpiarBusquedaTexto();
+    filtroNivel = '';
+    filtroSeccion = '';
+    filtroSemana = '';
+    if (document.getElementById('filtro-modal-nivel')) document.getElementById('filtro-modal-nivel').value = '';
+    if (document.getElementById('filtro-modal-seccion')) document.getElementById('filtro-modal-seccion').value = '';
+    if (document.getElementById('filtro-modal-semana')) document.getElementById('filtro-modal-semana').value = '';
+    aplicarFiltrosVisuales();
+}
+
+function removerFiltroIndividual(tipo) {
+    if (tipo === 'nivel') {
+        filtroNivel = '';
+        if (document.getElementById('filtro-modal-nivel')) document.getElementById('filtro-modal-nivel').value = '';
+    }
+    if (tipo === 'seccion') {
+        filtroSeccion = '';
+        if (document.getElementById('filtro-modal-seccion')) document.getElementById('filtro-modal-seccion').value = '';
+    }
+    if (tipo === 'semana') {
+        filtroSemana = '';
+        if (document.getElementById('filtro-modal-semana')) document.getElementById('filtro-modal-semana').value = '';
+    }
+    aplicarFiltrosVisuales();
+}
+
+function aplicarFiltrosVisuales() {
+    var hayFiltrosActivos = (filtroNivel !== '' || filtroSeccion !== '' || filtroSemana !== '');
+    var badgeActivo = document.getElementById('filtro-badge-activo');
+    var btnFiltros = document.getElementById('btn-abrir-filtros');
+    
+    if (badgeActivo) badgeActivo.style.display = hayFiltrosActivos ? 'inline-block' : 'none';
+    if (btnFiltros) {
+        if (hayFiltrosActivos) {
+            btnFiltros.style.borderColor = 'var(--primary)';
+            btnFiltros.style.background = '#f0f4ff';
+        } else {
+            btnFiltros.style.borderColor = 'var(--border-color)';
+            btnFiltros.style.background = '#fff';
+        }
+    }
+
+    var chipsContainer = document.getElementById('active-filters-chips');
+    var chipNivel = document.getElementById('chip-nivel');
+    var chipSeccion = document.getElementById('chip-seccion');
+    var chipSemana = document.getElementById('chip-semana');
+    
+    if (chipsContainer) {
+        if (hayFiltrosActivos) {
+            chipsContainer.style.display = 'flex';
+            
+            if (filtroNivel && chipNivel) {
+                var selectNiv = document.getElementById('filtro-modal-nivel');
+                var txtNiv = selectNiv && selectNiv.options[selectNiv.selectedIndex] ? selectNiv.options[selectNiv.selectedIndex].text : 'Nivel ' + filtroNivel;
+                chipNivel.innerHTML = txtNiv + ' <span class="chip-remove" onclick="removerFiltroIndividual(\'nivel\')">✕</span>';
+                chipNivel.style.display = 'inline-flex';
+            } else if (chipNivel) {
+                chipNivel.style.display = 'none';
+            }
+
+            if (filtroSeccion && chipSeccion) {
+                chipSeccion.innerHTML = 'Sec: ' + filtroSeccion + ' <span class="chip-remove" onclick="removerFiltroIndividual(\'seccion\')">✕</span>';
+                chipSeccion.style.display = 'inline-flex';
+            } else if (chipSeccion) {
+                chipSeccion.style.display = 'none';
+            }
+
+            if (filtroSemana && chipSemana) {
+                chipSemana.innerHTML = 'Semana ' + filtroSemana + ' <span class="chip-remove" onclick="removerFiltroIndividual(\'semana\')">✕</span>';
+                chipSemana.style.display = 'inline-flex';
+            } else if (chipSemana) {
+                chipSemana.style.display = 'none';
+            }
+        } else {
+            chipsContainer.style.display = 'none';
+            if (chipNivel) chipNivel.style.display = 'none';
+            if (chipSeccion) chipSeccion.style.display = 'none';
+            if (chipSemana) chipSemana.style.display = 'none';
+        }
+    }
+
+    var totalVisibles = 0;
+    var bloques = document.querySelectorAll('.bloque-seccion-group');
+    bloques.forEach(function(bloque) {
+        var bloqueSec = bloque.getAttribute('data-seccion') || '';
+        var bloqueTray = bloque.getAttribute('data-trayecto') || '';
+
+        var matchNivel = (filtroNivel === '' || bloqueTray === filtroNivel);
+        var matchSeccion = (filtroSeccion === '' || bloqueSec === filtroSeccion);
+
+        var cursosEnBloque = bloque.querySelectorAll('.curso-item-accordion');
+        var cursosVisiblesEnBloque = 0;
+
+        cursosEnBloque.forEach(function(item) {
+            var cursoNombre = item.getAttribute('data-curso-nombre') || '';
+            var matchTexto = (filtroTexto === '' || cursoNombre.indexOf(filtroTexto) !== -1);
+
+            var weeks = item.querySelectorAll('.clickable-week');
+            weeks.forEach(function(w) {
+                var sem = w.getAttribute('data-semana');
+                if (filtroSemana === '' || sem === filtroSemana) {
+                    w.style.display = '';
+                } else {
+                    w.style.display = 'none';
+                }
+            });
+
+            if (matchNivel && matchSeccion && matchTexto) {
+                item.style.display = '';
+                cursosVisiblesEnBloque++;
+                totalVisibles++;
+                if (filtroSemana !== '' || (filtroTexto !== '' && filtroTexto.length >= 3)) {
+                    item.open = true;
+                }
+            } else {
+                item.style.display = 'none';
+            }
+        });
+
+        if (cursosVisiblesEnBloque > 0) {
+            bloque.style.display = '';
+        } else {
+            bloque.style.display = 'none';
+        }
+    });
+
+    var noCursosMsg = document.getElementById('no-cursos-filtro');
+    if (noCursosMsg) {
+        noCursosMsg.style.display = totalVisibles === 0 ? 'block' : 'none';
+    }
 }
 
 var cambioEstadoInscripcion = 0;

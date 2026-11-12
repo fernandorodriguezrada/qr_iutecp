@@ -248,27 +248,27 @@ if ($sesion_activa) {
             <h2 style="color:var(--primary);margin-bottom:6px">Registro de Asistencias</h2>
             <p style="margin-bottom:14px;color:#666;font-size:13.5px;">Seleccione una materia y semana</p>
 
-            <div class="asistencia-search-toolbar" style="display:flex;gap:8px;margin-bottom:12px;align-items:center;">
+            <div class="asistencia-search-toolbar" style="display:flex;gap:8px;margin-bottom:14px;align-items:stretch;">
                 <div style="position:relative;flex:1;">
-                    <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:13px;color:#888;pointer-events:none;">🔍</span>
                     <input type="text" id="filtro-materia-input" placeholder="Buscar materia..." autocomplete="off"
-                           style="width:100%;padding:8px 30px 8px 32px;margin-bottom:0 !important;border:1px solid var(--border-color);border-radius:20px;font-size:13.5px;outline:none;background:#fff;"
+                           style="width:100%;height:100%;padding:10px 32px 10px 12px;margin:0 !important;border:1px solid var(--border-color);border-radius:4px;font-size:14px;background:#fff;box-sizing:border-box;"
                            oninput="onBusquedaMateriaInput()" />
                     <span id="btn-limpiar-busqueda" onclick="limpiarBusquedaTexto()"
-                          style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:13px;color:#999;cursor:pointer;display:none;padding:2px 4px;user-select:none;">✕</span>
+                          style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:14px;color:#999;cursor:pointer;display:none;padding:2px 4px;user-select:none;">✕</span>
                 </div>
                 <button type="button" class="btn" id="btn-abrir-filtros" onclick="abrirModalFiltros()"
-                        style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:#fff;border:1px solid var(--border-color);border-radius:20px;color:var(--primary);font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer;">
+                        style="display:inline-flex;align-items:center;gap:6px;padding:10px 14px;background:var(--bg-light);border:1px solid var(--border-color);border-radius:4px;color:var(--primary);font-size:14px;font-weight:bold;white-space:nowrap;cursor:pointer;">
                     <span>Filtros</span>
-                    <span id="filtro-badge-activo" style="display:none;width:8px;height:8px;background:#e67e22;border-radius:50%;"></span>
+                    <span id="filtro-badge-activo" style="display:none;font-size:11px;background:var(--primary);color:#fff;border-radius:3px;padding:1px 5px;font-weight:bold;line-height:1.2;">0</span>
                 </button>
             </div>
 
-            <div id="active-filters-chips" style="display:none;gap:6px;flex-wrap:wrap;margin-bottom:14px;align-items:center;">
+            <div id="active-filters-chips" style="display:none;gap:6px;flex-wrap:wrap;margin-bottom:12px;align-items:center;">
+                <span style="font-size:12px;color:#666;">Filtros:</span>
                 <span id="chip-nivel" class="filter-chip" style="display:none;"></span>
                 <span id="chip-seccion" class="filter-chip" style="display:none;"></span>
                 <span id="chip-semana" class="filter-chip" style="display:none;"></span>
-                <button type="button" onclick="limpiarTodosFiltros()" style="background:none;border:none;color:#dc3545;font-size:12px;font-weight:600;cursor:pointer;padding:2px 6px;">Borrar filtros</button>
+                <button type="button" onclick="limpiarTodosFiltros()" style="background:none;border:none;color:#dc3545;font-size:12px;font-weight:bold;cursor:pointer;padding:2px 4px;text-decoration:underline;">Limpiar todo</button>
             </div>
 
             <div id="no-cursos-filtro" style="display:none;text-align:center;padding:28px 14px;color:#888;">
@@ -282,9 +282,8 @@ if ($sesion_activa) {
                 <div id="bloques-cursos-container">
                 <?php foreach ($bloques_cursos as $bKey => $bloque): ?>
                     <div class="bloque-seccion-group" data-seccion="<?= htmlspecialchars($bloque['seccion']) ?>" data-trayecto="<?= $bloque['trayecto'] ?>" style="margin-bottom:16px;">
-                        <div class="bloque-header" style="display:flex;align-items:center;gap:6px;margin:0 0 8px 2px;">
-                            <span style="background:rgba(38, 40, 101, 0.08);color:var(--primary);padding:3px 10px;border-radius:12px;font-size:12px;font-weight:700;letter-spacing:0.2px;">Sección <?= htmlspecialchars($bloque['seccion']) ?></span>
-                            <span style="background:rgba(255, 224, 1, 0.4);color:#6b5300;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:700;"><?= htmlspecialchars($bloque['nivel']) ?></span>
+                        <div class="bloque-header" style="font-size:13px;font-weight:bold;color:var(--primary);margin:16px 0 8px 0;letter-spacing:0.3px;">
+                            Sección <?= htmlspecialchars($bloque['seccion']) ?> - <?= htmlspecialchars($bloque['nivel']) ?>
                         </div>
                         <?php foreach ($bloque['cursos'] as $c): ?>
                         <details class="class-accordion curso-item-accordion"
@@ -295,14 +294,11 @@ if ($sesion_activa) {
                                  data-horario="<?= htmlspecialchars($c['horario'] ?: '') ?>"
                                  data-trayecto="<?= (int)$c['trayecto'] ?>"
                                  style="margin-bottom:8px;">
-                            <summary style="font-size:14px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;">
+                            <summary style="font-size:14px;">
                                 <div style="flex:1;min-width:0;padding-right:8px;">
-                                    <div class="curso-title" style="font-weight:bold;color:var(--primary);line-height:1.25;font-size:13.5px;"><?= htmlspecialchars($c['nombre']) ?></div>
+                                    <div class="curso-title" style="font-weight:bold;color:var(--primary);line-height:1.3;"><?= htmlspecialchars($c['nombre']) ?></div>
                                     <?php if (!empty($c['horario'])): ?>
-                                    <div style="font-size:11.5px;color:#666;font-weight:normal;margin-top:3px;display:flex;align-items:center;gap:4px;">
-                                        <span>🕒</span>
-                                        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><?= htmlspecialchars($c['horario']) ?></span>
-                                    </div>
+                                    <div style="font-size:12px;color:#666;font-weight:normal;margin-top:2px;">(<?= htmlspecialchars($c['horario']) ?>)</div>
                                     <?php endif; ?>
                                 </div>
                             </summary>
@@ -1149,18 +1145,28 @@ function removerFiltroIndividual(tipo) {
 }
 
 function aplicarFiltrosVisuales() {
-    var hayFiltrosActivos = (filtroNivel !== '' || filtroSeccion !== '' || filtroSemana !== '');
+    var countFiltros = (filtroNivel ? 1 : 0) + (filtroSeccion ? 1 : 0) + (filtroSemana ? 1 : 0);
     var badgeActivo = document.getElementById('filtro-badge-activo');
     var btnFiltros = document.getElementById('btn-abrir-filtros');
     
-    if (badgeActivo) badgeActivo.style.display = hayFiltrosActivos ? 'inline-block' : 'none';
-    if (btnFiltros) {
-        if (hayFiltrosActivos) {
+    if (countFiltros > 0) {
+        if (badgeActivo) {
+            badgeActivo.textContent = countFiltros;
+            badgeActivo.style.display = 'inline-block';
+            badgeActivo.style.background = '#fff';
+            badgeActivo.style.color = 'var(--primary)';
+        }
+        if (btnFiltros) {
+            btnFiltros.style.background = 'var(--primary)';
+            btnFiltros.style.color = '#fff';
             btnFiltros.style.borderColor = 'var(--primary)';
-            btnFiltros.style.background = '#f0f4ff';
-        } else {
+        }
+    } else {
+        if (badgeActivo) badgeActivo.style.display = 'none';
+        if (btnFiltros) {
+            btnFiltros.style.background = 'var(--bg-light)';
+            btnFiltros.style.color = 'var(--primary)';
             btnFiltros.style.borderColor = 'var(--border-color)';
-            btnFiltros.style.background = '#fff';
         }
     }
 

@@ -1130,28 +1130,24 @@ body.auth-body .auth-view {
 }
 
 /* Toolbar de búsqueda y filtros de asistencia profesor */
-.asistencia-search-toolbar input:focus {
-  border-color: var(--primary) !important;
-  box-shadow: 0 0 0 3px rgba(38, 40, 101, 0.1) !important;
-}
 .filter-chip {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  background: #eef2ff;
+  background: var(--white);
   color: var(--primary);
-  border: 1px solid #c7d2fe;
-  padding: 4px 10px;
-  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  padding: 3px 8px;
+  border-radius: 4px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: bold;
   user-select: none;
 }
 .filter-chip .chip-remove {
   cursor: pointer;
+  color: #888;
+  font-size: 12px;
   font-weight: bold;
-  color: #6366f1;
-  font-size: 11px;
   margin-left: 2px;
   line-height: 1;
 }

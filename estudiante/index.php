@@ -25,7 +25,8 @@ $semana_actual = obtenerSemanaActual($estudiante_id);
 $stmt = $pdo->prepare("
     SELECT c.id, c.nombre, c.codigo, c.seccion, c.horario, c.aula, c.trayecto,
            cr.nombre as carrera_nombre, cr.nivel as carrera_nivel,
-           u.nombre_completo as profesor_nombre
+           u.nombre_completo as profesor_nombre,
+           i.id as inscripcion_id
     FROM inscripciones i
     JOIN cursos c ON c.id = i.curso_id
     JOIN carreras cr ON cr.id = c.carrera_id
@@ -35,6 +36,52 @@ $stmt = $pdo->prepare("
 ");
 $stmt->execute([$estudiante_id, $periodo]);
 $cursos = $stmt->fetchAll();
+
+// Métricas para Dashboard de Resumen
+$total_semanas = 12;
+$semanas_transcurridas = min($total_semanas, max(1, (int)$semana_actual));
+$semanas_restantes = max(0, $total_semanas - $semanas_transcurridas);
+$porcentaje_avance_periodo = min(100, round(($semanas_transcurridas / $total_semanas) * 100));
+
+$asistencias_por_inscripcion = [];
+$global_counts = [
+    'presente' => 0,
+    'tarde' => 0,
+    'ausente' => 0,
+    'justificado' => 0,
+];
+
+$stmt_asist = $pdo->prepare("
+    SELECT a.inscripcion_id, a.estado, COUNT(*) as cantidad
+    FROM asistencias a
+    JOIN inscripciones i ON i.id = a.inscripcion_id
+    WHERE i.estudiante_id = ? AND i.periodo = ?
+    GROUP BY a.inscripcion_id, a.estado
+");
+$stmt_asist->execute([$estudiante_id, $periodo]);
+while ($row = $stmt_asist->fetch()) {
+    $ins_id = (int)$row['inscripcion_id'];
+    $estado = (string)$row['estado'];
+    $cant = (int)$row['cantidad'];
+    if (!isset($asistencias_por_inscripcion[$ins_id])) {
+        $asistencias_por_inscripcion[$ins_id] = [
+            'presente' => 0,
+            'tarde' => 0,
+            'ausente' => 0,
+            'justificado' => 0,
+        ];
+    }
+    if (isset($global_counts[$estado])) {
+        $global_counts[$estado] += $cant;
+    }
+    if (isset($asistencias_por_inscripcion[$ins_id][$estado])) {
+        $asistencias_por_inscripcion[$ins_id][$estado] += $cant;
+    }
+}
+
+$global_total_registros = array_sum($global_counts);
+$global_asistencias_validas = $global_counts['presente'] + $global_counts['tarde'] + $global_counts['justificado'];
+$global_porcentaje_asistencia = $global_total_registros > 0 ? round(($global_asistencias_validas / $global_total_registros) * 100) : 100;
 
 $stmt = $pdo->prepare("SELECT carrera_id FROM usuarios WHERE id = ?");
 $stmt->execute([$estudiante_id]);
@@ -381,28 +428,138 @@ if (
         </div>
     </div>
 
-    <div class="mobile-content hidden" id="tab-historial">
-        <h2 style="color:var(--primary);margin-bottom:6px">Historial de Asistencias</h2>
-        <p style="margin-bottom:15px;color:#666;">Registro de tus asistencias escaneadas</p>
+    <div class="mobile-content hidden" id="tab-resumen">
+        <h2 style="color:var(--primary);margin-bottom:4px;">Resumen Académico</h2>
+        <p style="margin-bottom:18px;color:#666;font-size:14px;">Métricas y avance de asistencia del período actual</p>
 
-        <div class="asistencia-search-toolbar" id="historial-toolbar" style="display:flex;gap:8px;margin-bottom:14px;align-items:stretch;">
-            <div style="position:relative;flex:1;">
-                <input type="text" id="filtro-historial-input" placeholder="Buscar materia o semana..." autocomplete="off"
-                       style="width:100%;height:100%;padding:10px 32px 10px 12px;margin:0 !important;border:1px solid var(--border-color);border-radius:4px;font-size:15px;background:#fff;box-sizing:border-box;"
-                       oninput="onBusquedaHistorialInput()" />
-                <span id="btn-limpiar-historial" onclick="limpiarBusquedaHistorial()"
-                      style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:14px;color:#999;cursor:pointer;display:none;padding:2px 4px;user-select:none;">✕</span>
+        <!-- 1. Avance del Período Académico -->
+        <div class="card" style="margin-bottom:16px;padding:16px;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <span style="font-weight:bold;color:var(--primary);font-size:14.5px;">Período <?= htmlspecialchars($periodo) ?></span>
+                <span style="font-size:12.5px;font-weight:bold;color:var(--primary);background:#e8eaf6;padding:3px 8px;border-radius:4px;">Semana <?= $semanas_transcurridas ?> de <?= $total_semanas ?></span>
+            </div>
+            <div style="width:100%;background:#e2e8f0;height:10px;border-radius:5px;overflow:hidden;margin-bottom:8px;">
+                <div style="width:<?= $porcentaje_avance_periodo ?>%;background:var(--primary);height:100%;transition:width 0.4s ease;"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:#666;">
+                <span><?= $porcentaje_avance_periodo ?>% del período transcurrido</span>
+                <span><?= $semanas_restantes ?> semana<?= $semanas_restantes == 1 ? '' : 's' ?> restante<?= $semanas_restantes == 1 ? '' : 's' ?></span>
             </div>
         </div>
 
-        <div id="no-historial-filtro" style="display:none;text-align:center;padding:25px 14px;color:#888;">
-            <p style="font-size:14px;margin-bottom:8px;">No se encontraron registros con esa búsqueda.</p>
-            <button type="button" class="btn" onclick="limpiarBusquedaHistorial()" style="font-size:13px;padding:6px 14px;background:#eee;color:var(--text-dark);border-radius:4px;border:none;cursor:pointer;">Restablecer</button>
+        <!-- 2. Métricas Globales de Asistencia (KPIs) -->
+        <div class="card" style="margin-bottom:20px;padding:16px;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #f0f0f0;">
+                <div>
+                    <span style="font-size:13px;color:#666;display:block;margin-bottom:2px;">Asistencia Global</span>
+                    <strong style="font-size:26px;color:var(--primary);line-height:1;"><?= $global_total_registros > 0 ? $global_porcentaje_asistencia . '%' : '100%' ?></strong>
+                </div>
+                <div style="text-align:right;">
+                    <span style="font-size:12.5px;color:#555;display:block;">
+                        <?= $global_total_registros > 0 ? "$global_asistencias_validas de $global_total_registros sesiones" : "Sin clases registradas aún" ?>
+                    </span>
+                    <span style="font-size:11.5px;color:<?= $global_porcentaje_asistencia >= 75 ? '#15803d' : ($global_porcentaje_asistencia >= 60 ? '#b45309' : '#b91c1c') ?>;font-weight:600;">
+                        <?= $global_total_registros > 0 ? ($global_porcentaje_asistencia >= 75 ? 'Cumpliendo asistencia' : ($global_porcentaje_asistencia >= 60 ? 'En observación' : 'En riesgo')) : 'Período en curso' ?>
+                    </span>
+                </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:4px;padding:12px 14px;">
+                    <div style="font-size:22px;font-weight:bold;color:#15803d;line-height:1.2;"><?= $global_counts['presente'] ?></div>
+                    <div style="font-size:12.5px;color:#166534;font-weight:600;margin-top:2px;">Puntual</div>
+                </div>
+                <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:4px;padding:12px 14px;">
+                    <div style="font-size:22px;font-weight:bold;color:#b45309;line-height:1.2;"><?= $global_counts['tarde'] ?></div>
+                    <div style="font-size:12.5px;color:#92400e;font-weight:600;margin-top:2px;">Con retraso</div>
+                </div>
+                <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:4px;padding:12px 14px;">
+                    <div style="font-size:22px;font-weight:bold;color:#b91c1c;line-height:1.2;"><?= $global_counts['ausente'] ?></div>
+                    <div style="font-size:12.5px;color:#991b1b;font-weight:600;margin-top:2px;">Inasistencias</div>
+                </div>
+                <div style="background:#f0fdfa;border:1px solid #99f6e4;border-radius:4px;padding:12px 14px;">
+                    <div style="font-size:22px;font-weight:bold;color:#0f766e;line-height:1.2;"><?= $global_counts['justificado'] ?></div>
+                    <div style="font-size:12.5px;color:#115e59;font-weight:600;margin-top:2px;">Justificadas</div>
+                </div>
+            </div>
         </div>
 
-        <ul class="historial-list" id="historial-lista" style="list-style:none;padding:0;margin:0;">
-            <li style="text-align:center;color:#999;padding:30px;background:none;border:none;">Cargando...</li>
-        </ul>
+        <!-- 3. Desglose / Semáforo por Materia -->
+        <h3 style="color:var(--primary);font-size:15px;margin:0 0 12px 0;letter-spacing:0.2px;">Rendimiento por Materia</h3>
+
+        <?php if (empty($cursos)): ?>
+            <div class="card" style="text-align:center;padding:30px;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
+                <p style="color:#999;font-size:14px;margin:0;">No tienes materias inscritas para el período actual.</p>
+            </div>
+        <?php else: ?>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+            <?php foreach ($cursos as $c):
+                $c_ins_id = (int)($c['inscripcion_id'] ?? 0);
+                $c_cnt = $asistencias_por_inscripcion[$c_ins_id] ?? ['presente'=>0, 'tarde'=>0, 'ausente'=>0, 'justificado'=>0];
+                $c_tot = array_sum($c_cnt);
+                $c_asi = $c_cnt['presente'] + $c_cnt['tarde'] + $c_cnt['justificado'];
+                $c_porc = $c_tot > 0 ? round(($c_asi / $c_tot) * 100) : null;
+
+                if ($c_tot === 0) {
+                    $badge_label = 'Sin registros';
+                    $badge_color = '#64748b';
+                    $badge_bg = '#f1f5f9';
+                    $badge_border = '#cbd5e1';
+                    $bar_color = '#cbd5e1';
+                } elseif ($c_porc >= 75) {
+                    $badge_label = 'Al día (' . $c_porc . '%)';
+                    $badge_color = '#15803d';
+                    $badge_bg = '#dcfce7';
+                    $badge_border = '#bbf7d0';
+                    $bar_color = '#22c55e';
+                } elseif ($c_porc >= 60) {
+                    $badge_label = 'En observación (' . $c_porc . '%)';
+                    $badge_color = '#b45309';
+                    $badge_bg = '#fef3c7';
+                    $badge_border = '#fde68a';
+                    $bar_color = '#f59e0b';
+                } else {
+                    $badge_label = 'En riesgo (' . $c_porc . '%)';
+                    $badge_color = '#b91c1c';
+                    $badge_bg = '#fee2e2';
+                    $badge_border = '#fecaca';
+                    $bar_color = '#ef4444';
+                }
+            ?>
+                <div class="card" style="border:1px solid var(--border-color);border-radius:4px;background:#fff;padding:14px 16px;">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px;">
+                        <div style="flex:1;min-width:0;">
+                            <strong style="font-size:15px;color:var(--primary);display:block;line-height:1.35;word-break:break-word;"><?= htmlspecialchars($c['nombre']) ?></strong>
+                            <div style="font-size:12.5px;color:#666;margin-top:2px;">
+                                Código: <?= htmlspecialchars($c['codigo']) ?><?= $c['seccion'] ? ' · Sec: ' . htmlspecialchars($c['seccion']) : '' ?><?= $c['aula'] ? ' · Aula ' . htmlspecialchars($c['aula']) : '' ?>
+                            </div>
+                        </div>
+                        <div style="flex-shrink:0;">
+                            <span style="font-size:12px;font-weight:bold;color:<?= $badge_color ?>;background:<?= $badge_bg ?>;border:1px solid <?= $badge_border ?>;padding:3px 8px;border-radius:4px;display:inline-block;white-space:nowrap;"><?= $badge_label ?></span>
+                        </div>
+                    </div>
+
+                    <div style="font-size:12.5px;color:#555;margin-bottom:10px;">
+                        <div>Prof. <?= htmlspecialchars($c['profesor_nombre']) ?></div>
+                        <?php if (!empty($c['horario'])): ?>
+                            <div style="color:#777;margin-top:2px;">🕒 <?= htmlspecialchars($c['horario']) ?></div>
+                        <?php endif; ?>
+                    </div>
+
+                    <div style="width:100%;background:#f1f5f9;height:6px;border-radius:3px;overflow:hidden;margin-bottom:10px;">
+                        <div style="width:<?= $c_tot > 0 ? $c_porc : 0 ?>%;background:<?= $bar_color ?>;height:100%;"></div>
+                    </div>
+
+                    <div style="display:flex;gap:6px;flex-wrap:wrap;font-size:12px;">
+                        <span style="background:#e8f5e9;color:#2e7d32;padding:3px 7px;border-radius:4px;font-weight:600;">Pres: <?= $c_cnt['presente'] ?></span>
+                        <span style="background:#fdebd0;color:#d35400;padding:3px 7px;border-radius:4px;font-weight:600;">Tarde: <?= $c_cnt['tarde'] ?></span>
+                        <span style="background:#ffebee;color:#c62828;padding:3px 7px;border-radius:4px;font-weight:600;">Aus: <?= $c_cnt['ausente'] ?></span>
+                        <span style="background:#e0f7f7;color:#008b8b;padding:3px 7px;border-radius:4px;font-weight:600;">Just: <?= $c_cnt['justificado'] ?></span>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
     </div>
 
     <div class="mobile-content hidden" id="tab-guia">
@@ -420,8 +577,8 @@ if (
             <p style="font-size:14px;margin:10px 0;">Cuando estés en el aula con tu profesor, ve a la pestaña <b>Escanear</b>, apunta tu cámara al código y ¡listo! Asistencia guardada.</p>
         </div>
         <div class="card" style="padding:15px;">
-            <h4 style="color:var(--secondary)">3. Revisa tu Historial</h4>
-            <p style="font-size:14px;margin:10px 0;">En la pestaña <b>Historial</b> puedes ver todas tus asistencias registradas.</p>
+            <h4 style="color:var(--secondary)">3. Revisa tu Resumen</h4>
+            <p style="font-size:14px;margin:10px 0;">En la pestaña <b>Resumen</b> puedes consultar el avance del período, tus estadísticas generales y el semáforo de asistencia por materia.</p>
         </div>
     </div>
 
@@ -483,7 +640,7 @@ if (
     <div class="mobile-nav">
         <button class="active" onclick="switchTab('inicio',this)">Inicio</button>
         <button onclick="switchTab('escanear',this)">Escanear</button>
-        <button onclick="switchTab('historial',this)">Historial</button>
+        <button onclick="switchTab('resumen',this)">Resumen</button>
     </div>
 </div>
 
@@ -503,7 +660,6 @@ function switchTab(tab, btn) {
         btn.classList.add('active');
     }
     if (tab === 'inicio') { volverMaterias(); cargarEstadoSemanas(); }
-    if (tab === 'historial') cargarHistorial();
     if (tab !== 'escanear') detenerCamara();
 }
 
@@ -631,123 +787,6 @@ function volverMaterias() {
     if (lista) lista.classList.remove('hidden');
 }
 
-function formatearFechaEspanol(fechaStr) {
-    if (!fechaStr) return '--';
-    var partes = fechaStr.split('-');
-    if (partes.length === 3) {
-        var meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
-        var anio = partes[0];
-        var mesIdx = parseInt(partes[1], 10) - 1;
-        var dia = parseInt(partes[2], 10);
-        if (mesIdx >= 0 && mesIdx < 12) {
-            return dia + ' ' + meses[mesIdx] + ' ' + anio;
-        }
-    }
-    return fechaStr;
-}
-
-function onBusquedaHistorialInput() {
-    var val = (document.getElementById('filtro-historial-input').value || '').trim().toLowerCase();
-    var btnLimpiar = document.getElementById('btn-limpiar-historial');
-    if (btnLimpiar) btnLimpiar.style.display = val ? 'block' : 'none';
-
-    var items = document.querySelectorAll('#historial-lista .historial-card-item');
-    var visibles = 0;
-    items.forEach(function(item) {
-        var texto = decodeURIComponent(item.getAttribute('data-search') || '') || item.textContent.toLowerCase();
-        var coincide = !val || texto.indexOf(val) !== -1;
-        item.style.display = coincide ? '' : 'none';
-        if (coincide) visibles++;
-    });
-
-    var noResult = document.getElementById('no-historial-filtro');
-    if (noResult) {
-        noResult.style.display = (items.length > 0 && visibles === 0) ? 'block' : 'none';
-    }
-}
-
-function limpiarBusquedaHistorial() {
-    var inp = document.getElementById('filtro-historial-input');
-    if (inp) {
-        inp.value = '';
-        onBusquedaHistorialInput();
-    }
-}
-
-function cargarHistorial() {
-    var ul = document.getElementById('historial-lista');
-    var toolbar = document.getElementById('historial-toolbar');
-    var noResult = document.getElementById('no-historial-filtro');
-    if (noResult) noResult.style.display = 'none';
-
-    ul.innerHTML = '<li style="text-align:center;color:#999;padding:30px;background:none;border:none;">Cargando...</li>';
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', 'escanear_qr.php?accion=historial', true);
-    xhr.onload = function() {
-        if (xhr.status !== 200) { ul.innerHTML = '<li style="text-align:center;color:red;padding:30px;background:none;border:none;">Error al cargar</li>'; return; }
-        try {
-            var r = JSON.parse(xhr.responseText);
-            if (!r.ok) { ul.innerHTML = '<li style="text-align:center;color:#999;padding:30px;background:none;border:none;">' + (r.error || 'Sin datos') + '</li>'; return; }
-            if (r.registros.length === 0) {
-                ul.innerHTML = '<li style="list-style:none;padding:0;background:none;border:none;"><div class="card" style="text-align:center;padding:30px;"><p style="color:#999;font-size:14px;margin:0;">No tienes asistencias registradas aún.</p></div></li>';
-                if (toolbar) toolbar.style.display = 'none';
-                return;
-            }
-            if (toolbar) toolbar.style.display = 'flex';
-
-            var html = '';
-            r.registros.forEach(function(reg) {
-                var badge = '';
-                if (reg.estado === 'justificado') {
-                    badge = '<span style="font-size:12.5px;color:#008b8b;background:#e0f7f7;padding:3px 8px;border-radius:4px;font-weight:bold;">Justificado</span>';
-                } else if (reg.estado === 'tarde') {
-                    badge = '<span style="font-size:12.5px;color:#d35400;background:#fdebd0;padding:3px 8px;border-radius:4px;font-weight:bold;">Tarde</span>';
-                } else if (reg.estado === 'presente') {
-                    badge = '<span style="font-size:12.5px;color:#2e7d32;background:#e8f5e9;padding:3px 8px;border-radius:4px;font-weight:bold;">Presente</span>';
-                } else if (reg.estado === 'ausente') {
-                    badge = '<span style="font-size:12.5px;color:#c62828;background:#ffebee;padding:3px 8px;border-radius:4px;font-weight:bold;">Ausente</span>';
-                }
-
-                var fechaFmt = formatearFechaEspanol(reg.fecha);
-                var horaFmt = (reg.hora && reg.hora !== '--:--') ? reg.hora : '';
-                var fechaHoraTxt = fechaFmt + (horaFmt ? ' · ' + horaFmt : '');
-                var searchStr = (reg.curso + ' ' + reg.codigo + ' semana ' + reg.semana + ' ' + (reg.bloque_horario || '') + ' ' + (reg.estado || '')).toLowerCase();
-
-                html += '<li class="historial-card-item" data-search="' + encodeURIComponent(searchStr) + '" style="background:#fff;border:1px solid var(--border-color);border-radius:4px;padding:14px 16px;margin-bottom:10px;list-style:none;">';
-                html += '  <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px;">';
-                html += '    <div style="flex:1;min-width:0;">';
-                html += '      <strong style="font-size:15px;color:var(--primary);display:block;line-height:1.35;word-break:break-word;">' + reg.curso + '</strong>';
-                html += '      <span style="font-size:12.5px;color:#666;display:inline-block;margin-top:2px;">Código: ' + reg.codigo + '</span>';
-                html += '    </div>';
-                html += '    <div style="flex-shrink:0;">' + badge + '</div>';
-                html += '  </div>';
-
-                html += '  <div style="border-top:1px solid #eee;padding-top:8px;margin-top:4px;display:flex;flex-direction:column;gap:5px;font-size:13px;color:#666;">';
-                if (reg.bloque_horario) {
-                    html += '    <div style="display:flex;align-items:center;gap:6px;">';
-                    html += '      <span style="color:#888;">Horario:</span>';
-                    html += '      <strong style="color:var(--text-dark);">' + reg.bloque_horario + '</strong>';
-                    html += '    </div>';
-                }
-                html += '    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;">';
-                html += '      <span style="color:var(--primary);font-weight:bold;">Semana ' + reg.semana + '</span>';
-                html += '      <span>📅 ' + fechaHoraTxt + '</span>';
-                html += '    </div>';
-                html += '  </div>';
-
-                if (reg.estado === 'justificado' && reg.justificacion) {
-                    html += '  <div style="font-size:13px;color:#008b8b;margin-top:8px;background:#f0faf8;padding:8px 12px;border-radius:4px;border-left:3px solid #008b8b;line-height:1.4;">';
-                    html += '    <strong>Motivo:</strong> ' + reg.justificacion;
-                    html += '  </div>';
-                }
-                html += '</li>';
-            });
-            ul.innerHTML = html;
-            onBusquedaHistorialInput();
-        } catch(e) { ul.innerHTML = '<li style="text-align:center;color:red;padding:30px;background:none;border:none;">Error al procesar</li>'; }
-    };
-    xhr.send();
-}
 
 var camaraTimer = null;
 var camaraReady = false;
@@ -860,7 +899,6 @@ function procesarCodigo(codigo) {
             if (r.ok) {
                 mostrarPopup('¡Escaneo<br />Exitoso!');
                 cargarEstadoSemanas();
-                cargarHistorial();
             } else {
                 mostrarPopupError(r.error || 'Código<br />inválido');
             }

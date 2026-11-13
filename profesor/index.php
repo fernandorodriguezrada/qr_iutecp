@@ -325,19 +325,80 @@ if ($sesion_activa) {
     </div>
 
     <div class="mobile-content hidden" id="tab-ajustes">
-        <h2 style="color:var(--primary);margin-bottom:10px">Ajustes de Escaneo QR</h2>
-        <p style="margin-bottom:20px;color:#666">Configuración de seguridad y expiración</p>
+        <h2 style="color:var(--primary);margin-bottom:6px">Ajustes de Escaneo QR</h2>
+        <p style="margin-bottom:16px;color:#666;font-size:13.5px;">Configuración de tiempos y fases de asistencia</p>
         <div class="card">
             <form id="ajustes-form" onsubmit="return guardarAjustes(event)">
-                <label>Tiempo de expiración total (Minutos)</label>
-                <input type="number" name="expiracion_minutos" id="cfg-expiracion" value="20" min="1" max="120" required />
-                <label>Tiempo de puntualidad / tolerancia (Minutos)</label>
-                <input type="number" name="tolerancia_minutos" id="cfg-tolerancia" value="10" min="1" max="120" required />
-                <label>Frecuencia de rotación dinámica (Segundos)</label>
-                <input type="number" name="rotacion_segundos" id="cfg-rotacion" value="30" min="10" max="300" required />
-                <label>Radio de validación GPS (Metros)</label>
-                <input type="number" name="radio_gps" id="cfg-radio" value="50" min="10" max="500" required />
-                <button class="btn btn-primary" style="width:100%;margin-top:10px">Guardar Ajustes</button>
+                <div style="margin-bottom:16px;">
+                    <label for="cfg-tolerancia" style="font-size:13.5px;font-weight:600;display:block;margin-bottom:4px;color:var(--text-dark);">
+                        1. Tiempo de puntualidad (Fase Asistente)
+                    </label>
+                    <span style="display:block;font-size:12px;color:#666;margin-bottom:6px;line-height:1.4;">
+                        Minutos iniciales durante los cuales el escaneo registra al estudiante como <strong>Presente</strong>.
+                    </span>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <input type="number" name="tolerancia_minutos" id="cfg-tolerancia" value="10" min="1" max="120" required
+                               style="width:100%;max-width:140px;margin-bottom:0;" oninput="actualizarResumenFases()" />
+                        <span style="font-size:13px;color:#555;font-weight:500;">minutos</span>
+                    </div>
+                </div>
+
+                <div style="margin-bottom:18px;">
+                    <label for="cfg-expiracion" style="font-size:13.5px;font-weight:600;display:block;margin-bottom:4px;color:var(--text-dark);">
+                        2. Tiempo total de expiración (Cierre del QR)
+                    </label>
+                    <span style="display:block;font-size:12px;color:#666;margin-bottom:6px;line-height:1.4;">
+                        Tiempo total tras el cual la sesión finaliza. Quienes escaneen después de la puntualidad y antes del cierre se registran como <strong>Tarde</strong>.
+                    </span>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <input type="number" name="expiracion_minutos" id="cfg-expiracion" value="20" min="1" max="120" required
+                               style="width:100%;max-width:140px;margin-bottom:0;" oninput="actualizarResumenFases()" />
+                        <span style="font-size:13px;color:#555;font-weight:500;">minutos</span>
+                    </div>
+                </div>
+
+                <div style="background:var(--bg-light);border:1px solid var(--border-color);border-radius:4px;padding:12px 14px;margin-bottom:18px;">
+                    <div style="font-size:12px;font-weight:bold;color:var(--primary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">
+                        Fases del Código QR:
+                    </div>
+                    
+                    <div style="display:flex;flex-direction:column;gap:8px;">
+                        <div style="display:flex;align-items:flex-start;gap:10px;background:#fff;border:1px solid var(--border-color);border-left:4px solid #2e7d32;border-radius:4px;padding:9px 12px;">
+                            <div style="flex:1;">
+                                <div style="font-size:13px;font-weight:600;color:var(--text-dark);">
+                                    Fase 1: Asistente <span style="font-weight:normal;color:#2e7d32;font-size:12px;">(Presente)</span>
+                                </div>
+                                <div id="fase-1-desc" style="font-size:12px;color:#666;margin-top:2px;">
+                                    Del minuto 0 al 10 (escaneo puntual)
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display:flex;align-items:flex-start;gap:10px;background:#fff;border:1px solid var(--border-color);border-left:4px solid #e67e22;border-radius:4px;padding:9px 12px;">
+                            <div style="flex:1;">
+                                <div style="font-size:13px;font-weight:600;color:var(--text-dark);">
+                                    Fase 2: Retraso <span style="font-weight:normal;color:#e67e22;font-size:12px;">(Tarde)</span>
+                                </div>
+                                <div id="fase-2-desc" style="font-size:12px;color:#666;margin-top:2px;">
+                                    Del minuto 10 al 20 (escaneo con retraso)
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display:flex;align-items:flex-start;gap:10px;background:#fff;border:1px solid var(--border-color);border-left:4px solid #c0392b;border-radius:4px;padding:9px 12px;">
+                            <div style="flex:1;">
+                                <div style="font-size:13px;font-weight:600;color:var(--text-dark);">
+                                    Fase 3: Expirado <span style="font-weight:normal;color:#c0392b;font-size:12px;">(Cierre total)</span>
+                                </div>
+                                <div id="fase-3-desc" style="font-size:12px;color:#666;margin-top:2px;">
+                                    A partir del minuto 20 (el código expira y la sesión se cierra)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" style="width:100%;padding:10px;font-size:14px;border-radius:4px;">Guardar Ajustes</button>
             </form>
         </div>
     </div>
@@ -1449,8 +1510,44 @@ function guardarJustificacion() {
     xhr.send('inscripcion_id=' + inscripcionJustificar + '&semana=' + semanaActual + '&fecha=' + encodeURIComponent(fechaJustificar) + '&bloque_horario=' + encodeURIComponent(bloqueJustificar) + '&justificacion=' + encodeURIComponent(texto));
 }
 
+function actualizarResumenFases() {
+    var tolInput = document.getElementById('cfg-tolerancia');
+    var expInput = document.getElementById('cfg-expiracion');
+    if (!tolInput || !expInput) return;
+
+    var tol = parseInt(tolInput.value, 10);
+    var exp = parseInt(expInput.value, 10);
+
+    if (isNaN(tol) || tol < 1) tol = 1;
+    if (isNaN(exp) || exp < 1) exp = 1;
+
+    var f1 = document.getElementById('fase-1-desc');
+    var f2 = document.getElementById('fase-2-desc');
+    var f3 = document.getElementById('fase-3-desc');
+
+    if (f1) f1.textContent = 'Del minuto 0 al ' + tol + ' (escaneo puntual)';
+    if (f2) {
+        if (exp > tol) {
+            f2.textContent = 'Del minuto ' + tol + ' al ' + exp + ' (escaneo con retraso)';
+        } else {
+            f2.textContent = 'Sin margen de retraso (pasa directo a expirado)';
+        }
+    }
+    if (f3) f3.textContent = 'A partir del minuto ' + exp + ' (el código expira y la sesión se cierra)';
+}
+
 function guardarAjustes(e) {
     e.preventDefault();
+    var tolInput = document.getElementById('cfg-tolerancia');
+    var expInput = document.getElementById('cfg-expiracion');
+    if (tolInput && expInput) {
+        var tol = parseInt(tolInput.value, 10) || 0;
+        var exp = parseInt(expInput.value, 10) || 0;
+        if (tol > exp) {
+            alert('El tiempo de puntualidad (' + tol + ' min) no puede superar el tiempo total de expiración (' + exp + ' min).');
+            return false;
+        }
+    }
     var form = document.getElementById('ajustes-form');
     var data = new FormData(form);
     var xhr = new XMLHttpRequest();
@@ -1491,12 +1588,11 @@ function cargarAjustes() {
         try {
             var r = JSON.parse(xhr.responseText);
             if (r.ok && r.config) {
-                document.getElementById('cfg-expiracion').value = r.config.expiracion_minutos;
-                if (document.getElementById('cfg-tolerancia') && r.config.tolerancia_minutos) {
-                    document.getElementById('cfg-tolerancia').value = r.config.tolerancia_minutos;
-                }
-                document.getElementById('cfg-rotacion').value = r.config.rotacion_segundos;
-                document.getElementById('cfg-radio').value = r.config.radio_gps;
+                var expEl = document.getElementById('cfg-expiracion');
+                var tolEl = document.getElementById('cfg-tolerancia');
+                if (expEl && r.config.expiracion_minutos) expEl.value = r.config.expiracion_minutos;
+                if (tolEl && r.config.tolerancia_minutos) tolEl.value = r.config.tolerancia_minutos;
+                actualizarResumenFases();
             }
         } catch(e) {}
     };

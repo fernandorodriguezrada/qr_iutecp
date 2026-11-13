@@ -17,11 +17,11 @@ if ($_SESSION['rol'] !== 'profesor') {
 $profesor_id = (int)$_SESSION['usuario_id'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $stmt = $pdo->prepare("SELECT expiracion_minutos, tolerancia_minutos, rotacion_segundos, radio_gps FROM configuracion_profesor WHERE profesor_id = ?");
+    $stmt = $pdo->prepare("SELECT expiracion_minutos, tolerancia_minutos FROM configuracion_profesor WHERE profesor_id = ?");
     $stmt->execute([$profesor_id]);
     $cfg = $stmt->fetch();
     if (!$cfg) {
-        $cfg = ['expiracion_minutos' => 20, 'tolerancia_minutos' => 10, 'rotacion_segundos' => 30, 'radio_gps' => 50];
+        $cfg = ['expiracion_minutos' => 20, 'tolerancia_minutos' => 10];
     }
     header('Content-Type: application/json');
     echo json_encode(['ok' => true, 'config' => $cfg]);
@@ -31,20 +31,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $expiracion = max(1, min(120, (int)($_POST['expiracion_minutos'] ?? 20)));
     $tolerancia = max(1, min($expiracion, (int)($_POST['tolerancia_minutos'] ?? 10)));
-    $rotacion = max(10, min(300, (int)($_POST['rotacion_segundos'] ?? 30)));
-    $radio = max(10, min(500, (int)($_POST['radio_gps'] ?? 50)));
+    $rotacion = 30;
+    $radio = 50;
 
     $stmt = $pdo->prepare("SELECT id FROM configuracion_profesor WHERE profesor_id = ?");
     $stmt->execute([$profesor_id]);
     if ($stmt->fetch()) {
-        $upd = $pdo->prepare("UPDATE configuracion_profesor SET expiracion_minutos = ?, tolerancia_minutos = ?, rotacion_segundos = ?, radio_gps = ? WHERE profesor_id = ?");
-        $upd->execute([$expiracion, $tolerancia, $rotacion, $radio, $profesor_id]);
+        $upd = $pdo->prepare("UPDATE configuracion_profesor SET expiracion_minutos = ?, tolerancia_minutos = ? WHERE profesor_id = ?");
+        $upd->execute([$expiracion, $tolerancia, $profesor_id]);
     } else {
         $ins = $pdo->prepare("INSERT INTO configuracion_profesor (profesor_id, expiracion_minutos, tolerancia_minutos, rotacion_segundos, radio_gps) VALUES (?, ?, ?, ?, ?)");
         $ins->execute([$profesor_id, $expiracion, $tolerancia, $rotacion, $radio]);
     }
 
-    registrarAuditoria($pdo, $profesor_id, 'Ajustes QR', "Exp:{$expiracion}min Tol:{$tolerancia}min Rot:{$rotacion}seg GPS:{$radio}m");
+    registrarAuditoria($pdo, $profesor_id, 'Ajustes QR', "Puntual:{$tolerancia}min Cierre:{$expiracion}min");
 
     header('Content-Type: application/json');
     echo json_encode(['ok' => true]);

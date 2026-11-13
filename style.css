@@ -67,7 +67,8 @@ body {
 input:where(:not([type="radio"]):not([type="checkbox"])),
 select {
   width: 100%;
-  padding: 8px;
+  padding: 10px 12px;
+  font-size: 15px;
   margin-bottom: 15px;
   border: 1px solid var(--border-color);
   border-radius: 4px;
@@ -1052,7 +1053,7 @@ body.auth-body .auth-view {
   padding: 10px 12px;
   font-size: 15px;
   border: 1px solid var(--border-color);
-  border-radius: 6px;
+  border-radius: 4px;
   background-color: #fff;
   color: var(--text-dark);
   margin-bottom: 12px;
@@ -1106,13 +1107,13 @@ body.auth-body .auth-view {
   border-bottom: 1px solid var(--border-color);
 }
 .student-name {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: bold;
   color: var(--primary);
   flex: 1;
 }
 .student-status {
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: bold;
   margin-left: auto;
   margin-right: 8px;
@@ -1151,19 +1152,31 @@ body.auth-body .auth-view {
   background: var(--white);
   color: var(--primary);
   border: 1px solid var(--border-color);
-  padding: 3px 8px;
+  padding: 4px 10px;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: bold;
   user-select: none;
 }
 .filter-chip .chip-remove {
   cursor: pointer;
   color: #888;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: bold;
   margin-left: 2px;
   line-height: 1;
+}
+
+.btn-ver-asistencia,
+.btn-ver-asistencia-est {
+  padding: 6px 14px !important;
+  font-size: 13.5px !important;
+  font-weight: bold !important;
+  background: var(--primary) !important;
+  color: #fff !important;
+  border-radius: 4px !important;
+  border: none !important;
+  cursor: pointer !important;
 }
 .filter-chip .chip-remove:hover {
   color: #dc3545;

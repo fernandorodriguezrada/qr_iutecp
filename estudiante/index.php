@@ -315,11 +315,11 @@ if (
                 </div>
             <?php else: ?>
             <?php foreach ($cursos as $c): ?>
-            <div style="font-size:13px;font-weight:bold;color:var(--primary);margin:15px 0 8px 0;"><?= htmlspecialchars(
+            <div style="font-size:15px;font-weight:bold;color:var(--primary);margin:18px 0 10px 0;letter-spacing:0.3px;"><?= htmlspecialchars(
                 $c["profesor_nombre"],
             ) ?><?= $c["seccion"] ? " - " . htmlspecialchars($c["seccion"]) : "" ?><?= $c["trayecto"] ? " - Nivel " . nivelRomano((int)$c["trayecto"]) : "" ?></div>
             <details class="class-accordion">
-                <summary style="font-size:14px;"><?= htmlspecialchars(
+                <summary style="font-size:15px;font-weight:bold;color:var(--primary);"><?= htmlspecialchars(
                     $c["nombre"],
                 ) ?></summary>
                 <ul class="weeks-list" data-curso="<?= $c["id"] ?>">
@@ -342,7 +342,7 @@ if (
 
         <div id="est-asistencia-detalle" class="hidden">
             <button class="btn" style="margin-bottom:15px;background:#eee;color:var(--text-dark);" onclick="volverMaterias()">⬅ Volver a materias</button>
-            <h3 id="est-detalle-titulo" style="color:var(--primary);margin-bottom:12px;font-size:15px;line-height:1.35;word-break:break-word;">Materia - Semana</h3>
+            <h3 id="est-detalle-titulo" style="color:var(--primary);margin-bottom:12px;font-size:16px;font-weight:bold;line-height:1.35;word-break:break-word;">Materia - Semana</h3>
             <div id="est-detalle-container"></div>
         </div>
     </div>
@@ -531,7 +531,7 @@ function cargarEstadoSemanas() {
                     slots.forEach(function(sp) {
                         var sesiones = s.sesiones || 0;
                         if (sesiones > 0) {
-                            sp.outerHTML = '<button type="button" class="btn btn-ver-asistencia-est" data-curso="' + cursoId + '" data-semana="' + s.semana + '" onclick="verAsistenciaEstudiante(this, ' + cursoId + ', ' + s.semana + ')" style="padding:5px 12px;font-size:12.5px;background:var(--primary);color:#fff;border-radius:4px;border:none;font-weight:600;cursor:pointer;">Ver asistencias</button>';
+                            sp.outerHTML = '<button type="button" class="btn btn-ver-asistencia-est" data-curso="' + cursoId + '" data-semana="' + s.semana + '" onclick="verAsistenciaEstudiante(this, ' + cursoId + ', ' + s.semana + ')" class="btn btn-ver-asistencia-est" style="padding:6px 14px;font-size:13.5px;background:var(--primary);color:#fff;border-radius:4px;border:none;font-weight:bold;cursor:pointer;">Ver asistencias</button>';
                         } else {
                             sp.outerHTML = '<span class="status-pending semana-status status-slot" data-curso="' + cursoId + '" data-semana="' + s.semana + '" style="font-weight:bold;color:gray;font-style:italic;">Pendiente</span>';
                         }
@@ -629,22 +629,22 @@ function cargarHistorial() {
             r.registros.forEach(function(reg) {
                 var badge = '';
                 if (reg.estado === 'justificado') {
-                    badge = '<span style="font-size:11px;color:#008b8b;background:#e0f7f7;padding:2px 7px;border-radius:4px;font-weight:bold;">Justificado</span>';
+                    badge = '<span style="font-size:12.5px;color:#008b8b;background:#e0f7f7;padding:3px 8px;border-radius:4px;font-weight:bold;">Justificado</span>';
                 } else if (reg.estado === 'tarde') {
-                    badge = '<span style="font-size:11px;color:#d35400;background:#fdebd0;padding:2px 7px;border-radius:4px;font-weight:bold;">Tarde</span>';
+                    badge = '<span style="font-size:12.5px;color:#d35400;background:#fdebd0;padding:3px 8px;border-radius:4px;font-weight:bold;">Tarde</span>';
                 } else if (reg.estado === 'presente') {
-                    badge = '<span style="font-size:11px;color:#2e7d32;background:#e8f5e9;padding:2px 7px;border-radius:4px;font-weight:bold;">Presente</span>';
+                    badge = '<span style="font-size:12.5px;color:#2e7d32;background:#e8f5e9;padding:3px 8px;border-radius:4px;font-weight:bold;">Presente</span>';
                 } else if (reg.estado === 'ausente') {
-                    badge = '<span style="font-size:11px;color:#c62828;background:#ffebee;padding:2px 7px;border-radius:4px;font-weight:bold;">Ausente</span>';
+                    badge = '<span style="font-size:12.5px;color:#c62828;background:#ffebee;padding:3px 8px;border-radius:4px;font-weight:bold;">Ausente</span>';
                 }
                 html += '<li style="padding:12px;margin-bottom:8px;">';
                 html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
                 html += '<strong>' + reg.curso + ' (' + reg.codigo + ')</strong>' + badge;
                 html += '</div>';
                 var bloqueTxt = reg.bloque_horario ? '<span style="color:var(--primary);font-weight:600;">' + reg.bloque_horario + '</span> - ' : '';
-                html += '<div style="font-size:12px;color:#666;margin-top:4px;">' + bloqueTxt + reg.fecha + (reg.hora && reg.hora !== '--:--' ? ' ' + reg.hora : '') + ' - Semana ' + reg.semana + '</div>';
+                html += '<div style="font-size:13.5px;color:#666;margin-top:4px;">' + bloqueTxt + reg.fecha + (reg.hora && reg.hora !== '--:--' ? ' ' + reg.hora : '') + ' - Semana ' + reg.semana + '</div>';
                 if (reg.estado === 'justificado' && reg.justificacion) {
-                    html += '<div style="font-size:12px;color:#008b8b;margin-top:6px;background:#f0faf8;padding:6px 10px;border-radius:4px;border-left:3px solid #008b8b;"><strong>Motivo:</strong> ' + reg.justificacion + '</div>';
+                    html += '<div style="font-size:13px;color:#008b8b;margin-top:6px;background:#f0faf8;padding:6px 10px;border-radius:4px;border-left:3px solid #008b8b;"><strong>Motivo:</strong> ' + reg.justificacion + '</div>';
                 }
                 html += '</li>';
             });
@@ -844,24 +844,24 @@ function renderCatalogo() {
         var badge = '';
         var disabled = false;
         if (c.estado === 'inscrita') {
-            badge = '<span style="background:#5a7d5a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:bold;">Inscrita</span>';
+            badge = '<span style="background:#5a7d5a;color:#fff;padding:3px 8px;border-radius:4px;font-size:12.5px;font-weight:bold;">Inscrita</span>';
             disabled = true;
         } else if (c.estado === 'aprobada') {
-            badge = '<span style="background:#4a6a8a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:bold;">Aprobada</span>';
+            badge = '<span style="background:#4a6a8a;color:#fff;padding:3px 8px;border-radius:4px;font-size:12.5px;font-weight:bold;">Aprobada</span>';
             disabled = true;
         } else if (c.estado === 'reprobada') {
-            badge = '<span style="background:#8a4a4a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:bold;">Reprobada</span>';
+            badge = '<span style="background:#8a4a4a;color:#fff;padding:3px 8px;border-radius:4px;font-size:12.5px;font-weight:bold;">Reprobada</span>';
         } else if (c.estado === 'bloqueada') {
-            badge = '<span style="background:var(--primary);color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:bold;">🔒</span>';
+            badge = '<span style="background:var(--primary);color:#fff;padding:3px 8px;border-radius:4px;font-size:12.5px;font-weight:bold;">🔒</span>';
             disabled = true;
         }
         html += '<div style="border:1px solid var(--border-color);border-radius:4px;margin-bottom:8px;' + (disabled ? 'opacity:0.6;' : '') + '">';
         html += '<div style="padding:12px 15px;background:var(--bg-light);display:flex;justify-content:space-between;align-items:center;font-weight:bold;color:var(--primary);font-size:14px;">';
         html += '<span>' + htmlspecialchars(c.nombre) + '</span> ' + badge + '</div>';
         html += '<div style="border-top:1px solid var(--border-color);padding:10px 15px;display:flex;gap:8px;align-items:center;">';
-        html += '<span style="font-size:13px;color:#666;margin-right:auto;">' + c.codigo + '</span>';
+        html += '<span style="font-size:13.5px;color:#666;margin-right:auto;">' + c.codigo + '</span>';
         if (!disabled) {
-            html += '<button class="btn btn-primary" onclick="inscribirMateria(' + c.id + ',this)" style="font-size:13px;padding:6px 14px;white-space:nowrap;margin:0;">Inscribir</button>';
+            html += '<button class="btn btn-primary" onclick="inscribirMateria(' + c.id + ',this)" style="font-size:13.5px;font-weight:bold;padding:7px 14px;white-space:nowrap;margin:0;">Inscribir</button>';
         }
         html += '</div></div>';
     }
@@ -877,20 +877,20 @@ function renderCatalogo() {
         if (electivaInscrita) {
             titulo = htmlspecialchars(electivaInscrita.nombre);
             codigoLabel = electivaInscrita.codigo;
-            badge = '<span style="background:#5a7d5a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:bold;">Inscrita</span>';
+            badge = '<span style="background:#5a7d5a;color:#fff;padding:3px 8px;border-radius:4px;font-size:12.5px;font-weight:bold;">Inscrita</span>';
             disabled = true;
         } else if (!tieneElectivaDisponible) {
-            badge = '<span style="background:var(--primary);color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:bold;">🔒</span>';
+            badge = '<span style="background:var(--primary);color:#fff;padding:3px 8px;border-radius:4px;font-size:12.5px;font-weight:bold;">🔒</span>';
             disabled = true;
         } else {
-            btnHtml = '<button class="btn btn-primary" onclick="abrirElectivas()" style="font-size:13px;padding:6px 14px;white-space:nowrap;margin:0;">Ver materias</button>';
+            btnHtml = '<button class="btn btn-primary" onclick="abrirElectivas()" style="font-size:13.5px;font-weight:bold;padding:7px 14px;white-space:nowrap;margin:0;">Ver materias</button>';
         }
 
         html += '<div style="border:1px solid var(--border-color);border-radius:4px;margin-bottom:8px;' + (disabled ? 'opacity:0.6;' : '') + '">';
         html += '<div style="padding:12px 15px;background:var(--bg-light);display:flex;justify-content:space-between;align-items:center;font-weight:bold;color:var(--primary);font-size:14px;">';
         html += '<span>' + titulo + '</span> ' + badge + '</div>';
         html += '<div style="border-top:1px solid var(--border-color);padding:10px 15px;display:flex;gap:8px;align-items:center;">';
-        html += '<span style="font-size:13px;color:#666;margin-right:auto;">' + codigoLabel + '</span>';
+        html += '<span style="font-size:13.5px;color:#666;margin-right:auto;">' + codigoLabel + '</span>';
         if (btnHtml) html += btnHtml;
         html += '</div></div>';
     }

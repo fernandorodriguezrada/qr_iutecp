@@ -109,8 +109,8 @@ $stmt_activa = $pdo->prepare("
     FROM sesiones_qr sq
     JOIN cursos c ON c.id = sq.curso_id
     JOIN carreras car ON car.id = c.carrera_id
-    WHERE sq.profesor_id = ? AND sq.activo = 1 
-      AND sq.fecha = CURDATE() 
+    WHERE sq.profesor_id = ? AND sq.activo = 1
+      AND sq.fecha = CURDATE()
       AND CONCAT(sq.fecha, ' ', sq.hora_expiracion) > NOW()
     ORDER BY sq.id DESC LIMIT 1
 ");
@@ -135,7 +135,7 @@ if ($sesion_activa) {
     $now = time();
     $exp_time = strtotime($sesion_activa['fecha'] . ' ' . $sesion_activa['hora_expiracion']);
     $tol_time = !empty($sesion_activa['hora_tolerancia']) ? strtotime($sesion_activa['fecha'] . ' ' . $sesion_activa['hora_tolerancia']) : $exp_time;
-    
+
     $qr_activo_segundos = max(0, $exp_time - $now);
     $qr_tolerancia_segundos = max(0, $tol_time - $now);
 }
@@ -187,7 +187,7 @@ if ($sesion_activa) {
                 <label style="font-weight:bold;display:block;margin-bottom:6px;color:var(--primary);font-size:14px;">Seleccionar Clase de Hoy:</label>
                 <select id="qr-curso" class="prof-select" onchange="actualizarInfoCurso()">
                     <?php foreach ($cursos as $c): ?>
-                    <option value="<?= $c['id'] ?>" 
+                    <option value="<?= $c['id'] ?>"
                             data-nombre="<?= htmlspecialchars($c['nombre']) ?>"
                             data-carrera="<?= htmlspecialchars($c['carrera_nombre']) ?>"
                             data-seccion="<?= htmlspecialchars($c['seccion'] ?: '-') ?>"
@@ -246,12 +246,12 @@ if ($sesion_activa) {
     <div class="mobile-content hidden" id="tab-asistencia">
         <div id="asistencia-lista">
             <h2 style="color:var(--primary);margin-bottom:6px">Registro de Asistencias</h2>
-            <p style="margin-bottom:14px;color:#666;font-size:13.5px;">Seleccione una materia y semana</p>
+            <p style="margin-bottom:15px;color:#666;">Seleccione una materia y semana</p>
 
             <div class="asistencia-search-toolbar" style="display:flex;gap:8px;margin-bottom:14px;align-items:stretch;">
                 <div style="position:relative;flex:1;">
                     <input type="text" id="filtro-materia-input" placeholder="Buscar materia..." autocomplete="off"
-                           style="width:100%;height:100%;padding:10px 32px 10px 12px;margin:0 !important;border:1px solid var(--border-color);border-radius:4px;font-size:14px;background:#fff;box-sizing:border-box;"
+                           style="width:100%;height:100%;padding:10px 32px 10px 12px;margin:0 !important;border:1px solid var(--border-color);border-radius:4px;font-size:15px;background:#fff;box-sizing:border-box;"
                            oninput="onBusquedaMateriaInput()" />
                     <span id="btn-limpiar-busqueda" onclick="limpiarBusquedaTexto()"
                           style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:14px;color:#999;cursor:pointer;display:none;padding:2px 4px;user-select:none;">✕</span>
@@ -259,16 +259,16 @@ if ($sesion_activa) {
                 <button type="button" class="btn" id="btn-abrir-filtros" onclick="abrirModalFiltros()"
                         style="display:inline-flex;align-items:center;gap:6px;padding:10px 14px;background:var(--bg-light);border:1px solid var(--border-color);border-radius:4px;color:var(--primary);font-size:14px;font-weight:bold;white-space:nowrap;cursor:pointer;">
                     <span>Filtros</span>
-                    <span id="filtro-badge-activo" style="display:none;font-size:11px;background:var(--primary);color:#fff;border-radius:3px;padding:1px 5px;font-weight:bold;line-height:1.2;">0</span>
+                    <span id="filtro-badge-activo" style="display:none;font-size:12px;background:var(--primary);color:#fff;border-radius:3px;padding:2px 6px;font-weight:bold;line-height:1.2;">0</span>
                 </button>
             </div>
 
             <div id="active-filters-chips" style="display:none;gap:6px;flex-wrap:wrap;margin-bottom:12px;align-items:center;">
-                <span style="font-size:12px;color:#666;">Filtros:</span>
+                <span style="font-size:13px;color:#666;font-weight:bold;">Filtros:</span>
                 <span id="chip-nivel" class="filter-chip" style="display:none;"></span>
                 <span id="chip-seccion" class="filter-chip" style="display:none;"></span>
                 <span id="chip-semana" class="filter-chip" style="display:none;"></span>
-                <button type="button" onclick="limpiarTodosFiltros()" style="background:none;border:none;color:#dc3545;font-size:12px;font-weight:bold;cursor:pointer;padding:2px 4px;text-decoration:underline;">Limpiar todo</button>
+                <button type="button" onclick="limpiarTodosFiltros()" style="background:none;border:none;color:#dc3545;font-size:13px;font-weight:bold;cursor:pointer;padding:2px 4px;text-decoration:underline;">Limpiar todo</button>
             </div>
 
             <div id="no-cursos-filtro" style="display:none;text-align:center;padding:28px 14px;color:#888;">
@@ -282,7 +282,7 @@ if ($sesion_activa) {
                 <div id="bloques-cursos-container">
                 <?php foreach ($bloques_cursos as $bKey => $bloque): ?>
                     <div class="bloque-seccion-group" data-seccion="<?= htmlspecialchars($bloque['seccion']) ?>" data-trayecto="<?= $bloque['trayecto'] ?>" style="margin-bottom:16px;">
-                        <div class="bloque-header" style="font-size:13px;font-weight:bold;color:var(--primary);margin:16px 0 8px 0;letter-spacing:0.3px;">
+                        <div class="bloque-header" style="font-size:15px;font-weight:bold;color:var(--primary);margin:18px 0 10px 0;letter-spacing:0.3px;">
                             Sección <?= htmlspecialchars($bloque['seccion']) ?> - <?= htmlspecialchars($bloque['nivel']) ?>
                         </div>
                         <?php foreach ($bloque['cursos'] as $c): ?>
@@ -294,11 +294,11 @@ if ($sesion_activa) {
                                  data-horario="<?= htmlspecialchars($c['horario'] ?: '') ?>"
                                  data-trayecto="<?= (int)$c['trayecto'] ?>"
                                  style="margin-bottom:8px;">
-                            <summary style="font-size:14px;">
+                            <summary style="font-size:15px;">
                                 <div style="flex:1;min-width:0;padding-right:8px;">
-                                    <div class="curso-title" style="font-weight:bold;color:var(--primary);line-height:1.3;"><?= htmlspecialchars($c['nombre']) ?></div>
+                                    <div class="curso-title" style="font-size:15px;font-weight:bold;color:var(--primary);line-height:1.3;"><?= htmlspecialchars($c['nombre']) ?></div>
                                     <?php if (!empty($c['horario'])): ?>
-                                    <div style="font-size:12px;color:#666;font-weight:normal;margin-top:2px;">(<?= htmlspecialchars($c['horario']) ?>)</div>
+                                    <div style="font-size:13px;color:#666;font-weight:normal;margin-top:3px;">(<?= htmlspecialchars($c['horario']) ?>)</div>
                                     <?php endif; ?>
                                 </div>
                             </summary>
@@ -326,24 +326,24 @@ if ($sesion_activa) {
 
     <div class="mobile-content hidden" id="tab-ajustes">
         <h2 style="color:var(--primary);margin-bottom:6px">Ajustes de Escaneo QR</h2>
-        <p style="margin-bottom:16px;color:#666;font-size:13.5px;">Configuración de tiempos de asistencia</p>
+        <p style="margin-bottom:15px;color:#666;">Configuración de tiempos de asistencia</p>
         <div class="card">
             <form id="ajustes-form" onsubmit="return guardarAjustes(event)">
                 <div style="margin-bottom:15px;">
-                    <label for="cfg-puntual" style="font-size:14px;font-weight:600;display:block;margin-bottom:5px;color:var(--text-dark);">
+                    <label for="cfg-puntual" style="font-weight:bold;color:var(--primary);font-size:14px;display:block;margin-bottom:6px;">
                         Tiempo de llegada puntual (Minutos)
                     </label>
-                    <input type="number" name="tiempo_puntual" id="cfg-puntual" value="10" min="1" max="120" required />
+                    <input type="number" name="tiempo_puntual" id="cfg-puntual" class="prof-select" value="10" min="1" max="120" required style="margin-bottom:15px;" />
                 </div>
 
                 <div style="margin-bottom:20px;">
-                    <label for="cfg-tarde" style="font-size:14px;font-weight:600;display:block;margin-bottom:5px;color:var(--text-dark);">
+                    <label for="cfg-tarde" style="font-weight:bold;color:var(--primary);font-size:14px;display:block;margin-bottom:6px;">
                         Tiempo de llegada tarde (Minutos)
                     </label>
-                    <input type="number" name="tiempo_tarde" id="cfg-tarde" value="10" min="0" max="120" required />
+                    <input type="number" name="tiempo_tarde" id="cfg-tarde" class="prof-select" value="10" min="0" max="120" required style="margin-bottom:20px;" />
                 </div>
 
-                <button class="btn btn-primary" style="width:100%;padding:10px;font-size:14px;border-radius:4px;">Guardar Ajustes</button>
+                <button class="btn btn-primary" style="width:100%;padding:10px;font-size:14px;font-weight:bold;border-radius:4px;">Guardar Ajustes</button>
             </form>
         </div>
     </div>
@@ -423,7 +423,7 @@ if ($sesion_activa) {
         <div class="popup-content" style="max-width:90%;width:380px;padding:22px;border-radius:8px;transform:none;transition:none;text-align:left;" onclick="event.stopPropagation()">
             <h4 style="color:var(--primary);margin:0 0 4px 0;font-size:16px;">Cambiar Estado de Asistencia</h4>
             <p id="cambiar-estado-estudiante" style="font-size:13.5px;color:#555;margin:0 0 14px 0;"></p>
-            
+
             <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
                 <label class="opcion-cambio-label" style="display:flex;align-items:center;gap:12px;padding:12px 14px;border:1.5px solid #cbd5e1;border-radius:6px;cursor:pointer;background:#fff;" onclick="seleccionarOpcionEstado(this)">
                     <input type="radio" name="cambio_estado_radio" value="presente" style="width:18px !important;height:18px !important;min-width:18px;max-width:18px;margin:0 !important;padding:0 !important;flex-shrink:0;cursor:pointer;accent-color:var(--primary);">
@@ -467,8 +467,8 @@ if ($sesion_activa) {
             </div>
 
             <div style="margin-bottom:14px;">
-                <label style="font-weight:bold;font-size:13px;color:var(--primary);display:block;margin-bottom:5px;">Nivel</label>
-                <select id="filtro-modal-nivel" class="prof-select" style="margin-bottom:0;padding:8px 12px;font-size:14px;">
+                <label style="font-weight:bold;font-size:14px;color:var(--primary);display:block;margin-bottom:6px;">Nivel</label>
+                <select id="filtro-modal-nivel" class="prof-select" style="margin-bottom:0;padding:10px 12px;font-size:15px;">
                     <option value="">Todos los niveles</option>
                     <?php foreach ($niveles_disponibles as $niv): ?>
                     <option value="<?= $niv ?>">Nivel <?= nivelRomano($niv) ?></option>
@@ -477,8 +477,8 @@ if ($sesion_activa) {
             </div>
 
             <div style="margin-bottom:14px;">
-                <label style="font-weight:bold;font-size:13px;color:var(--primary);display:block;margin-bottom:5px;">Sección</label>
-                <select id="filtro-modal-seccion" class="prof-select" style="margin-bottom:0;padding:8px 12px;font-size:14px;">
+                <label style="font-weight:bold;font-size:14px;color:var(--primary);display:block;margin-bottom:6px;">Sección</label>
+                <select id="filtro-modal-seccion" class="prof-select" style="margin-bottom:0;padding:10px 12px;font-size:15px;">
                     <option value="">Todas las secciones</option>
                     <?php foreach ($secciones_disponibles as $sec): ?>
                     <option value="<?= htmlspecialchars($sec) ?>">Sección <?= htmlspecialchars($sec) ?></option>
@@ -487,8 +487,8 @@ if ($sesion_activa) {
             </div>
 
             <div style="margin-bottom:18px;">
-                <label style="font-weight:bold;font-size:13px;color:var(--primary);display:block;margin-bottom:5px;">Semana</label>
-                <select id="filtro-modal-semana" class="prof-select" style="margin-bottom:0;padding:8px 12px;font-size:14px;">
+                <label style="font-weight:bold;font-size:14px;color:var(--primary);display:block;margin-bottom:6px;">Semana</label>
+                <select id="filtro-modal-semana" class="prof-select" style="margin-bottom:0;padding:10px 12px;font-size:15px;">
                     <option value="">Todas las semanas</option>
                     <?php for ($s = 1; $s <= 12; $s++): ?>
                     <option value="<?= $s ?>">Semana <?= $s ?></option>
@@ -889,7 +889,7 @@ function cargarEstadoSemanas() {
                             var targetSlot = li.querySelector('.status-slot') || li.querySelector('.btn-ver-asistencia') || li.querySelector('span:last-child');
                             var sesiones = s.sesiones || 0;
                             if (sesiones > 0) {
-                                targetSlot.outerHTML = '<button type="button" class="btn btn-ver-asistencia" onclick="event.stopPropagation(); verAsistenciaDesdeBtn(this)" style="padding:5px 12px;font-size:12.5px;background:var(--primary);color:#fff;border-radius:4px;border:none;font-weight:600;cursor:pointer;">Ver asistencias</button>';
+                                targetSlot.outerHTML = '<button type="button" class="btn btn-ver-asistencia" onclick="event.stopPropagation(); verAsistenciaDesdeBtn(this)" class="btn btn-ver-asistencia" style="padding:6px 14px;font-size:13.5px;background:var(--primary);color:#fff;border-radius:4px;border:none;font-weight:bold;cursor:pointer;">Ver asistencias</button>';
                             } else {
                                 targetSlot.outerHTML = '<span class="status-pending status-slot" style="font-weight:bold;color:gray;font-style:italic;">Pendiente</span>';
                             }
@@ -915,7 +915,7 @@ function verAsistencia(el) {
     semanaActual = parseInt(el.getAttribute('data-semana'));
     var cursoId = cursoIdActual;
     var semana = semanaActual;
-    
+
     var details = el.closest('details');
     var cursoNombre = details ? (details.getAttribute('data-curso-nombre-full') || details.querySelector('.curso-title')?.textContent.trim()) : 'Materia';
     var seccion = details ? details.getAttribute('data-seccion') : '';
@@ -944,7 +944,7 @@ function verAsistencia(el) {
             r.sesiones.forEach(function(ses) {
                 var fechaLabel = ses.fecha ? new Date(ses.fecha + 'T12:00:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }) : 'Sin asistencia registrada';
                 var tituloSesion = ses.bloque_horario ? ses.bloque_horario + ' (' + fechaLabel + ')' : fechaLabel;
-                html += '<h4 style="color:var(--primary);margin:12px 0 10px;font-size:13.5px;border-bottom:1px solid #e0e0e0;padding-bottom:5px;">📅 ' + tituloSesion + '</h4>';
+                html += '<h4 style="color:var(--primary);margin:14px 0 10px;font-size:15px;border-bottom:1px solid #e0e0e0;padding-bottom:5px;">📅 ' + tituloSesion + '</h4>';
 
                 ses.estudiantes.forEach(function(e, i) {
                     var color = e.estado === 'presente' ? 'green' : (e.estado === 'tarde' ? '#e67e22' : (e.estado === 'justificado' ? '#008b8b' : (e.estado === 'ausente' ? 'red' : '#999')));
@@ -964,14 +964,14 @@ function verAsistencia(el) {
                     html += '<span class="detail-label">Acción</span>';
                     html += '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">';
                     if (e.estado === 'justificado') {
-                        html += '<button type="button" class="btn btn-ver-just"' + commonAttrs + ' data-justificacion="' + encodeURIComponent(e.justificacion || '') + '" style="padding:7px 13px;font-size:13px;font-weight:600;background:#008b8b;color:#fff;border:none;border-radius:4px;">Ver</button>';
-                        html += '<button type="button" class="btn btn-editar-just"' + commonAttrs + ' data-justificacion="' + encodeURIComponent(e.justificacion || '') + '" style="padding:7px 13px;font-size:13px;font-weight:600;background:#008b8b;color:#fff;border:none;border-radius:4px;">Editar</button>';
+                        html += '<button type="button" class="btn btn-ver-just"' + commonAttrs + ' data-justificacion="' + encodeURIComponent(e.justificacion || '') + '" style="padding:7px 14px;font-size:13.5px;font-weight:bold;background:#008b8b;color:#fff;border:none;border-radius:4px;">Ver</button>';
+                        html += '<button type="button" class="btn btn-editar-just"' + commonAttrs + ' data-justificacion="' + encodeURIComponent(e.justificacion || '') + '" style="padding:7px 14px;font-size:13.5px;font-weight:bold;background:#008b8b;color:#fff;border:none;border-radius:4px;">Editar</button>';
                         html += '<span style="color:#cbd5e1;font-size:16px;user-select:none;margin:0 2px;">|</span>';
                     } else {
-                        html += '<button type="button" class="btn btn-crear-just"' + commonAttrs + ' style="padding:7px 13px;font-size:13px;font-weight:600;background:#008b8b;color:#fff;border:none;border-radius:4px;">Justificar</button>';
+                        html += '<button type="button" class="btn btn-crear-just"' + commonAttrs + ' style="padding:7px 14px;font-size:13.5px;font-weight:bold;background:#008b8b;color:#fff;border:none;border-radius:4px;">Justificar</button>';
                         html += '<span style="color:#cbd5e1;font-size:16px;user-select:none;margin:0 2px;">|</span>';
                     }
-                    html += '<button type="button" class="btn btn-cambiar-estado"' + commonAttrs + ' style="padding:7px 13px;font-size:13px;font-weight:600;background:var(--primary);color:#fff;border:none;border-radius:4px;">Cambiar Estado</button>';
+                    html += '<button type="button" class="btn btn-cambiar-estado"' + commonAttrs + ' style="padding:7px 14px;font-size:13.5px;font-weight:bold;background:var(--primary);color:#fff;border:none;border-radius:4px;">Cambiar Estado</button>';
                     html += '</div>';
                     html += '</div>';
                     html += '</div>';
@@ -1065,12 +1065,12 @@ var filtroSemana = '';
 function onBusquedaMateriaInput() {
     var val = document.getElementById('filtro-materia-input').value;
     filtroTexto = val.trim().toLowerCase();
-    
+
     var btnLimpiar = document.getElementById('btn-limpiar-busqueda');
     if (btnLimpiar) {
         btnLimpiar.style.display = filtroTexto.length > 0 ? 'block' : 'none';
     }
-    
+
     aplicarFiltrosVisuales();
 }
 
@@ -1114,11 +1114,11 @@ function aplicarFiltrosDesdeModal() {
     var elNiv = document.getElementById('filtro-modal-nivel');
     var elSec = document.getElementById('filtro-modal-seccion');
     var elSem = document.getElementById('filtro-modal-semana');
-    
+
     filtroNivel = elNiv ? elNiv.value : '';
     filtroSeccion = elSec ? elSec.value : '';
     filtroSemana = elSem ? elSem.value : '';
-    
+
     cerrarModalFiltros();
     aplicarFiltrosVisuales();
 }
@@ -1154,7 +1154,7 @@ function aplicarFiltrosVisuales() {
     var countFiltros = (filtroNivel ? 1 : 0) + (filtroSeccion ? 1 : 0) + (filtroSemana ? 1 : 0);
     var badgeActivo = document.getElementById('filtro-badge-activo');
     var btnFiltros = document.getElementById('btn-abrir-filtros');
-    
+
     if (countFiltros > 0) {
         if (badgeActivo) {
             badgeActivo.textContent = countFiltros;
@@ -1180,11 +1180,11 @@ function aplicarFiltrosVisuales() {
     var chipNivel = document.getElementById('chip-nivel');
     var chipSeccion = document.getElementById('chip-seccion');
     var chipSemana = document.getElementById('chip-semana');
-    
+
     if (chipsContainer) {
         if (hayFiltrosActivos) {
             chipsContainer.style.display = 'flex';
-            
+
             if (filtroNivel && chipNivel) {
                 var selectNiv = document.getElementById('filtro-modal-nivel');
                 var txtNiv = selectNiv && selectNiv.options[selectNiv.selectedIndex] ? selectNiv.options[selectNiv.selectedIndex].text : 'Nivel ' + filtroNivel;

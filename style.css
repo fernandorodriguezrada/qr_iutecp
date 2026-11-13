@@ -678,13 +678,25 @@ html.mobile-app-html::-webkit-scrollbar {
 .class-accordion summary::-webkit-details-marker {
   display: none;
 }
+.class-accordion summary::marker {
+  display: none;
+}
 .class-accordion summary::after {
-  content: "\25BC";
-  font-size: 12px;
-  color: var(--accent);
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid var(--primary);
+  border-bottom: 2px solid var(--primary);
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
+  margin-right: 4px;
+  margin-top: -2px;
+  flex-shrink: 0;
 }
 .class-accordion[open] summary::after {
-  content: "\25B2";
+  transform: rotate(225deg);
+  margin-top: 2px;
 }
 .weeks-list {
   list-style: none;
@@ -1074,14 +1086,22 @@ body.auth-body .auth-view {
   display: none;
 }
 .student-accordion summary::after {
-  content: "\25BC";
-  font-size: 12px;
-  color: var(--accent);
-  margin-left: 6px;
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid var(--primary);
+  border-bottom: 2px solid var(--primary);
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
+  margin-left: 8px;
+  margin-right: 2px;
+  margin-top: -2px;
+  flex-shrink: 0;
 }
 .student-accordion[open] summary::after {
-  content: "\25B2";
-  color: var(--accent);
+  transform: rotate(225deg);
+  margin-top: 2px;
 }
 .student-accordion[open] summary {
   background: var(--bg-light);

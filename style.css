@@ -689,7 +689,6 @@ html.mobile-app-html::-webkit-scrollbar {
   border-right: 2px solid var(--primary);
   border-bottom: 2px solid var(--primary);
   transform: rotate(45deg);
-  transition: transform 0.2s ease;
   margin-right: 4px;
   margin-top: -2px;
   flex-shrink: 0;
@@ -1093,7 +1092,6 @@ body.auth-body .auth-view {
   border-right: 2px solid var(--primary);
   border-bottom: 2px solid var(--primary);
   transform: rotate(45deg);
-  transition: transform 0.2s ease;
   margin-left: 8px;
   margin-right: 2px;
   margin-top: -2px;

@@ -382,9 +382,26 @@ if (
     </div>
 
     <div class="mobile-content hidden" id="tab-historial">
-        <h3 style="margin-bottom:20px;color:var(--primary)">Historial de Asistencias</h3>
-        <ul class="historial-list" id="historial-lista">
-            <li style="text-align:center;color:#999;padding:30px;">Cargando...</li>
+        <h2 style="color:var(--primary);margin-bottom:6px">Historial de Asistencias</h2>
+        <p style="margin-bottom:15px;color:#666;">Registro de tus asistencias escaneadas</p>
+
+        <div class="asistencia-search-toolbar" id="historial-toolbar" style="display:flex;gap:8px;margin-bottom:14px;align-items:stretch;">
+            <div style="position:relative;flex:1;">
+                <input type="text" id="filtro-historial-input" placeholder="Buscar materia o semana..." autocomplete="off"
+                       style="width:100%;height:100%;padding:10px 32px 10px 12px;margin:0 !important;border:1px solid var(--border-color);border-radius:4px;font-size:15px;background:#fff;box-sizing:border-box;"
+                       oninput="onBusquedaHistorialInput()" />
+                <span id="btn-limpiar-historial" onclick="limpiarBusquedaHistorial()"
+                      style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:14px;color:#999;cursor:pointer;display:none;padding:2px 4px;user-select:none;">✕</span>
+            </div>
+        </div>
+
+        <div id="no-historial-filtro" style="display:none;text-align:center;padding:25px 14px;color:#888;">
+            <p style="font-size:14px;margin-bottom:8px;">No se encontraron registros con esa búsqueda.</p>
+            <button type="button" class="btn" onclick="limpiarBusquedaHistorial()" style="font-size:13px;padding:6px 14px;background:#eee;color:var(--text-dark);border-radius:4px;border:none;cursor:pointer;">Restablecer</button>
+        </div>
+
+        <ul class="historial-list" id="historial-lista" style="list-style:none;padding:0;margin:0;">
+            <li style="text-align:center;color:#999;padding:30px;background:none;border:none;">Cargando...</li>
         </ul>
     </div>
 
@@ -614,17 +631,70 @@ function volverMaterias() {
     if (lista) lista.classList.remove('hidden');
 }
 
+function formatearFechaEspanol(fechaStr) {
+    if (!fechaStr) return '--';
+    var partes = fechaStr.split('-');
+    if (partes.length === 3) {
+        var meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+        var anio = partes[0];
+        var mesIdx = parseInt(partes[1], 10) - 1;
+        var dia = parseInt(partes[2], 10);
+        if (mesIdx >= 0 && mesIdx < 12) {
+            return dia + ' ' + meses[mesIdx] + ' ' + anio;
+        }
+    }
+    return fechaStr;
+}
+
+function onBusquedaHistorialInput() {
+    var val = (document.getElementById('filtro-historial-input').value || '').trim().toLowerCase();
+    var btnLimpiar = document.getElementById('btn-limpiar-historial');
+    if (btnLimpiar) btnLimpiar.style.display = val ? 'block' : 'none';
+
+    var items = document.querySelectorAll('#historial-lista .historial-card-item');
+    var visibles = 0;
+    items.forEach(function(item) {
+        var texto = decodeURIComponent(item.getAttribute('data-search') || '') || item.textContent.toLowerCase();
+        var coincide = !val || texto.indexOf(val) !== -1;
+        item.style.display = coincide ? '' : 'none';
+        if (coincide) visibles++;
+    });
+
+    var noResult = document.getElementById('no-historial-filtro');
+    if (noResult) {
+        noResult.style.display = (items.length > 0 && visibles === 0) ? 'block' : 'none';
+    }
+}
+
+function limpiarBusquedaHistorial() {
+    var inp = document.getElementById('filtro-historial-input');
+    if (inp) {
+        inp.value = '';
+        onBusquedaHistorialInput();
+    }
+}
+
 function cargarHistorial() {
     var ul = document.getElementById('historial-lista');
-    ul.innerHTML = '<li style="text-align:center;color:#999;padding:30px;">Cargando...</li>';
+    var toolbar = document.getElementById('historial-toolbar');
+    var noResult = document.getElementById('no-historial-filtro');
+    if (noResult) noResult.style.display = 'none';
+
+    ul.innerHTML = '<li style="text-align:center;color:#999;padding:30px;background:none;border:none;">Cargando...</li>';
     var xhr = new XMLHttpRequest();
     xhr.open('GET', 'escanear_qr.php?accion=historial', true);
     xhr.onload = function() {
-        if (xhr.status !== 200) { ul.innerHTML = '<li style="text-align:center;color:red;padding:30px;">Error al cargar</li>'; return; }
+        if (xhr.status !== 200) { ul.innerHTML = '<li style="text-align:center;color:red;padding:30px;background:none;border:none;">Error al cargar</li>'; return; }
         try {
             var r = JSON.parse(xhr.responseText);
-            if (!r.ok) { ul.innerHTML = '<li style="text-align:center;color:#999;padding:30px;">' + (r.error || 'Sin datos') + '</li>'; return; }
-            if (r.registros.length === 0) { ul.innerHTML = '<li style="text-align:center;color:#999;padding:30px;">No hay registros de asistencia.</li>'; return; }
+            if (!r.ok) { ul.innerHTML = '<li style="text-align:center;color:#999;padding:30px;background:none;border:none;">' + (r.error || 'Sin datos') + '</li>'; return; }
+            if (r.registros.length === 0) {
+                ul.innerHTML = '<li style="list-style:none;padding:0;background:none;border:none;"><div class="card" style="text-align:center;padding:30px;"><p style="color:#999;font-size:14px;margin:0;">No tienes asistencias registradas aún.</p></div></li>';
+                if (toolbar) toolbar.style.display = 'none';
+                return;
+            }
+            if (toolbar) toolbar.style.display = 'flex';
+
             var html = '';
             r.registros.forEach(function(reg) {
                 var badge = '';
@@ -637,19 +707,44 @@ function cargarHistorial() {
                 } else if (reg.estado === 'ausente') {
                     badge = '<span style="font-size:12.5px;color:#c62828;background:#ffebee;padding:3px 8px;border-radius:4px;font-weight:bold;">Ausente</span>';
                 }
-                html += '<li style="padding:12px;margin-bottom:8px;">';
-                html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
-                html += '<strong>' + reg.curso + ' (' + reg.codigo + ')</strong>' + badge;
-                html += '</div>';
-                var bloqueTxt = reg.bloque_horario ? '<span style="color:var(--primary);font-weight:600;">' + reg.bloque_horario + '</span> - ' : '';
-                html += '<div style="font-size:13.5px;color:#666;margin-top:4px;">' + bloqueTxt + reg.fecha + (reg.hora && reg.hora !== '--:--' ? ' ' + reg.hora : '') + ' - Semana ' + reg.semana + '</div>';
+
+                var fechaFmt = formatearFechaEspanol(reg.fecha);
+                var horaFmt = (reg.hora && reg.hora !== '--:--') ? reg.hora : '';
+                var fechaHoraTxt = fechaFmt + (horaFmt ? ' · ' + horaFmt : '');
+                var searchStr = (reg.curso + ' ' + reg.codigo + ' semana ' + reg.semana + ' ' + (reg.bloque_horario || '') + ' ' + (reg.estado || '')).toLowerCase();
+
+                html += '<li class="historial-card-item" data-search="' + encodeURIComponent(searchStr) + '" style="background:#fff;border:1px solid var(--border-color);border-radius:4px;padding:14px 16px;margin-bottom:10px;list-style:none;">';
+                html += '  <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px;">';
+                html += '    <div style="flex:1;min-width:0;">';
+                html += '      <strong style="font-size:15px;color:var(--primary);display:block;line-height:1.35;word-break:break-word;">' + reg.curso + '</strong>';
+                html += '      <span style="font-size:12.5px;color:#666;display:inline-block;margin-top:2px;">Código: ' + reg.codigo + '</span>';
+                html += '    </div>';
+                html += '    <div style="flex-shrink:0;">' + badge + '</div>';
+                html += '  </div>';
+
+                html += '  <div style="border-top:1px solid #eee;padding-top:8px;margin-top:4px;display:flex;flex-direction:column;gap:5px;font-size:13px;color:#666;">';
+                if (reg.bloque_horario) {
+                    html += '    <div style="display:flex;align-items:center;gap:6px;">';
+                    html += '      <span style="color:#888;">Horario:</span>';
+                    html += '      <strong style="color:var(--text-dark);">' + reg.bloque_horario + '</strong>';
+                    html += '    </div>';
+                }
+                html += '    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;">';
+                html += '      <span style="color:var(--primary);font-weight:bold;">Semana ' + reg.semana + '</span>';
+                html += '      <span>📅 ' + fechaHoraTxt + '</span>';
+                html += '    </div>';
+                html += '  </div>';
+
                 if (reg.estado === 'justificado' && reg.justificacion) {
-                    html += '<div style="font-size:13px;color:#008b8b;margin-top:6px;background:#f0faf8;padding:6px 10px;border-radius:4px;border-left:3px solid #008b8b;"><strong>Motivo:</strong> ' + reg.justificacion + '</div>';
+                    html += '  <div style="font-size:13px;color:#008b8b;margin-top:8px;background:#f0faf8;padding:8px 12px;border-radius:4px;border-left:3px solid #008b8b;line-height:1.4;">';
+                    html += '    <strong>Motivo:</strong> ' + reg.justificacion;
+                    html += '  </div>';
                 }
                 html += '</li>';
             });
             ul.innerHTML = html;
-        } catch(e) { ul.innerHTML = '<li style="text-align:center;color:red;padding:30px;">Error al procesar</li>'; }
+            onBusquedaHistorialInput();
+        } catch(e) { ul.innerHTML = '<li style="text-align:center;color:red;padding:30px;background:none;border:none;">Error al procesar</li>'; }
     };
     xhr.send();
 }

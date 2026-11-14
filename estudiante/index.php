@@ -453,20 +453,20 @@ if (
             <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #f0f0f0;">
                 <div>
                     <span style="font-size:13px;color:#666;display:block;margin-bottom:2px;">Asistencia Global</span>
-                    <strong style="font-size:26px;color:var(--primary);line-height:1;"><?= $global_total_registros > 0 ? $global_porcentaje_asistencia . '%' : '100%' ?></strong>
+                    <strong id="resumen-global-porcentaje" style="font-size:26px;color:var(--primary);line-height:1;"><?= $global_total_registros > 0 ? $global_porcentaje_asistencia . '%' : '100%' ?></strong>
                 </div>
                 <div style="text-align:right;">
-                    <span style="font-size:12.5px;color:#555;display:block;">
+                    <span id="resumen-global-sesiones" style="font-size:12.5px;color:#555;display:block;">
                         <?= $global_total_registros > 0 ? "$global_asistencias_validas de $global_total_registros sesiones" : "Sin clases registradas aún" ?>
                     </span>
-                    <span style="font-size:11.5px;color:<?= $global_porcentaje_asistencia >= 75 ? '#15803d' : ($global_porcentaje_asistencia >= 60 ? '#b45309' : '#b91c1c') ?>;font-weight:600;">
+                    <span id="resumen-global-riesgo" style="font-size:11.5px;color:<?= $global_porcentaje_asistencia >= 75 ? '#15803d' : ($global_porcentaje_asistencia >= 60 ? '#b45309' : '#b91c1c') ?>;font-weight:600;">
                         <?= $global_total_registros > 0 ? ($global_porcentaje_asistencia >= 75 ? 'Cumpliendo asistencia' : ($global_porcentaje_asistencia >= 60 ? 'En observación' : 'En riesgo')) : 'Período en curso' ?>
                     </span>
                 </div>
             </div>
 
             <!-- Barra segmentada global -->
-            <div style="display:flex;width:100%;background:#e2e8f0;height:8px;border-radius:4px;overflow:hidden;margin-bottom:14px;">
+            <div id="resumen-global-bar" style="display:flex;width:100%;background:#e2e8f0;height:8px;border-radius:4px;overflow:hidden;margin-bottom:14px;">
             <?php if ($global_total_registros === 0): ?>
                 <div style="width:100%;background:#cbd5e1;height:100%;" title="Sin sesiones"></div>
             <?php else: ?>
@@ -487,19 +487,19 @@ if (
 
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
                 <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:4px;padding:12px 14px;">
-                    <div style="font-size:22px;font-weight:bold;color:#15803d;line-height:1.2;"><?= $global_counts['presente'] ?></div>
+                    <div id="kpi-count-pres" style="font-size:22px;font-weight:bold;color:#15803d;line-height:1.2;"><?= $global_counts['presente'] ?></div>
                     <div style="font-size:12.5px;color:#166534;font-weight:600;margin-top:2px;">Puntual</div>
                 </div>
                 <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:4px;padding:12px 14px;">
-                    <div style="font-size:22px;font-weight:bold;color:#b45309;line-height:1.2;"><?= $global_counts['tarde'] ?></div>
+                    <div id="kpi-count-tarde" style="font-size:22px;font-weight:bold;color:#b45309;line-height:1.2;"><?= $global_counts['tarde'] ?></div>
                     <div style="font-size:12.5px;color:#92400e;font-weight:600;margin-top:2px;">Con retraso</div>
                 </div>
                 <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:4px;padding:12px 14px;">
-                    <div style="font-size:22px;font-weight:bold;color:#b91c1c;line-height:1.2;"><?= $global_counts['ausente'] ?></div>
+                    <div id="kpi-count-aus" style="font-size:22px;font-weight:bold;color:#b91c1c;line-height:1.2;"><?= $global_counts['ausente'] ?></div>
                     <div style="font-size:12.5px;color:#991b1b;font-weight:600;margin-top:2px;">Inasistencias</div>
                 </div>
                 <div style="background:#f0fdfa;border:1px solid #99f6e4;border-radius:4px;padding:12px 14px;">
-                    <div style="font-size:22px;font-weight:bold;color:#0f766e;line-height:1.2;"><?= $global_counts['justificado'] ?></div>
+                    <div id="kpi-count-just" style="font-size:22px;font-weight:bold;color:#0f766e;line-height:1.2;"><?= $global_counts['justificado'] ?></div>
                     <div style="font-size:12.5px;color:#115e59;font-weight:600;margin-top:2px;">Justificadas</div>
                 </div>
             </div>
@@ -557,7 +557,7 @@ if (
                     $badge_border = '#fecaca';
                 }
             ?>
-                <div class="card" style="border:1px solid var(--border-color);border-radius:4px;background:#fff;padding:14px 16px;">
+                <div class="card" data-curso-card="<?= $c['id'] ?>" style="border:1px solid var(--border-color);border-radius:4px;background:#fff;padding:14px 16px;">
                     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px;">
                         <div style="flex:1;min-width:0;">
                             <strong style="font-size:15px;color:var(--primary);display:block;line-height:1.35;word-break:break-word;"><?= htmlspecialchars($c['nombre']) ?></strong>
@@ -566,7 +566,7 @@ if (
                             </div>
                         </div>
                         <div style="flex-shrink:0;">
-                            <span style="font-size:12px;font-weight:bold;color:<?= $badge_color ?>;background:<?= $badge_bg ?>;border:1px solid <?= $badge_border ?>;padding:3px 8px;border-radius:4px;display:inline-block;white-space:nowrap;"><?= $badge_label ?></span>
+                            <span data-curso-badge="<?= $c['id'] ?>" style="font-size:12px;font-weight:bold;color:<?= $badge_color ?>;background:<?= $badge_bg ?>;border:1px solid <?= $badge_border ?>;padding:3px 8px;border-radius:4px;display:inline-block;white-space:nowrap;"><?= $badge_label ?></span>
                         </div>
                     </div>
 
@@ -578,7 +578,7 @@ if (
                     </div>
 
                     <!-- Barra segmentada proporcional (4 colores) -->
-                    <div style="display:flex;width:100%;background:#e2e8f0;height:8px;border-radius:4px;overflow:hidden;margin-bottom:10px;">
+                    <div data-curso-bar="<?= $c['id'] ?>" style="display:flex;width:100%;background:#e2e8f0;height:8px;border-radius:4px;overflow:hidden;margin-bottom:10px;">
                     <?php if ($c_tot === 0): ?>
                         <div style="width:100%;background:#cbd5e1;height:100%;" title="Sin sesiones"></div>
                     <?php else: ?>
@@ -598,10 +598,10 @@ if (
                     </div>
 
                     <div style="display:flex;gap:6px;flex-wrap:wrap;font-size:12px;">
-                        <span style="background:#e8f5e9;color:#2e7d32;padding:3px 7px;border-radius:4px;font-weight:600;">Pres: <?= $c_cnt['presente'] ?></span>
-                        <span style="background:#fdebd0;color:#d35400;padding:3px 7px;border-radius:4px;font-weight:600;">Tarde: <?= $c_cnt['tarde'] ?></span>
-                        <span style="background:#ffebee;color:#c62828;padding:3px 7px;border-radius:4px;font-weight:600;">Aus: <?= $c_cnt['ausente'] ?></span>
-                        <span style="background:#e0f7f7;color:#008b8b;padding:3px 7px;border-radius:4px;font-weight:600;">Just: <?= $c_cnt['justificado'] ?></span>
+                        <span data-cnt-pres="<?= $c['id'] ?>" style="background:#e8f5e9;color:#2e7d32;padding:3px 7px;border-radius:4px;font-weight:600;">Pres: <?= $c_cnt['presente'] ?></span>
+                        <span data-cnt-tarde="<?= $c['id'] ?>" style="background:#fdebd0;color:#d35400;padding:3px 7px;border-radius:4px;font-weight:600;">Tarde: <?= $c_cnt['tarde'] ?></span>
+                        <span data-cnt-aus="<?= $c['id'] ?>" style="background:#ffebee;color:#c62828;padding:3px 7px;border-radius:4px;font-weight:600;">Aus: <?= $c_cnt['ausente'] ?></span>
+                        <span data-cnt-just="<?= $c['id'] ?>" style="background:#e0f7f7;color:#008b8b;padding:3px 7px;border-radius:4px;font-weight:600;">Just: <?= $c_cnt['justificado'] ?></span>
                     </div>
                 </div>
             <?php endforeach; ?>
@@ -867,6 +867,132 @@ function verHorarioClases() {
     if (h) h.classList.remove('hidden');
 }
 
+function actualizarResumenReactivo(data) {
+    if (!data || !data.global) return;
+
+    var g = data.global;
+    var elPorc = document.getElementById('resumen-global-porcentaje');
+    if (elPorc) elPorc.textContent = g.porcentaje + '%';
+
+    var elSes = document.getElementById('resumen-global-sesiones');
+    if (elSes) {
+        elSes.textContent = g.total > 0 ? (g.asistidas + ' de ' + g.total + ' sesiones') : 'Sin clases registradas aún';
+    }
+
+    var elRiesgo = document.getElementById('resumen-global-riesgo');
+    if (elRiesgo) {
+        if (g.total === 0) {
+            elRiesgo.textContent = 'Período en curso';
+            elRiesgo.style.color = '#555';
+        } else if (g.porcentaje >= 75) {
+            elRiesgo.textContent = 'Cumpliendo asistencia';
+            elRiesgo.style.color = '#15803d';
+        } else if (g.porcentaje >= 60) {
+            elRiesgo.textContent = 'En observación';
+            elRiesgo.style.color = '#b45309';
+        } else {
+            elRiesgo.textContent = 'En riesgo';
+            elRiesgo.style.color = '#b91c1c';
+        }
+    }
+
+    var elBar = document.getElementById('resumen-global-bar');
+    if (elBar) {
+        if (g.total === 0) {
+            elBar.innerHTML = '<div style="width:100%;background:#cbd5e1;height:100%;" title="Sin sesiones"></div>';
+        } else {
+            var barHtml = '';
+            if (g.presente > 0) barHtml += '<div style="width:' + ((g.presente / g.total) * 100) + '%;background:#22c55e;height:100%;" title="Puntual: ' + g.presente + '"></div>';
+            if (g.tarde > 0) barHtml += '<div style="width:' + ((g.tarde / g.total) * 100) + '%;background:#f59e0b;height:100%;" title="Con retraso: ' + g.tarde + '"></div>';
+            if (g.justificado > 0) barHtml += '<div style="width:' + ((g.justificado / g.total) * 100) + '%;background:#06b6d4;height:100%;" title="Justificado: ' + g.justificado + '"></div>';
+            if (g.ausente > 0) barHtml += '<div style="width:' + ((g.ausente / g.total) * 100) + '%;background:#ef4444;height:100%;" title="Inasistencia: ' + g.ausente + '"></div>';
+            elBar.innerHTML = barHtml;
+        }
+    }
+
+    var elPres = document.getElementById('kpi-count-pres');
+    if (elPres) elPres.textContent = g.presente;
+    var elTarde = document.getElementById('kpi-count-tarde');
+    if (elTarde) elTarde.textContent = g.tarde;
+    var elAus = document.getElementById('kpi-count-aus');
+    if (elAus) elAus.textContent = g.ausente;
+    var elJust = document.getElementById('kpi-count-just');
+    if (elJust) elJust.textContent = g.justificado;
+
+    if (data.cursos) {
+        for (var cId in data.cursos) {
+            var c = data.cursos[cId];
+            var bBadge = document.querySelector('[data-curso-badge="' + cId + '"]');
+            if (bBadge) {
+                if (c.total === 0) {
+                    bBadge.textContent = 'Sin registros';
+                    bBadge.style.color = '#64748b';
+                    bBadge.style.background = '#f1f5f9';
+                    bBadge.style.border = '1px solid #cbd5e1';
+                } else if (c.porcentaje >= 75) {
+                    bBadge.textContent = 'Al día (' + c.porcentaje + '%)';
+                    bBadge.style.color = '#15803d';
+                    bBadge.style.background = '#dcfce7';
+                    bBadge.style.border = '1px solid #bbf7d0';
+                } else if (c.porcentaje >= 60) {
+                    bBadge.textContent = 'En observación (' + c.porcentaje + '%)';
+                    bBadge.style.color = '#b45309';
+                    bBadge.style.background = '#fef3c7';
+                    bBadge.style.border = '1px solid #fde68a';
+                } else {
+                    bBadge.textContent = 'En riesgo (' + c.porcentaje + '%)';
+                    bBadge.style.color = '#b91c1c';
+                    bBadge.style.background = '#fee2e2';
+                    bBadge.style.border = '1px solid #fecaca';
+                }
+            }
+
+            var cBar = document.querySelector('[data-curso-bar="' + cId + '"]');
+            if (cBar) {
+                if (c.total === 0) {
+                    cBar.innerHTML = '<div style="width:100%;background:#cbd5e1;height:100%;" title="Sin sesiones"></div>';
+                } else {
+                    var cBarHtml = '';
+                    if (c.presente > 0) cBarHtml += '<div style="width:' + ((c.presente / c.total) * 100) + '%;background:#22c55e;height:100%;" title="Puntual: ' + c.presente + '"></div>';
+                    if (c.tarde > 0) cBarHtml += '<div style="width:' + ((c.tarde / c.total) * 100) + '%;background:#f59e0b;height:100%;" title="Con retraso: ' + c.tarde + '"></div>';
+                    if (c.justificado > 0) cBarHtml += '<div style="width:' + ((c.justificado / c.total) * 100) + '%;background:#06b6d4;height:100%;" title="Justificado: ' + c.justificado + '"></div>';
+                    if (c.ausente > 0) cBarHtml += '<div style="width:' + ((c.ausente / c.total) * 100) + '%;background:#ef4444;height:100%;" title="Inasistencia: ' + c.ausente + '"></div>';
+                    cBar.innerHTML = cBarHtml;
+                }
+            }
+
+            var cPres = document.querySelector('[data-cnt-pres="' + cId + '"]');
+            if (cPres) cPres.textContent = 'Pres: ' + c.presente;
+            var cTarde = document.querySelector('[data-cnt-tarde="' + cId + '"]');
+            if (cTarde) cTarde.textContent = 'Tarde: ' + c.tarde;
+            var cAus = document.querySelector('[data-cnt-aus="' + cId + '"]');
+            if (cAus) cAus.textContent = 'Aus: ' + c.ausente;
+            var cJust = document.querySelector('[data-cnt-just="' + cId + '"]');
+            if (cJust) cJust.textContent = 'Just: ' + c.justificado;
+        }
+    }
+}
+
+function recargarResumenDesdeServidor(onDone) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'escanear_qr.php?accion=resumen_data', true);
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            try {
+                var r = JSON.parse(xhr.responseText);
+                if (r.ok && r.resumen) {
+                    actualizarResumenReactivo(r.resumen);
+                }
+            } catch(e) {}
+        }
+        if (typeof onDone === 'function') onDone();
+    };
+    xhr.onerror = function() {
+        if (typeof onDone === 'function') onDone();
+    };
+    xhr.send();
+}
+
 function volverResumenPrincipal() {
     window.scrollTo(0, 0);
     var p = document.getElementById('resumen-principal');
@@ -989,6 +1115,11 @@ function procesarCodigo(codigo) {
             if (r.ok) {
                 mostrarPopup('¡Escaneo<br />Exitoso!');
                 cargarEstadoSemanas();
+                if (r.resumen) {
+                    actualizarResumenReactivo(r.resumen);
+                } else {
+                    recargarResumenDesdeServidor();
+                }
             } else {
                 mostrarPopupError(r.error || 'Código<br />inválido');
             }
@@ -1338,9 +1469,21 @@ function initPullToRefresh() {
                 activeContent.style.transform = 'translateY(50px)';
             }
             ptrText.textContent = 'Actualizando...';
-            setTimeout(function() {
-                window.location.reload();
-            }, 350);
+            function resetPtrIndicator() {
+                indicator.classList.remove('refreshing');
+                indicator.style.transform = '';
+                if (activeContent) {
+                    activeContent.style.transition = 'transform 0.2s ease';
+                    activeContent.style.transform = '';
+                    setTimeout(function() {
+                        if (activeContent) activeContent.style.transition = '';
+                    }, 200);
+                }
+            }
+            recargarResumenDesdeServidor(function() {
+                cargarEstadoSemanas();
+                setTimeout(resetPtrIndicator, 300);
+            });
         } else {
             indicator.style.transform = '';
             if (activeContent) {

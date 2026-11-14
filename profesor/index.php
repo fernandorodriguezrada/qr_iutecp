@@ -247,6 +247,13 @@ if ($sesion_activa) {
 
             <div class="timer" id="qr-timer" style="font-size:1.3rem;font-weight:bold;color:var(--primary);margin-bottom:12px">Expira en 05:00</div>
 
+            <div id="qr-live-box" style="display:flex;justify-content:center;margin-bottom:14px;">
+                <div id="qr-live-counter" style="display:inline-flex;align-items:center;gap:7px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:4px;padding:6px 14px;font-size:13.5px;color:#166534;font-weight:600;">
+                    <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e;"></span>
+                    <span id="qr-live-counter-text">0 estudiantes registrados</span>
+                </div>
+            </div>
+
             <button class="btn btn-primary" style="width:100%;padding:10px;font-size:14px;" onclick="cerrarQR()">Ocultar Código</button>
         </div>
     </div>
@@ -578,6 +585,7 @@ function handleAccionQR() {
         if (formContainer) formContainer.classList.add('hidden');
         var qrArea = document.getElementById('qr-display-area');
         if (qrArea) qrArea.classList.remove('hidden');
+        if (cursoQRActivo) iniciarConteoEnVivo(cursoQRActivo);
     } else {
         iniciarFlujoGenerarQR();
     }
@@ -718,6 +726,7 @@ function ejecutarGenerarQR(bloqueHorario) {
             var segundos = r.expiracion_segundos || 1200;
             var segTol = r.tolerancia_segundos || 600;
             mostrarTemporizador(segundos, segTol);
+            iniciarConteoEnVivo(cursoId);
         } catch(e) {
             if (btn) btn.textContent = 'Generar QR';
             console.error('Respuesta recibida:', xhr.responseText);
@@ -734,8 +743,55 @@ function ejecutarGenerarQR(bloqueHorario) {
     xhr.send('curso_id=' + encodeURIComponent(cursoId) + '&semana=' + encodeURIComponent(semana) + '&bloque_horario=' + encodeURIComponent(bloqueHorario || ''));
 }
 
+var liveConteoInterval = null;
+
+function iniciarConteoEnVivo(cursoId) {
+    detenerConteoEnVivo();
+    var cId = cursoId || cursoQRActivo;
+    if (!cId) return;
+
+    function consultar() {
+        if (!qrActivo || !cId) {
+            detenerConteoEnVivo();
+            return;
+        }
+        var x = new XMLHttpRequest();
+        x.open('GET', 'asistencia.php?accion=conteo_en_vivo&curso_id=' + cId, true);
+        x.onload = function() {
+            if (x.status !== 200) return;
+            try {
+                var r = JSON.parse(x.responseText);
+                if (r.ok) {
+                    var txtEl = document.getElementById('qr-live-counter-text');
+                    if (txtEl) {
+                        var cant = r.total || 0;
+                        var txt = cant + ' estudiante' + (cant === 1 ? '' : 's') + ' registrado' + (cant === 1 ? '' : 's');
+                        if (r.ultimo) {
+                            var primerNombre = r.ultimo.trim().split(' ')[0];
+                            txt += ' (Último: ' + primerNombre + ')';
+                        }
+                        txtEl.textContent = txt;
+                    }
+                }
+            } catch(e) {}
+        };
+        x.send();
+    }
+
+    consultar();
+    liveConteoInterval = setInterval(consultar, 3500);
+}
+
+function detenerConteoEnVivo() {
+    if (liveConteoInterval) {
+        clearInterval(liveConteoInterval);
+        liveConteoInterval = null;
+    }
+}
+
 function mostrarTemporizador(segundos, segundosTolerancia) {
     if (qrInterval) clearInterval(qrInterval);
+            detenerConteoEnVivo();
     var total = segundos;
     var tol = (typeof segundosTolerancia !== 'undefined') ? segundosTolerancia : 0;
 
@@ -748,6 +804,7 @@ function mostrarTemporizador(segundos, segundosTolerancia) {
             if (btn) btn.textContent = 'Generar QR';
 
             if (qrInterval) clearInterval(qrInterval);
+            detenerConteoEnVivo();
             if (cursoQRActivo) {
                 var x = new XMLHttpRequest();
                 x.open('GET', 'asistencia.php?accion=finalizar_sesion&curso_id=' + cursoQRActivo, true);
@@ -776,6 +833,7 @@ function mostrarTemporizador(segundos, segundosTolerancia) {
 }
 
 function cerrarQR() {
+    detenerConteoEnVivo();
     var qrArea = document.getElementById('qr-display-area');
     if (qrArea) qrArea.classList.add('hidden');
 
@@ -1649,6 +1707,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var btn = document.getElementById('btn-generar-qr');
     if (btn) btn.textContent = 'Ver QR Activo';
     mostrarTemporizador(<?= (int)$qr_activo_segundos ?>, <?= (int)$qr_tolerancia_segundos ?>);
+    if (cursoQRActivo) iniciarConteoEnVivo(cursoQRActivo);
     <?php endif; ?>
 });
 

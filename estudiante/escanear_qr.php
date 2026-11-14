@@ -6,6 +6,68 @@ require_once __DIR__ . '/../includes/academico.php';
 
 global $pdo;
 
+function obtenerResumenEstudiante(PDO $pdo, int $estudiante_id, string $periodo): array {
+    $stmt_asist = $pdo->prepare("
+        SELECT i.curso_id, a.inscripcion_id, a.estado, COUNT(*) as cantidad
+        FROM asistencias a
+        JOIN inscripciones i ON i.id = a.inscripcion_id
+        WHERE i.estudiante_id = ? AND i.periodo = ?
+        GROUP BY i.curso_id, a.inscripcion_id, a.estado
+    ");
+    $stmt_asist->execute([$estudiante_id, $periodo]);
+
+    $global_counts = ['presente'=>0, 'tarde'=>0, 'ausente'=>0, 'justificado'=>0];
+    $cursos_counts = [];
+
+    while ($row = $stmt_asist->fetch()) {
+        $c_id = (int)$row['curso_id'];
+        $estado = (string)$row['estado'];
+        $cant = (int)$row['cantidad'];
+        if (isset($global_counts[$estado])) {
+            $global_counts[$estado] += $cant;
+        }
+        if (!isset($cursos_counts[$c_id])) {
+            $cursos_counts[$c_id] = ['presente'=>0, 'tarde'=>0, 'ausente'=>0, 'justificado'=>0];
+        }
+        if (isset($cursos_counts[$c_id][$estado])) {
+            $cursos_counts[$c_id][$estado] += $cant;
+        }
+    }
+
+    $global_tot = array_sum($global_counts);
+    $global_asi = $global_counts['presente'] + $global_counts['tarde'] + $global_counts['justificado'];
+    $global_porc = $global_tot > 0 ? round(($global_asi / $global_tot) * 100) : 100;
+
+    $cursos_data = [];
+    foreach ($cursos_counts as $c_id => $cnt) {
+        $c_tot = array_sum($cnt);
+        $c_asi = $cnt['presente'] + $cnt['tarde'] + $cnt['justificado'];
+        $c_porc = $c_tot > 0 ? round(($c_asi / $c_tot) * 100) : null;
+        $cursos_data[$c_id] = [
+            'presente' => $cnt['presente'],
+            'tarde' => $cnt['tarde'],
+            'ausente' => $cnt['ausente'],
+            'justificado' => $cnt['justificado'],
+            'total' => $c_tot,
+            'porcentaje' => $c_porc
+        ];
+    }
+
+    return [
+        'global' => [
+            'presente' => $global_counts['presente'],
+            'tarde' => $global_counts['tarde'],
+            'ausente' => $global_counts['ausente'],
+            'justificado' => $global_counts['justificado'],
+            'total' => $global_tot,
+            'asistidas' => $global_asi,
+            'porcentaje' => $global_porc,
+        ],
+        'cursos' => $cursos_data
+    ];
+}
+
+
 redirigirSiNoAutenticado();
 
 if ($_SESSION['rol'] !== 'estudiante') {
@@ -16,6 +78,14 @@ if ($_SESSION['rol'] !== 'estudiante') {
 }
 
 $estudiante_id = (int)$_SESSION['usuario_id'];
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['accion']) && $_GET['accion'] === 'resumen_data') {
+    $periodo = obtenerPeriodoActual();
+    $resumen = obtenerResumenEstudiante($pdo, $estudiante_id, $periodo);
+    header('Content-Type: application/json');
+    echo json_encode(['ok' => true, 'resumen' => $resumen]);
+    exit;
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['accion']) && $_GET['accion'] === 'historial') {
     $stmt = $pdo->prepare("
@@ -148,13 +218,15 @@ if (!empty($sesion['hora_tolerancia']) && $hora_actual > $sesion['hora_toleranci
 
 if ($asistencia_existente) {
     if ($asistencia_existente['estado'] === 'presente') {
+        $resumen = obtenerResumenEstudiante($pdo, $estudiante_id, $periodo);
         header('Content-Type: application/json');
-        echo json_encode(['ok' => true, 'mensaje' => 'Ya tenías registrada tu asistencia (Presente)', 'estado' => 'presente']);
+        echo json_encode(['ok' => true, 'mensaje' => 'Ya tenías registrada tu asistencia (Presente)', 'estado' => 'presente', 'curso_id' => (int)$sesion['curso_id'], 'semana' => (int)$sesion['semana'], 'resumen' => $resumen]);
         exit;
     }
     if ($asistencia_existente['estado'] === 'tarde' && $nuevo_estado === 'tarde') {
+        $resumen = obtenerResumenEstudiante($pdo, $estudiante_id, $periodo);
         header('Content-Type: application/json');
-        echo json_encode(['ok' => true, 'mensaje' => 'Ya tenías registrada tu asistencia (Tarde)', 'estado' => 'tarde']);
+        echo json_encode(['ok' => true, 'mensaje' => 'Ya tenías registrada tu asistencia (Tarde)', 'estado' => 'tarde', 'curso_id' => (int)$sesion['curso_id'], 'semana' => (int)$sesion['semana'], 'resumen' => $resumen]);
         exit;
     }
     $stmt = $pdo->prepare("UPDATE asistencias SET estado = ?, hora_escaneo = ?, qr_code = ?, bloque_horario = ? WHERE id = ?");
@@ -170,11 +242,14 @@ $mensaje_exito = ($nuevo_estado === 'tarde')
     ? '¡Asistencia registrada (Tarde)!' 
     : '¡Asistencia registrada exitosamente!';
 
+$resumen = obtenerResumenEstudiante($pdo, $estudiante_id, $periodo);
 header('Content-Type: application/json');
 echo json_encode([
     'ok' => true,
     'mensaje' => $mensaje_exito,
     'estado' => $nuevo_estado,
     'curso' => $sesion['curso_nombre'],
+    'curso_id' => (int)$sesion['curso_id'],
     'semana' => (int)$sesion['semana'],
+    'resumen' => $resumen
 ]);

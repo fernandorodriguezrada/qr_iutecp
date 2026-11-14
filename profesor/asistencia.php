@@ -43,6 +43,48 @@ function limpiarSesionesExpiradas($pdo, $curso_id, $periodo) {
     return $marcados;
 }
 
+if ($accion === 'conteo_en_vivo' && $curso_id > 0) {
+    header('Content-Type: application/json');
+    if (!$es_profesor) {
+        echo json_encode(['ok' => false, 'error' => 'Acceso denegado']);
+        exit;
+    }
+
+    $stmt = $pdo->prepare("SELECT id, semana, fecha, bloque_horario FROM sesiones_qr WHERE curso_id = ? AND activo = 1 LIMIT 1");
+    $stmt->execute([$curso_id]);
+    $ses = $stmt->fetch();
+
+    if (!$ses) {
+        echo json_encode(['ok' => true, 'activo' => false, 'total' => 0, 'ultimo' => null]);
+        exit;
+    }
+
+    $stmt2 = $pdo->prepare("
+        SELECT COUNT(*) as total,
+               (SELECT u.nombre_completo FROM asistencias a2
+                JOIN inscripciones i2 ON i2.id = a2.inscripcion_id
+                JOIN usuarios u ON u.id = i2.estudiante_id
+                WHERE a2.semana = ? AND a2.fecha = ? AND (a2.bloque_horario = ? OR ? = '') AND a2.hora_escaneo IS NOT NULL
+                ORDER BY a2.hora_escaneo DESC, a2.id DESC LIMIT 1) as ultimo_estudiante
+        FROM asistencias a
+        JOIN inscripciones i ON i.id = a.inscripcion_id
+        WHERE i.curso_id = ? AND a.semana = ? AND a.fecha = ? AND (a.bloque_horario = ? OR ? = '') AND a.hora_escaneo IS NOT NULL
+    ");
+    $stmt2->execute([
+        $ses['semana'], $ses['fecha'], $ses['bloque_horario'], $ses['bloque_horario'],
+        $curso_id, $ses['semana'], $ses['fecha'], $ses['bloque_horario'], $ses['bloque_horario']
+    ]);
+    $row = $stmt2->fetch();
+
+    echo json_encode([
+        'ok' => true,
+        'activo' => true,
+        'total' => (int)($row['total'] ?? 0),
+        'ultimo' => $row['ultimo_estudiante'] ?? null
+    ]);
+    exit;
+}
+
 if ($accion === 'estado_semanas' && $curso_id > 0) {
     $periodo = obtenerPeriodoActual();
     limpiarSesionesExpiradas($pdo, $curso_id, $periodo);

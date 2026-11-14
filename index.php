@@ -93,17 +93,25 @@ $error = $_GET['error'] ?? '';
                 <div class="error-msg">Usuario inactivo. Contacte al administrador.</div>
             <?php elseif ($error === 'sesion'): ?>
                 <div class="error-msg">Debe iniciar sesión primero.</div>
+            <?php elseif ($error === 'formato_cedula'): ?>
+                <div class="error-msg">Formato incorrecto: Ingrese únicamente los números de su cédula (ejemplo: <strong>31853086</strong>), sin la letra «V», puntos ni espacios.</div>
+            <?php elseif ($error === 'acceso_denegado_admin'): ?>
+                <div class="error-msg">Las cuentas de administrador deben ingresar exclusivamente desde el <strong>Acceso para administradores</strong>.</div>
+            <?php elseif ($error === 'acceso_denegado_usuario'): ?>
+                <div class="error-msg">Este formulario es exclusivo para administradores. Profesores y estudiantes deben ingresar en su sección correspondiente.</div>
             <?php endif; ?>
 
             <div id="login-section" class="login-section">
-                <form method="POST" action="login.php">
-                    <label>Cédula de Identidad o Usuario</label>
+                <form method="POST" action="login.php" id="form-usuario" onsubmit="return validarCedulaUsuario(event)">
+                    <input type="hidden" name="login_tipo" value="usuario" />
+                    <label>Cédula de Identidad</label>
                     <div class="cedula-input-wrapper">
                         <span class="cedula-prefix">V</span>
-                        <input type="text" name="cedula" placeholder="Ej. 31853086, alumno, profesor" required />
+                        <input type="text" id="input-cedula" name="cedula" inputmode="numeric" pattern="[0-9]*" placeholder="Ej. 31853086" required autocomplete="username" />
                     </div>
+                    <div id="cedula-alerta" style="display:none;color:#b91c1c;font-size:12px;margin:-10px 0 12px;line-height:1.3;font-weight:600;"></div>
                     <label>Contraseña</label>
-                    <input type="password" name="password" placeholder="Ingrese su contraseña" required />
+                    <input type="password" name="password" placeholder="Ingrese su contraseña" required autocomplete="current-password" />
                     <span class="admin-toggle-link" onclick="toggleAdminLogin()">🔑 Acceso para administradores</span>
                     <button type="submit" class="btn btn-primary" style="width:100%;font-size:16px">Ingresar</button>
                 </form>
@@ -111,10 +119,11 @@ $error = $_GET['error'] ?? '';
 
             <div id="admin-login-section" class="admin-login-section">
                 <form method="POST" action="login.php">
+                    <input type="hidden" name="login_tipo" value="admin" />
                     <label>Usuario Administrativo</label>
-                    <input type="text" name="username" placeholder="Ej. admin" required />
+                    <input type="text" name="username" placeholder="Ej. admin" required autocomplete="username" />
                     <label>Contraseña</label>
-                    <input type="password" name="password" placeholder="Ingrese su contraseña" required />
+                    <input type="password" name="password" placeholder="Ingrese su contraseña" required autocomplete="current-password" />
                     <span class="admin-toggle-link" onclick="toggleAdminLogin()">⬅ Volver a inicio de estudiantes/profesores</span>
                     <button type="submit" class="btn btn-primary" style="width:100%;font-size:16px">Ingresar</button>
                 </form>
@@ -143,6 +152,67 @@ $error = $_GET['error'] ?? '';
                 window.scrollTo(0, 0);
             });
         });
+    });
+
+    
+    function validarCedulaUsuario(e) {
+        var input = document.getElementById('input-cedula');
+        var alerta = document.getElementById('cedula-alerta');
+        if (!input) return true;
+        var valor = input.value.trim();
+
+        // Si es usuario demo existente de pruebas 'alumno' o 'profesor', permitirlo
+        if (valor === 'alumno' || valor === 'profesor') {
+            if (alerta) alerta.style.display = 'none';
+            return true;
+        }
+
+        if (/[a-zA-Z]/.test(valor)) {
+            e.preventDefault();
+            if (alerta) {
+                alerta.textContent = 'Coloque solo los números de su cédula (sin "V" ni letras, la "V" ya está incluida).';
+                alerta.style.display = 'block';
+            }
+            input.focus();
+            return false;
+        }
+
+        if (/[\.\,\-\s]/.test(valor)) {
+            e.preventDefault();
+            if (alerta) {
+                alerta.textContent = 'Coloque solo los números seguidos, sin puntos, comas ni espacios (ej: 31853086).';
+                alerta.style.display = 'block';
+            }
+            input.focus();
+            return false;
+        }
+
+        if (!/^[0-9]{4,10}$/.test(valor)) {
+            e.preventDefault();
+            if (alerta) {
+                alerta.textContent = 'Ingrese un número de cédula válido (únicamente números).';
+                alerta.style.display = 'block';
+            }
+            input.focus();
+            return false;
+        }
+
+        if (alerta) alerta.style.display = 'none';
+        return true;
+    }
+
+    document.getElementById('input-cedula')?.addEventListener('input', function() {
+        var alerta = document.getElementById('cedula-alerta');
+        var v = this.value;
+        if (/[a-zA-Z]/.test(v)) {
+            alerta.textContent = 'Coloque solo los números (sin la letra "V").';
+            alerta.style.display = 'block';
+        } else if (/[\.\,\-\s]/.test(v)) {
+            alerta.textContent = 'Sin puntos ni espacios (ej: 31853086).';
+            alerta.style.display = 'block';
+        } else {
+            alerta.style.display = 'none';
+        }
     });
 
     function toggleAdminLogin() {

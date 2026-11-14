@@ -23,7 +23,12 @@ $accion = $_GET['accion'] ?? '';
 $curso_id = (int)($_GET['curso_id'] ?? 0);
 
 function limpiarSesionesExpiradas($pdo, $curso_id, $periodo) {
-    $stmt = $pdo->prepare("SELECT id, semana, fecha, bloque_horario FROM sesiones_qr WHERE curso_id = ? AND activo = 1 AND CONCAT(fecha, ' ', hora_expiracion) <= NOW()");
+    $stmt = $pdo->prepare("
+        SELECT id, semana, fecha, bloque_horario 
+        FROM sesiones_qr 
+        WHERE curso_id = ? 
+          AND (CONCAT(fecha, ' ', hora_expiracion) <= NOW() OR activo = 0)
+    ");
     $stmt->execute([$curso_id]);
     $expiradas = $stmt->fetchAll();
     $marcados = 0;
@@ -32,8 +37,8 @@ function limpiarSesionesExpiradas($pdo, $curso_id, $periodo) {
         $insc = $pdo->prepare("SELECT i.id FROM inscripciones i WHERE i.curso_id = ? AND i.periodo = ?");
         $insc->execute([$curso_id, $periodo]);
         foreach ($insc->fetchAll() as $i) {
-            $chk = $pdo->prepare("SELECT COUNT(*) FROM asistencias WHERE inscripcion_id = ? AND semana = ? AND fecha = ? AND bloque_horario = ?");
-            $chk->execute([$i['id'], $sesion['semana'], $sesion['fecha'], $sesion['bloque_horario']]);
+            $chk = $pdo->prepare("SELECT COUNT(*) FROM asistencias WHERE inscripcion_id = ? AND semana = ? AND fecha = ? AND (bloque_horario = ? OR (bloque_horario = '' AND ? = ''))");
+            $chk->execute([$i['id'], $sesion['semana'], $sesion['fecha'], $sesion['bloque_horario'], $sesion['bloque_horario']]);
             if ($chk->fetchColumn() == 0) {
                 $pdo->prepare("INSERT INTO asistencias (inscripcion_id, semana, fecha, bloque_horario, estado) VALUES (?, ?, ?, ?, 'ausente')")->execute([$i['id'], $sesion['semana'], $sesion['fecha'], $sesion['bloque_horario']]);
                 $marcados++;
@@ -50,16 +55,23 @@ if ($accion === 'conteo_en_vivo' && $curso_id > 0) {
         exit;
     }
 
-    $stmt = $pdo->prepare("SELECT id, semana, fecha, bloque_horario FROM sesiones_qr WHERE curso_id = ? AND activo = 1 LIMIT 1");
-    $stmt->execute([$curso_id]);
+    $periodo = obtenerPeriodoActual();
+    limpiarSesionesExpiradas($pdo, $curso_id, $periodo);
+
+    $sesion_id = (int)($_GET['sesion_id'] ?? 0);
+    if ($sesion_id > 0) {
+        $stmt = $pdo->prepare("SELECT id, semana, fecha, bloque_horario, activo FROM sesiones_qr WHERE id = ? AND curso_id = ?");
+        $stmt->execute([$sesion_id, $curso_id]);
+    } else {
+        $stmt = $pdo->prepare("SELECT id, semana, fecha, bloque_horario, activo FROM sesiones_qr WHERE curso_id = ? AND (activo = 1 OR fecha >= DATE_SUB(CURDATE(), INTERVAL 1 DAY)) ORDER BY id DESC LIMIT 1");
+        $stmt->execute([$curso_id]);
+    }
     $ses = $stmt->fetch();
 
     if (!$ses) {
         echo json_encode(['ok' => true, 'activo' => false, 'total_inscritos' => 0, 'total_registrados' => 0, 'estudiantes' => []]);
         exit;
     }
-
-    $periodo = obtenerPeriodoActual();
 
     // Obtener alumnos inscritos en este curso
     $stmt2 = $pdo->prepare("
@@ -111,7 +123,7 @@ if ($accion === 'conteo_en_vivo' && $curso_id > 0) {
 
     echo json_encode([
         'ok' => true,
-        'activo' => true,
+        'activo' => ($ses['activo'] == 1),
         'semana' => (int)$ses['semana'],
         'bloque' => $ses['bloque_horario'],
         'total_inscritos' => count($alumnos),

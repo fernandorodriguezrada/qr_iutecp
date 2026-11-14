@@ -865,8 +865,35 @@ function mostrarTemporizador(segundos, segundosTolerancia) {
             if (qrInterval) clearInterval(qrInterval);
             detenerConteoEnVivo();
             if (cursoQRActivo) {
+                var cId = cursoQRActivo;
+                var sId = sesionActivaId;
                 var x = new XMLHttpRequest();
-                x.open('GET', 'asistencia.php?accion=finalizar_sesion&curso_id=' + cursoQRActivo, true);
+                x.open('GET', 'asistencia.php?accion=finalizar_sesion&curso_id=' + cId, true);
+                x.onload = function() {
+                    // Refrescar lista de estudiantes para que pasen a rojo (ausentes)
+                    var x2 = new XMLHttpRequest();
+                    x2.open('GET', 'asistencia.php?accion=conteo_en_vivo&curso_id=' + cId + (sId ? '&sesion_id=' + sId : ''), true);
+                    x2.onload = function() {
+                        if (x2.status === 200) {
+                            try {
+                                var r2 = JSON.parse(x2.responseText);
+                                if (r2.ok) {
+                                    var resEl = document.getElementById('qr-estudiantes-resumen');
+                                    if (resEl) {
+                                        var reg = r2.total_registrados || 0;
+                                        var ins = r2.total_inscritos || 0;
+                                        resEl.textContent = reg + ' / ' + ins + ' registrados';
+                                    }
+                                    var gridEl = document.getElementById('qr-estudiantes-grid');
+                                    if (gridEl && Array.isArray(r2.estudiantes)) {
+                                        renderizarEstudiantesGrid(gridEl, r2.estudiantes);
+                                    }
+                                }
+                            } catch(e) {}
+                        }
+                    };
+                    x2.send();
+                };
                 x.send();
             }
             return;

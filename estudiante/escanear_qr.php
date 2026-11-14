@@ -170,19 +170,16 @@ if ($hora_actual < $sesion['hora_inicio'] || $hora_actual > $sesion['hora_expira
     exit;
 }
 
-$stmt = $pdo->prepare("UPDATE sesiones_qr SET activo = 0 WHERE id = ? AND CONCAT(fecha, ' ', hora_expiracion) <= NOW()");
-$stmt->execute([$sesion['id']]);
-
 $periodo_escaner = obtenerPeriodoActual();
-$stmt = $pdo->prepare("SELECT id, semana, fecha, bloque_horario FROM sesiones_qr WHERE curso_id = ? AND activo = 1 AND CONCAT(fecha, ' ', hora_expiracion) <= NOW()");
-$stmt->execute([$sesion['curso_id']]);
-foreach ($stmt->fetchAll() as $expirada) {
+$stmt = $pdo->prepare("SELECT id, semana, fecha, bloque_horario FROM sesiones_qr WHERE curso_id = ? AND (CONCAT(fecha, ' ', hora_expiracion) <= NOW() OR id = ?)");
+$stmt->execute([$sesion['curso_id'], $sesion['id']]);
+foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $expirada) {
     $pdo->prepare("UPDATE sesiones_qr SET activo = 0 WHERE id = ?")->execute([$expirada['id']]);
     $insc = $pdo->prepare("SELECT i.id FROM inscripciones i WHERE i.curso_id = ? AND i.periodo = ?");
     $insc->execute([$sesion['curso_id'], $periodo_escaner]);
-    foreach ($insc->fetchAll() as $i) {
-        $chk = $pdo->prepare("SELECT COUNT(*) FROM asistencias WHERE inscripcion_id = ? AND semana = ? AND fecha = ? AND bloque_horario = ?");
-        $chk->execute([$i['id'], $expirada['semana'], $expirada['fecha'], $expirada['bloque_horario']]);
+    foreach ($insc->fetchAll(PDO::FETCH_ASSOC) as $i) {
+        $chk = $pdo->prepare("SELECT COUNT(*) FROM asistencias WHERE inscripcion_id = ? AND semana = ? AND fecha = ? AND (bloque_horario = ? OR (bloque_horario = '' AND ? = ''))");
+        $chk->execute([$i['id'], $expirada['semana'], $expirada['fecha'], $expirada['bloque_horario'], $expirada['bloque_horario']]);
         if ($chk->fetchColumn() == 0) {
             $pdo->prepare("INSERT INTO asistencias (inscripcion_id, semana, fecha, bloque_horario, estado) VALUES (?, ?, ?, ?, 'ausente')")->execute([$i['id'], $expirada['semana'], $expirada['fecha'], $expirada['bloque_horario']]);
         }

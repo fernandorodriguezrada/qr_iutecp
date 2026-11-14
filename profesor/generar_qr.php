@@ -57,28 +57,29 @@ try {
     $hora_tolerancia = date('H:i:s', $now + $tolerancia_segundos);
     $hora_expiracion = date('H:i:s', $now + $expiracion_segundos);
 
+    $periodo_actual = obtenerPeriodoActual();
+    // Limpiar y marcar ausentes en sesiones activas previas antes de desactivar
+    $stmtAnt = $pdo->prepare("SELECT id, curso_id, semana, fecha, bloque_horario FROM sesiones_qr WHERE profesor_id = ? AND activo = 1");
+    $stmtAnt->execute([$profesor_id]);
+    foreach ($stmtAnt->fetchAll(PDO::FETCH_ASSOC) as $expirada) {
+        $pdo->prepare("UPDATE sesiones_qr SET activo = 0 WHERE id = ?")->execute([$expirada['id']]);
+        $insc = $pdo->prepare("SELECT i.id FROM inscripciones i WHERE i.curso_id = ? AND i.periodo = ?");
+        $insc->execute([$expirada['curso_id'], $periodo_actual]);
+        foreach ($insc->fetchAll(PDO::FETCH_ASSOC) as $i) {
+            $chk = $pdo->prepare("SELECT COUNT(*) FROM asistencias WHERE inscripcion_id = ? AND semana = ? AND fecha = ? AND (bloque_horario = ? OR (bloque_horario = '' AND ? = ''))");
+            $chk->execute([$i['id'], $expirada['semana'], $expirada['fecha'], $expirada['bloque_horario'], $expirada['bloque_horario']]);
+            if ($chk->fetchColumn() == 0) {
+                $pdo->prepare("INSERT INTO asistencias (inscripcion_id, semana, fecha, bloque_horario, estado) VALUES (?, ?, ?, ?, 'ausente')")->execute([$i['id'], $expirada['semana'], $expirada['fecha'], $expirada['bloque_horario']]);
+            }
+        }
+    }
+
     $pdo->prepare("UPDATE sesiones_qr SET activo = 0 WHERE profesor_id = ? AND activo = 1")->execute([$profesor_id]);
 
     $stmt = $pdo->prepare("INSERT INTO sesiones_qr (curso_id, profesor_id, codigo_qr, fecha, hora_inicio, hora_tolerancia, tolerancia_minutos, hora_expiracion, semana, bloque_horario, activo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)");
     $stmt->execute([$curso_id, $profesor_id, $codigo_qr, $fecha, $hora_inicio, $hora_tolerancia, $tolerancia_minutos, $hora_expiracion, $semana, $bloque_horario]);
 
     $sesion_id = $pdo->lastInsertId();
-
-    $periodo_actual = obtenerPeriodoActual();
-    $stmt = $pdo->prepare("SELECT id, semana, fecha, bloque_horario FROM sesiones_qr WHERE curso_id = ? AND activo = 1 AND CONCAT(fecha, ' ', hora_expiracion) <= NOW()");
-    $stmt->execute([$curso_id]);
-    foreach ($stmt->fetchAll() as $expirada) {
-        $pdo->prepare("UPDATE sesiones_qr SET activo = 0 WHERE id = ?")->execute([$expirada['id']]);
-        $insc = $pdo->prepare("SELECT i.id FROM inscripciones i WHERE i.curso_id = ? AND i.periodo = ?");
-        $insc->execute([$curso_id, $periodo_actual]);
-        foreach ($insc->fetchAll() as $i) {
-            $chk = $pdo->prepare("SELECT COUNT(*) FROM asistencias WHERE inscripcion_id = ? AND semana = ? AND fecha = ? AND bloque_horario = ?");
-            $chk->execute([$i['id'], $expirada['semana'], $expirada['fecha'], $expirada['bloque_horario']]);
-            if ($chk->fetchColumn() == 0) {
-                $pdo->prepare("INSERT INTO asistencias (inscripcion_id, semana, fecha, bloque_horario, estado) VALUES (?, ?, ?, ?, 'ausente')")->execute([$i['id'], $expirada['semana'], $expirada['fecha'], $expirada['bloque_horario']]);
-            }
-        }
-    }
 
     registrarAuditoria($pdo, $profesor_id, 'Generar QR', "Curso ID: $curso_id, Semana: $semana, Sesion QR ID: $sesion_id");
 

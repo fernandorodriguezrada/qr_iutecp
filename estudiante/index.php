@@ -429,7 +429,8 @@ if (
     </div>
 
     <div class="mobile-content hidden" id="tab-resumen">
-        <h2 style="color:var(--primary);margin-bottom:4px;">Resumen Académico</h2>
+        <div id="resumen-principal">
+            <h2 style="color:var(--primary);margin-bottom:4px;">Resumen Académico</h2>
         <p style="margin-bottom:18px;color:#666;font-size:14px;">Métricas y avance de asistencia del período actual</p>
 
         <!-- 1. Avance del Período Académico -->
@@ -438,7 +439,7 @@ if (
                 <span style="font-weight:bold;color:var(--primary);font-size:14.5px;">Período <?= htmlspecialchars($periodo) ?></span>
                 <span style="font-size:12.5px;font-weight:bold;color:var(--primary);background:#e8eaf6;padding:3px 8px;border-radius:4px;">Semana <?= $semanas_transcurridas ?> de <?= $total_semanas ?></span>
             </div>
-            <div style="width:100%;background:#e2e8f0;height:10px;border-radius:5px;overflow:hidden;margin-bottom:8px;">
+            <div style="width:100%;background:#e2e8f0;height:8px;border-radius:4px;overflow:hidden;margin-bottom:8px;">
                 <div style="width:<?= $porcentaje_avance_periodo ?>%;background:var(--primary);height:100%;transition:width 0.4s ease;"></div>
             </div>
             <div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:#666;">
@@ -504,8 +505,18 @@ if (
             </div>
         </div>
 
-        <!-- 3. Desglose / Semáforo por Materia -->
-        <h3 style="color:var(--primary);font-size:15px;margin:0 0 12px 0;letter-spacing:0.2px;">Rendimiento por Materia</h3>
+        <!-- Botón para ver desglose por materia -->
+        <button type="button" class="btn btn-primary" onclick="verRendimientoMaterias()" style="width:100%;padding:13px 16px;font-size:14.5px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;border-radius:4px;cursor:pointer;">
+            <span>Ver Rendimiento por Materia</span>
+            <span style="font-size:16px;">→</span>
+        </button>
+    </div>
+
+    <!-- 3. Subsección Desglose / Semáforo por Materia -->
+    <div id="resumen-materias-detalle" class="hidden">
+        <button type="button" class="btn" style="margin-bottom:15px;background:#eee;color:var(--text-dark);font-size:13.5px;padding:8px 14px;border-radius:4px;cursor:pointer;border:none;" onclick="volverResumenPrincipal()">⬅ Volver al resumen</button>
+        <h3 style="color:var(--primary);font-size:16px;margin:0 0 6px 0;letter-spacing:0.2px;">Rendimiento por Materia</h3>
+        <p style="margin-bottom:16px;color:#666;font-size:13.5px;">Desglose y semáforo de asistencia de tus materias inscritas</p>
 
         <?php if (empty($cursos)): ?>
             <div class="card" style="text-align:center;padding:30px;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
@@ -563,7 +574,7 @@ if (
                     </div>
 
                     <!-- Barra segmentada proporcional (4 colores) -->
-                    <div style="display:flex;width:100%;background:#e2e8f0;height:7px;border-radius:3.5px;overflow:hidden;margin-bottom:10px;">
+                    <div style="display:flex;width:100%;background:#e2e8f0;height:8px;border-radius:4px;overflow:hidden;margin-bottom:10px;">
                     <?php if ($c_tot === 0): ?>
                         <div style="width:100%;background:#cbd5e1;height:100%;" title="Sin sesiones"></div>
                     <?php else: ?>
@@ -592,6 +603,7 @@ if (
             <?php endforeach; ?>
             </div>
         <?php endif; ?>
+        </div>
     </div>
 
     <div class="mobile-content hidden" id="tab-guia">
@@ -692,6 +704,7 @@ function switchTab(tab, btn) {
         btn.classList.add('active');
     }
     if (tab === 'inicio') { volverMaterias(); cargarEstadoSemanas(); }
+    if (tab === 'resumen') volverResumenPrincipal();
     if (tab !== 'escanear') detenerCamara();
 }
 
@@ -817,6 +830,22 @@ function volverMaterias() {
     if (det) det.classList.add('hidden');
     var lista = document.getElementById('est-inicio-lista');
     if (lista) lista.classList.remove('hidden');
+}
+
+function verRendimientoMaterias() {
+    window.scrollTo(0, 0);
+    var p = document.getElementById('resumen-principal');
+    var d = document.getElementById('resumen-materias-detalle');
+    if (p) p.classList.add('hidden');
+    if (d) d.classList.remove('hidden');
+}
+
+function volverResumenPrincipal() {
+    window.scrollTo(0, 0);
+    var p = document.getElementById('resumen-principal');
+    var d = document.getElementById('resumen-materias-detalle');
+    if (d) d.classList.add('hidden');
+    if (p) p.classList.remove('hidden');
 }
 
 

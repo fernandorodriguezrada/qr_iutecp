@@ -1404,97 +1404,163 @@ function initPullToRefresh() {
     var indicator = document.getElementById('ptr-indicator');
     var ptrIcon = document.getElementById('ptr-icon');
     var ptrText = document.getElementById('ptr-text');
+    var header = document.querySelector('.mobile-header');
     if (!container || !indicator) return;
+
+    var headerHeight = header ? header.offsetHeight : 66;
+    indicator.style.top = headerHeight + 'px';
 
     var startY = 0;
     var pullDistance = 0;
     var isPulling = false;
+    var isRefreshing = false;
     var activeContent = null;
+    var rAF = null;
+    var threshold = 52;
+    var maxPull = 76;
 
     container.addEventListener('touchstart', function(e) {
+        if (isRefreshing) return;
         activeContent = document.querySelector('.mobile-content:not(.hidden)');
         if (!activeContent) return;
+
         if (activeContent.scrollTop <= 0) {
             startY = e.touches[0].clientY;
-            isPulling = true;
+            isPulling = false;
             pullDistance = 0;
         } else {
-            isPulling = false;
+            startY = 0;
         }
     }, { passive: true });
 
     container.addEventListener('touchmove', function(e) {
-        if (!isPulling || !activeContent) return;
+        if (isRefreshing || !startY || !activeContent) return;
         if (activeContent.scrollTop > 0) {
-            isPulling = false;
-            indicator.classList.remove('pulling');
-            indicator.style.transform = '';
-            activeContent.style.transform = '';
+            if (isPulling) resetPull(true);
             return;
         }
+
         var currentY = e.touches[0].clientY;
         var diff = currentY - startY;
-        if (diff > 0) {
-            pullDistance = Math.min(diff * 0.45, 75);
-            if (pullDistance > 8) {
-                indicator.classList.add('pulling');
-                indicator.style.transform = 'translateY(' + pullDistance + 'px)';
-                activeContent.style.transition = 'none';
-                activeContent.style.transform = 'translateY(' + pullDistance + 'px)';
-                if (pullDistance >= 46) {
-                    ptrIcon.classList.add('flip');
-                    ptrText.textContent = 'Suelta para actualizar';
-                } else {
-                    ptrIcon.classList.remove('flip');
-                    ptrText.textContent = 'Desliza para actualizar';
-                }
-            }
-        } else {
-            pullDistance = 0;
-            indicator.classList.remove('pulling');
-            indicator.style.transform = '';
-            activeContent.style.transform = '';
-        }
-    }, { passive: true });
 
-    container.addEventListener('touchend', function() {
-        if (!isPulling) return;
+        if (diff > 0) {
+            if (e.cancelable) e.preventDefault();
+            isPulling = true;
+            pullDistance = Math.min(maxPull, Math.pow(diff, 0.82) * 1.35);
+
+            if (!rAF) {
+                rAF = requestAnimationFrame(updatePullUI);
+            }
+        } else if (isPulling) {
+            resetPull(false);
+        }
+    }, { passive: false });
+
+    function updatePullUI() {
+        rAF = null;
+        if (!isPulling || isRefreshing) return;
+
+        var progress = Math.min(1, pullDistance / threshold);
+        indicator.classList.add('pulling');
+        indicator.style.transition = 'none';
+        indicator.style.opacity = Math.max(0, (progress - 0.1) / 0.9);
+        indicator.style.transform = 'translate3d(0, ' + (pullDistance - 46) + 'px, 0)';
+
+        if (activeContent) {
+            activeContent.style.transition = 'none';
+            activeContent.style.transform = 'translate3d(0, ' + pullDistance + 'px, 0)';
+        }
+
+        var rotation = Math.min(180, progress * 180);
+        if (ptrIcon) {
+            ptrIcon.style.transform = 'rotate(' + rotation + 'deg)';
+        }
+
+        if (ptrText) {
+            if (pullDistance >= threshold) {
+                ptrText.textContent = 'Suelta para actualizar';
+            } else {
+                ptrText.textContent = 'Desliza para actualizar';
+            }
+        }
+    }
+
+    function resetPull(immediate) {
         isPulling = false;
+        startY = 0;
+        if (rAF) {
+            cancelAnimationFrame(rAF);
+            rAF = null;
+        }
+        var duration = immediate ? '0s' : '0.28s cubic-bezier(0.25, 1, 0.5, 1)';
         indicator.classList.remove('pulling');
-        if (pullDistance >= 46) {
-            indicator.classList.add('refreshing');
-            indicator.style.transform = 'translateY(50px)';
-            if (activeContent) {
-                activeContent.style.transition = 'transform 0.2s ease';
-                activeContent.style.transform = 'translateY(50px)';
-            }
-            ptrText.textContent = 'Actualizando...';
-            function resetPtrIndicator() {
-                indicator.classList.remove('refreshing');
-                indicator.style.transform = '';
-                if (activeContent) {
-                    activeContent.style.transition = 'transform 0.2s ease';
+        indicator.style.transition = 'transform ' + duration + ', opacity 0.2s ease';
+        indicator.style.transform = 'translate3d(0, -100%, 0)';
+        indicator.style.opacity = '0';
+
+        if (ptrIcon) {
+            ptrIcon.style.transition = 'transform 0.2s ease';
+            ptrIcon.style.transform = 'rotate(0deg)';
+        }
+
+        if (activeContent) {
+            activeContent.style.transition = 'transform ' + duration;
+            activeContent.style.transform = 'translate3d(0, 0, 0)';
+            setTimeout(function() {
+                if (activeContent && !isPulling && !isRefreshing) {
                     activeContent.style.transform = '';
-                    setTimeout(function() {
-                        if (activeContent) activeContent.style.transition = '';
-                    }, 200);
+                    activeContent.style.transition = '';
                 }
-            }
-            recargarResumenDesdeServidor(function() {
-                cargarEstadoSemanas();
-                setTimeout(resetPtrIndicator, 300);
-            });
-        } else {
-            indicator.style.transform = '';
-            if (activeContent) {
-                activeContent.style.transition = 'transform 0.2s ease';
-                activeContent.style.transform = '';
-                setTimeout(function() {
-                    if (activeContent) activeContent.style.transition = '';
-                }, 200);
-            }
+            }, 300);
         }
         pullDistance = 0;
+    }
+
+    container.addEventListener('touchend', function() {
+        if (!isPulling || isRefreshing) {
+            isPulling = false;
+            return;
+        }
+
+        if (rAF) {
+            cancelAnimationFrame(rAF);
+            rAF = null;
+        }
+
+        if (pullDistance >= threshold) {
+            isRefreshing = true;
+            isPulling = false;
+            indicator.classList.remove('pulling');
+            indicator.classList.add('refreshing');
+            indicator.style.transition = 'transform 0.26s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease';
+            indicator.style.opacity = '1';
+            indicator.style.transform = 'translate3d(0, 2px, 0)';
+
+            if (activeContent) {
+                activeContent.style.transition = 'transform 0.26s cubic-bezier(0.25, 1, 0.5, 1)';
+                activeContent.style.transform = 'translate3d(0, 48px, 0)';
+            }
+
+            if (ptrText) ptrText.textContent = 'Actualizando...';
+
+            function finishRefresh() {
+                setTimeout(function() {
+                    indicator.classList.remove('refreshing');
+                    resetPull(false);
+                    setTimeout(function() {
+                        isRefreshing = false;
+                        if (ptrText) ptrText.textContent = 'Desliza para actualizar';
+                    }, 300);
+                }, 300);
+            }
+
+            recargarResumenDesdeServidor(function() {
+                cargarEstadoSemanas();
+                finishRefresh();
+            });
+        } else {
+            resetPull(false);
+        }
     }, { passive: true });
 }
 

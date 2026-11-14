@@ -203,7 +203,16 @@ function viewReportDetalle(cursoId, semana, cursoNombre, periodo) {
                 var estado = e.estado || 'pendiente';
                 var color = estado === 'presente' ? 'green' : (estado === 'tarde' ? '#e67e22' : (estado === 'justificado' ? '#008b8b' : (estado === 'ausente' ? 'red' : '#888')));
                 var fecha = e.fecha || '--';
-                var hora = e.hora_escaneo ? e.hora_escaneo.substring(0, 5) : '--:--';
+                var hora = '--:--';
+                if (e.hora_escaneo) {
+                    var parts = e.hora_escaneo.split(':');
+                    var h = parseInt(parts[0], 10);
+                    var m = parts[1] || '00';
+                    var ampm = h >= 12 ? 'PM' : 'AM';
+                    h = h % 12;
+                    h = h ? h : 12;
+                    hora = (h < 10 ? '0' + h : h) + ':' + m + ' ' + ampm;
+                }
                 html += '<tr>' +
                     '<td>' + e.cedula + '</td>' +
                     '<td>' + e.nombre_completo + '</td>' +

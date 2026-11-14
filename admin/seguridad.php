@@ -193,7 +193,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["accion"])) {
                     <?php foreach ($auditoria as $log): ?>
                     <tr>
                         <td><?= date(
-                            "d/m/Y H:i",
+                            "d/m/Y h:i A",
                             strtotime($log["created_at"]),
                         ) ?></td>
                         <td><?= htmlspecialchars(

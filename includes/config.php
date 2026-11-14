@@ -1,5 +1,7 @@
 <?php
 
+date_default_timezone_set("America/Caracas");
+
 $http_host = $_SERVER['HTTP_HOST'] ?? '';
 
 if (strpos($http_host, 'asistenciasiutecp') !== false || strpos($http_host, 'rf.gd') !== false || strpos($http_host, 'infinityfree') !== false) {
@@ -30,6 +32,7 @@ try {
         PDO::ATTR_EMULATE_PREPARES => false,
         PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
     ]);
+    $pdo->exec("SET time_zone = '-04:00'");
 } catch (PDOException $e) {
     die("Error de conexión a la base de datos: " . $e->getMessage());
 }

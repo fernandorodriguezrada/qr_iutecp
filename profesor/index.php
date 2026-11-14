@@ -185,8 +185,14 @@ if ($sesion_activa) {
             $saludo_prof = 'Prof. ' . $nombre_prof;
         }
         ?>
-        <h2 style="color:var(--primary);margin-bottom:5px">¡Hola, <?= htmlspecialchars($saludo_prof) ?>!</h2>
-        <p style="margin-bottom:15px;color:#666">Gestión de Aula IUTECP</p>
+        <div id="generar-header-volver" class="<?= $sesion_activa ? '' : 'hidden' ?>" style="margin-bottom:15px;">
+            <button type="button" class="btn" style="background:#eee;color:var(--text-dark);font-size:13.5px;padding:8px 14px;border-radius:4px;cursor:pointer;border:none;" onclick="cerrarQR()">⬅ Volver al generador</button>
+        </div>
+
+        <div id="generar-header-saludo" class="<?= $sesion_activa ? 'hidden' : '' ?>">
+            <h2 style="color:var(--primary);margin-bottom:5px">¡Hola, <?= htmlspecialchars($saludo_prof) ?>!</h2>
+            <p style="margin-bottom:15px;color:#666">Gestión de Aula IUTECP</p>
+        </div>
 
         <div class="card <?= $sesion_activa ? 'hidden' : '' ?>" id="form-generar-container" style="margin-bottom:15px;padding:15px 18px;">
             <?php if (empty($cursos)): ?>
@@ -247,14 +253,15 @@ if ($sesion_activa) {
 
             <div class="timer" id="qr-timer" style="font-size:1.3rem;font-weight:bold;color:var(--primary);margin-bottom:12px">Expira en 05:00</div>
 
-            <div id="qr-live-box" style="display:flex;justify-content:center;margin-bottom:14px;">
-                <div id="qr-live-counter" style="display:inline-flex;align-items:center;gap:7px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:4px;padding:6px 14px;font-size:13.5px;color:#166534;font-weight:600;">
-                    <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e;"></span>
-                    <span id="qr-live-counter-text">0 estudiantes registrados</span>
+            <div id="qr-estudiantes-container" style="margin-top:14px;text-align:left;border-top:1px solid var(--border-color);padding-top:12px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding:0 2px;">
+                    <span style="font-size:13px;font-weight:bold;color:var(--primary);">Alumnos de la clase</span>
+                    <span id="qr-estudiantes-resumen" style="font-size:12px;color:#666;font-weight:600;">0 / 0 registrados</span>
+                </div>
+                <div id="qr-estudiantes-grid" style="display:grid;grid-template-columns:repeat(3, 1fr);gap:6px;max-height:220px;overflow-y:auto;padding-right:2px;">
+                    <!-- Cargados en vivo dinámicamente -->
                 </div>
             </div>
-
-            <button class="btn btn-primary" style="width:100%;padding:10px;font-size:14px;" onclick="cerrarQR()">Ocultar Código</button>
         </div>
     </div>
 
@@ -585,6 +592,12 @@ function handleAccionQR() {
         if (formContainer) formContainer.classList.add('hidden');
         var qrArea = document.getElementById('qr-display-area');
         if (qrArea) qrArea.classList.remove('hidden');
+
+        var saludo = document.getElementById('generar-header-saludo');
+        if (saludo) saludo.classList.add('hidden');
+        var volver = document.getElementById('generar-header-volver');
+        if (volver) volver.classList.remove('hidden');
+
         if (cursoQRActivo) iniciarConteoEnVivo(cursoQRActivo);
     } else {
         iniciarFlujoGenerarQR();
@@ -723,6 +736,11 @@ function ejecutarGenerarQR(bloqueHorario) {
             var qrArea = document.getElementById('qr-display-area');
             qrArea.classList.remove('hidden');
 
+            var saludo = document.getElementById('generar-header-saludo');
+            if (saludo) saludo.classList.add('hidden');
+            var volver = document.getElementById('generar-header-volver');
+            if (volver) volver.classList.remove('hidden');
+
             var segundos = r.expiracion_segundos || 1200;
             var segTol = r.tolerancia_segundos || 600;
             mostrarTemporizador(segundos, segTol);
@@ -743,7 +761,60 @@ function ejecutarGenerarQR(bloqueHorario) {
     xhr.send('curso_id=' + encodeURIComponent(cursoId) + '&semana=' + encodeURIComponent(semana) + '&bloque_horario=' + encodeURIComponent(bloqueHorario || ''));
 }
 
+function escapeHtml(str) {
+    if (!str) return '';
+    var d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+}
+
 var liveConteoInterval = null;
+
+function renderizarEstudiantesGrid(container, estudiantes) {
+    if (!container) return;
+    if (!estudiantes || estudiantes.length === 0) {
+        container.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: #94a3b8; font-size: 12px; padding: 12px 0;">No hay alumnos inscritos en esta clase.</div>';
+        return;
+    }
+
+    var html = '';
+    estudiantes.forEach(function(est) {
+        var estado = (est.estado || 'pendiente').toLowerCase();
+        var bg = '#f8fafc';
+        var border = '#cbd5e1';
+        var color = '#64748b';
+        var badge = '○ Pendiente';
+
+        if (estado === 'presente') {
+            bg = '#f0fdf4';
+            border = '#86efac';
+            color = '#15803d';
+            badge = '✓ Presente';
+        } else if (estado === 'tarde') {
+            bg = '#fffbeb';
+            border = '#fde68a';
+            color = '#b45309';
+            badge = '🕒 Tarde';
+        } else if (estado === 'ausente') {
+            bg = '#fef2f2';
+            border = '#fecaca';
+            color = '#b91c1c';
+            badge = '✕ Ausente';
+        } else if (estado === 'justificado') {
+            bg = '#f0fdfa';
+            border = '#99f6e4';
+            color = '#0f766e';
+            badge = 'ℹ Justif.';
+        }
+
+        html += '<div style="background:' + bg + ';border:1px solid ' + border + ';color:' + color + ';border-radius:6px;padding:6px 4px;font-size:11px;line-height:1.2;text-align:center;display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:48px;box-sizing:border-box;transition:all 0.25s ease;">';
+        html += '<span style="font-size:9.5px;font-weight:700;margin-bottom:2px;letter-spacing:0.2px;">' + badge + '</span>';
+        html += '<span style="font-weight:600;word-break:break-word;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;" title="' + escapeHtml(est.nombre) + '">' + escapeHtml(est.nombre) + '</span>';
+        html += '</div>';
+    });
+
+    container.innerHTML = html;
+}
 
 function iniciarConteoEnVivo(cursoId) {
     detenerConteoEnVivo();
@@ -762,15 +833,15 @@ function iniciarConteoEnVivo(cursoId) {
             try {
                 var r = JSON.parse(x.responseText);
                 if (r.ok) {
-                    var txtEl = document.getElementById('qr-live-counter-text');
-                    if (txtEl) {
-                        var cant = r.total || 0;
-                        var txt = cant + ' estudiante' + (cant === 1 ? '' : 's') + ' registrado' + (cant === 1 ? '' : 's');
-                        if (r.ultimo) {
-                            var primerNombre = r.ultimo.trim().split(' ')[0];
-                            txt += ' (Último: ' + primerNombre + ')';
-                        }
-                        txtEl.textContent = txt;
+                    var resEl = document.getElementById('qr-estudiantes-resumen');
+                    if (resEl) {
+                        var reg = r.total_registrados || 0;
+                        var ins = r.total_inscritos || 0;
+                        resEl.textContent = reg + ' / ' + ins + ' registrados';
+                    }
+                    var gridEl = document.getElementById('qr-estudiantes-grid');
+                    if (gridEl && Array.isArray(r.estudiantes)) {
+                        renderizarEstudiantesGrid(gridEl, r.estudiantes);
                     }
                 }
             } catch(e) {}
@@ -791,7 +862,6 @@ function detenerConteoEnVivo() {
 
 function mostrarTemporizador(segundos, segundosTolerancia) {
     if (qrInterval) clearInterval(qrInterval);
-            detenerConteoEnVivo();
     var total = segundos;
     var tol = (typeof segundosTolerancia !== 'undefined') ? segundosTolerancia : 0;
 
@@ -839,6 +909,11 @@ function cerrarQR() {
 
     var formContainer = document.getElementById('form-generar-container');
     if (formContainer) formContainer.classList.remove('hidden');
+
+    var saludo = document.getElementById('generar-header-saludo');
+    if (saludo) saludo.classList.remove('hidden');
+    var volver = document.getElementById('generar-header-volver');
+    if (volver) volver.classList.add('hidden');
 
     var btn = document.getElementById('btn-generar-qr');
     if (btn) {
@@ -913,6 +988,11 @@ function cancelarQR() {
 
                 var formContainer = document.getElementById('form-generar-container');
                 if (formContainer) formContainer.classList.remove('hidden');
+
+                var saludo = document.getElementById('generar-header-saludo');
+                if (saludo) saludo.classList.remove('hidden');
+                var volver = document.getElementById('generar-header-volver');
+                if (volver) volver.classList.add('hidden');
 
                 var btn = document.getElementById('btn-generar-qr');
                 if (btn) btn.textContent = 'Generar QR';

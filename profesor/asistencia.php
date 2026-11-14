@@ -55,32 +55,68 @@ if ($accion === 'conteo_en_vivo' && $curso_id > 0) {
     $ses = $stmt->fetch();
 
     if (!$ses) {
-        echo json_encode(['ok' => true, 'activo' => false, 'total' => 0, 'ultimo' => null]);
+        echo json_encode(['ok' => true, 'activo' => false, 'total_inscritos' => 0, 'total_registrados' => 0, 'estudiantes' => []]);
         exit;
     }
 
+    $periodo = obtenerPeriodoActual();
+
+    // Obtener alumnos inscritos en este curso
     $stmt2 = $pdo->prepare("
-        SELECT COUNT(*) as total,
-               (SELECT u.nombre_completo FROM asistencias a2
-                JOIN inscripciones i2 ON i2.id = a2.inscripcion_id
-                JOIN usuarios u ON u.id = i2.estudiante_id
-                WHERE a2.semana = ? AND a2.fecha = ? AND (a2.bloque_horario = ? OR ? = '') AND a2.hora_escaneo IS NOT NULL
-                ORDER BY a2.hora_escaneo DESC, a2.id DESC LIMIT 1) as ultimo_estudiante
-        FROM asistencias a
-        JOIN inscripciones i ON i.id = a.inscripcion_id
-        WHERE i.curso_id = ? AND a.semana = ? AND a.fecha = ? AND (a.bloque_horario = ? OR ? = '') AND a.hora_escaneo IS NOT NULL
+        SELECT u.id, u.nombre_completo, i.id as inscripcion_id
+        FROM inscripciones i
+        JOIN usuarios u ON u.id = i.estudiante_id
+        WHERE i.curso_id = ? AND i.periodo = ?
+        ORDER BY u.nombre_completo
     ");
-    $stmt2->execute([
-        $ses['semana'], $ses['fecha'], $ses['bloque_horario'], $ses['bloque_horario'],
-        $curso_id, $ses['semana'], $ses['fecha'], $ses['bloque_horario'], $ses['bloque_horario']
-    ]);
-    $row = $stmt2->fetch();
+    $stmt2->execute([$curso_id, $periodo]);
+    $alumnos = $stmt2->fetchAll();
+
+    // Obtener asistencias registradas para esta sesión
+    $stmt3 = $pdo->prepare("
+        SELECT inscripcion_id, estado, hora_escaneo
+        FROM asistencias
+        WHERE semana = ? AND fecha = ? AND (bloque_horario = ? OR (bloque_horario = '' AND ? = ''))
+    ");
+    $stmt3->execute([$ses['semana'], $ses['fecha'], $ses['bloque_horario'], $ses['bloque_horario']]);
+    $map = [];
+    while ($r = $stmt3->fetch()) {
+        $map[$r['inscripcion_id']] = $r['estado'];
+    }
+
+    $lista = [];
+    $total_registrados = 0;
+
+    foreach ($alumnos as $al) {
+        $est = $map[$al['inscripcion_id']] ?? 'pendiente';
+        if ($est === 'presente' || $est === 'tarde' || $est === 'justificado') {
+            $total_registrados++;
+        }
+
+        // Formato: Primer nombre y Primer apellido
+        $partes = preg_split('/\s+/', trim($al['nombre_completo']));
+        $primer_nombre = $partes[0] ?? '';
+        $primer_apellido = $partes[1] ?? '';
+        $nombre_corto = trim($primer_nombre . ' ' . $primer_apellido);
+        if (empty($nombre_corto)) {
+            $nombre_corto = $al['nombre_completo'];
+        }
+
+        $lista[] = [
+            'id' => (int)$al['id'],
+            'nombre' => $nombre_corto,
+            'estado' => $est
+        ];
+    }
 
     echo json_encode([
         'ok' => true,
         'activo' => true,
-        'total' => (int)($row['total'] ?? 0),
-        'ultimo' => $row['ultimo_estudiante'] ?? null
+        'semana' => (int)$ses['semana'],
+        'bloque' => $ses['bloque_horario'],
+        'total_inscritos' => count($alumnos),
+        'total_registrados' => $total_registrados,
+        'estudiantes' => $lista
     ]);
     exit;
 }

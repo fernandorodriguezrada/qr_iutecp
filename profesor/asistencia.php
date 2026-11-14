@@ -27,7 +27,7 @@ function limpiarSesionesExpiradas($pdo, $curso_id, $periodo) {
         SELECT id, semana, fecha, bloque_horario 
         FROM sesiones_qr 
         WHERE curso_id = ? 
-          AND (CONCAT(fecha, ' ', hora_expiracion) <= NOW() OR activo = 0)
+          AND CONCAT(fecha, ' ', hora_expiracion) <= NOW()
     ");
     $stmt->execute([$curso_id]);
     $expiradas = $stmt->fetchAll();

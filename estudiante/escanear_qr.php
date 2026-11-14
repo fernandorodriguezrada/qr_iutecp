@@ -171,7 +171,7 @@ if ($hora_actual < $sesion['hora_inicio'] || $hora_actual > $sesion['hora_expira
 }
 
 $periodo_escaner = obtenerPeriodoActual();
-$stmt = $pdo->prepare("SELECT id, semana, fecha, bloque_horario FROM sesiones_qr WHERE curso_id = ? AND (CONCAT(fecha, ' ', hora_expiracion) <= NOW() OR id = ?)");
+$stmt = $pdo->prepare("SELECT id, semana, fecha, bloque_horario FROM sesiones_qr WHERE curso_id = ? AND id != ? AND CONCAT(fecha, ' ', hora_expiracion) <= NOW()");
 $stmt->execute([$sesion['curso_id'], $sesion['id']]);
 foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $expirada) {
     $pdo->prepare("UPDATE sesiones_qr SET activo = 0 WHERE id = ?")->execute([$expirada['id']]);

@@ -485,61 +485,61 @@ foreach ($cursos as $c) {
         </div>
     </div>
 
-    <div class="mobile-content hidden" id="tab-resumen">
+        <div class="mobile-content hidden" id="tab-resumen" style="padding-bottom:10px;">
         <div id="resumen-principal">
-            <h2 style="color:var(--primary);margin:0 0 2px 0;font-size:19px;">Resumen del Profesor</h2>
-            <p style="margin:0 0 10px 0;color:#666;font-size:12.5px;">Métricas y rendimiento de asistencia del período actual</p>
+            <h2 style="color:var(--primary);margin-bottom:6px">Resumen del Profesor</h2>
+            <p style="margin-bottom:15px;color:#666;">Métricas y rendimiento de asistencia del período actual</p>
 
             <!-- Métricas Rápidas (Cursos, Alumnos, Clases) -->
-            <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;margin-bottom:10px;">
-                <div class="card" style="padding:8px 6px;text-align:center;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
-                    <div style="font-size:11px;color:#666;font-weight:600;margin-bottom:1px;">Cursos</div>
-                    <div style="font-size:18px;font-weight:bold;color:var(--primary);line-height:1.1;"><?= count($cursos) ?></div>
+            <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;margin-bottom:15px;">
+                <div class="card" style="padding:12px 8px;text-align:center;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
+                    <div style="font-size:11.5px;color:#666;font-weight:600;margin-bottom:2px;">Cursos</div>
+                    <div style="font-size:20px;font-weight:bold;color:var(--primary);line-height:1.2;"><?= count($cursos) ?></div>
                 </div>
-                <div class="card" style="padding:8px 6px;text-align:center;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
-                    <div style="font-size:11px;color:#666;font-weight:600;margin-bottom:1px;">Estudiantes</div>
-                    <div style="font-size:18px;font-weight:bold;color:var(--primary);line-height:1.1;"><?= $total_estudiantes_profesor ?></div>
+                <div class="card" style="padding:12px 8px;text-align:center;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
+                    <div style="font-size:11.5px;color:#666;font-weight:600;margin-bottom:2px;">Estudiantes</div>
+                    <div style="font-size:20px;font-weight:bold;color:var(--primary);line-height:1.2;"><?= $total_estudiantes_profesor ?></div>
                 </div>
-                <div class="card" style="padding:8px 6px;text-align:center;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
-                    <div style="font-size:11px;color:#666;font-weight:600;margin-bottom:1px;">Clases</div>
-                    <div style="font-size:18px;font-weight:bold;color:var(--primary);line-height:1.1;"><?= $total_clases_dictadas ?></div>
+                <div class="card" style="padding:12px 8px;text-align:center;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
+                    <div style="font-size:11.5px;color:#666;font-weight:600;margin-bottom:2px;">Clases</div>
+                    <div style="font-size:20px;font-weight:bold;color:var(--primary);line-height:1.2;"><?= $total_clases_dictadas ?></div>
                 </div>
             </div>
 
             <!-- 1. Avance del Período Académico -->
-            <div class="card" style="margin-bottom:10px;padding:11px 14px;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                    <span style="font-weight:bold;color:var(--primary);font-size:14px;">Período <?= htmlspecialchars($periodo) ?></span>
-                    <span style="font-size:12px;font-weight:bold;color:var(--primary);background:#e8eaf6;padding:2px 7px;border-radius:4px;">Semana <?= $semanas_transcurridas ?> de <?= $total_semanas ?></span>
+            <div class="card" style="margin-bottom:16px;padding:16px;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                    <span style="font-weight:bold;color:var(--primary);font-size:14.5px;">Período <?= htmlspecialchars($periodo) ?></span>
+                    <span style="font-size:12.5px;font-weight:bold;color:var(--primary);background:#e8eaf6;padding:3px 8px;border-radius:4px;">Semana <?= $semanas_transcurridas ?> de <?= $total_semanas ?></span>
                 </div>
-                <div style="width:100%;background:#e2e8f0;height:7px;border-radius:4px;overflow:hidden;margin-bottom:6px;">
+                <div style="width:100%;background:#e2e8f0;height:8px;border-radius:4px;overflow:hidden;margin-bottom:8px;">
                     <div style="width:<?= $porcentaje_avance_periodo ?>%;background:var(--primary);height:100%;transition:width 0.4s ease;"></div>
                 </div>
-                <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#666;">
+                <div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:#666;">
                     <span><?= $porcentaje_avance_periodo ?>% del período transcurrido</span>
                     <span><?= $semanas_restantes ?> semana<?= $semanas_restantes == 1 ? '' : 's' ?> restante<?= $semanas_restantes == 1 ? '' : 's' ?></span>
                 </div>
             </div>
 
             <!-- 2. Métricas Globales de Asistencia (KPIs) -->
-            <div class="card" style="margin-bottom:10px;padding:12px 14px;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
-                <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #f0f0f0;">
+            <div class="card" style="margin-bottom:20px;padding:16px;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
+                <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #f0f0f0;">
                     <div>
-                        <span style="font-size:12.5px;color:#666;display:block;margin-bottom:1px;">Asistencia Global</span>
-                        <strong style="font-size:24px;color:var(--primary);line-height:1;"><?= $global_total_registros > 0 ? $global_porcentaje_asistencia . '%' : '100%' ?></strong>
+                        <span style="font-size:13px;color:#666;display:block;margin-bottom:2px;">Asistencia Global</span>
+                        <strong style="font-size:26px;color:var(--primary);line-height:1;"><?= $global_total_registros > 0 ? $global_porcentaje_asistencia . '%' : '100%' ?></strong>
                     </div>
                     <div style="text-align:right;">
-                        <span style="font-size:12px;color:#555;display:block;">
+                        <span style="font-size:12.5px;color:#555;display:block;">
                             <?= $global_total_registros > 0 ? "$global_asistencias_validas de $global_total_registros asistencias" : "Sin clases registradas aún" ?>
                         </span>
-                        <span style="font-size:11px;color:<?= $global_porcentaje_asistencia >= 75 ? '#15803d' : ($global_porcentaje_asistencia >= 60 ? '#b45309' : '#b91c1c') ?>;font-weight:600;">
+                        <span style="font-size:11.5px;color:<?= $global_porcentaje_asistencia >= 75 ? '#15803d' : ($global_porcentaje_asistencia >= 60 ? '#b45309' : '#b91c1c') ?>;font-weight:600;">
                             <?= $global_total_registros > 0 ? ($global_porcentaje_asistencia >= 75 ? 'Excelente asistencia' : ($global_porcentaje_asistencia >= 60 ? 'Asistencia regular' : 'Baja asistencia')) : 'Período en curso' ?>
                         </span>
                     </div>
                 </div>
 
                 <!-- Barra segmentada global -->
-                <div style="display:flex;width:100%;background:#e2e8f0;height:7px;border-radius:4px;overflow:hidden;margin-bottom:10px;">
+                <div style="display:flex;width:100%;background:#e2e8f0;height:8px;border-radius:4px;overflow:hidden;margin-bottom:14px;">
                 <?php if ($global_total_registros === 0): ?>
                     <div style="width:100%;background:#cbd5e1;height:100%;" title="Sin sesiones"></div>
                 <?php else: ?>
@@ -558,32 +558,32 @@ foreach ($cursos as $c) {
                 <?php endif; ?>
                 </div>
 
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:4px;padding:9px 12px;">
-                        <div style="font-size:20px;font-weight:bold;color:#15803d;line-height:1.1;"><?= $global_counts['presente'] ?></div>
-                        <div style="font-size:12px;color:#166534;font-weight:600;margin-top:1px;">Puntual</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:4px;padding:12px 14px;">
+                        <div style="font-size:22px;font-weight:bold;color:#15803d;line-height:1.2;"><?= $global_counts['presente'] ?></div>
+                        <div style="font-size:12.5px;color:#166534;font-weight:600;margin-top:2px;">Puntual</div>
                     </div>
-                    <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:4px;padding:9px 12px;">
-                        <div style="font-size:20px;font-weight:bold;color:#b45309;line-height:1.1;"><?= $global_counts['tarde'] ?></div>
-                        <div style="font-size:12px;color:#92400e;font-weight:600;margin-top:1px;">Con retraso</div>
+                    <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:4px;padding:12px 14px;">
+                        <div style="font-size:22px;font-weight:bold;color:#b45309;line-height:1.2;"><?= $global_counts['tarde'] ?></div>
+                        <div style="font-size:12.5px;color:#92400e;font-weight:600;margin-top:2px;">Con retraso</div>
                     </div>
-                    <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:4px;padding:9px 12px;">
-                        <div style="font-size:20px;font-weight:bold;color:#b91c1c;line-height:1.1;"><?= $global_counts['ausente'] ?></div>
-                        <div style="font-size:12px;color:#991b1b;font-weight:600;margin-top:1px;">Inasistencias</div>
+                    <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:4px;padding:12px 14px;">
+                        <div style="font-size:22px;font-weight:bold;color:#b91c1c;line-height:1.2;"><?= $global_counts['ausente'] ?></div>
+                        <div style="font-size:12.5px;color:#991b1b;font-weight:600;margin-top:2px;">Inasistencias</div>
                     </div>
-                    <div style="background:#f0fdfa;border:1px solid #99f6e4;border-radius:4px;padding:9px 12px;">
-                        <div style="font-size:20px;font-weight:bold;color:#0f766e;line-height:1.1;"><?= $global_counts['justificado'] ?></div>
-                        <div style="font-size:12px;color:#115e59;font-weight:600;margin-top:1px;">Justificadas</div>
+                    <div style="background:#f0fdfa;border:1px solid #99f6e4;border-radius:4px;padding:12px 14px;">
+                        <div style="font-size:22px;font-weight:bold;color:#0f766e;line-height:1.2;"><?= $global_counts['justificado'] ?></div>
+                        <div style="font-size:12.5px;color:#115e59;font-weight:600;margin-top:2px;">Justificadas</div>
                     </div>
                 </div>
             </div>
 
             <!-- Botones de acceso a secciones detalladas -->
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;margin-bottom:0;">
-                <button type="button" class="btn btn-primary" onclick="verRendimientoMaterias()" style="padding:10px 8px;font-size:13px;font-weight:600;text-align:center;border-radius:4px;cursor:pointer;line-height:1.2;box-shadow:none;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;margin-bottom:0;">
+                <button type="button" class="btn btn-primary" onclick="verRendimientoMaterias()" style="padding:12px 10px;font-size:13.5px;font-weight:600;text-align:center;border-radius:4px;cursor:pointer;line-height:1.3;box-shadow:none;">
                     Rendimiento por Materia
                 </button>
-                <button type="button" class="btn btn-primary" onclick="verHorarioClases()" style="padding:10px 8px;font-size:13px;font-weight:600;text-align:center;border-radius:4px;cursor:pointer;line-height:1.2;box-shadow:none;">
+                <button type="button" class="btn btn-primary" onclick="verHorarioClases()" style="padding:12px 10px;font-size:13.5px;font-weight:600;text-align:center;border-radius:4px;cursor:pointer;line-height:1.3;box-shadow:none;">
                     Horario de Clases
                 </button>
             </div>

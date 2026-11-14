@@ -708,6 +708,9 @@ html.mobile-app-html::-webkit-scrollbar {
   border-top: 1px solid var(--border-color);
   max-height: 280px; 
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  touch-action: pan-y;
 }
 
 .weeks-list::-webkit-scrollbar {

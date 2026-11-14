@@ -2064,6 +2064,7 @@ function initPullToRefresh() {
     var headerHeight = header ? header.offsetHeight : 66;
     indicator.style.top = headerHeight + 'px';
 
+    var startX = 0;
     var startY = 0;
     var pullDistance = 0;
     var isPulling = false;
@@ -2072,18 +2073,59 @@ function initPullToRefresh() {
     var rAF = null;
     var threshold = 52;
     var maxPull = 76;
+    var dragThreshold = 8; // Umbral mínimo hacia abajo para no competir con el scroll interno
+
+    function isInsideScrollable(el, root) {
+        var cur = el;
+        while (cur && cur !== root && cur !== document.body && cur !== document.documentElement) {
+            if (cur.classList && (
+                cur.classList.contains('weeks-list') ||
+                cur.classList.contains('popup-content') ||
+                cur.classList.contains('scan-popup')
+            )) {
+                return true;
+            }
+            if (cur.id === 'qr-estudiantes-grid' || cur.id === 'electivas-lista') {
+                return true;
+            }
+            var tag = cur.tagName ? cur.tagName.toLowerCase() : '';
+            if (tag === 'select' || tag === 'textarea' || tag === 'input') {
+                return true;
+            }
+            if (cur !== root && cur.scrollHeight > cur.clientHeight + 2) {
+                var ov = window.getComputedStyle(cur).overflowY;
+                if (ov === 'auto' || ov === 'scroll') {
+                    return true;
+                }
+            }
+            cur = cur.parentElement;
+        }
+        return false;
+    }
 
     container.addEventListener('touchstart', function(e) {
         if (isRefreshing) return;
         activeContent = document.querySelector('.mobile-content:not(.hidden)');
         if (!activeContent) return;
 
+        // Si el toque se inicia dentro de un componente con scroll interno (ej: lista de semanas),
+        // se desactiva el pull to refresh para dar prioridad absoluta a la navegación del componente
+        if (isInsideScrollable(e.target, activeContent)) {
+            startY = 0;
+            startX = 0;
+            isPulling = false;
+            return;
+        }
+
         if (activeContent.scrollTop <= 0) {
             startY = e.touches[0].clientY;
+            startX = e.touches[0].clientX;
             isPulling = false;
             pullDistance = 0;
         } else {
             startY = 0;
+            startX = 0;
+            isPulling = false;
         }
     }, { passive: true });
 
@@ -2091,21 +2133,32 @@ function initPullToRefresh() {
         if (isRefreshing || !startY || !activeContent) return;
         if (activeContent.scrollTop > 0) {
             if (isPulling) resetPull(true);
+            startY = 0;
             return;
         }
 
         var currentY = e.touches[0].clientY;
-        var diff = currentY - startY;
+        var currentX = e.touches[0].clientX;
+        var diffY = currentY - startY;
+        var diffX = currentX - startX;
 
-        if (diff > 0) {
+        // Si el movimiento es horizontal, cancelar para permitir gestos laterales naturales
+        if (!isPulling && Math.abs(diffX) > Math.abs(diffY)) {
+            startY = 0;
+            return;
+        }
+
+        // Solo activar tras superar el umbral mínimo hacia abajo
+        if (diffY > dragThreshold) {
             if (e.cancelable) e.preventDefault();
             isPulling = true;
-            pullDistance = Math.min(maxPull, Math.pow(diff, 0.82) * 1.35);
+            var effectiveDiff = diffY - dragThreshold;
+            pullDistance = Math.min(maxPull, Math.pow(effectiveDiff, 0.82) * 1.35);
 
             if (!rAF) {
                 rAF = requestAnimationFrame(updatePullUI);
             }
-        } else if (isPulling) {
+        } else if (diffY <= 0 && isPulling) {
             resetPull(false);
         }
     }, { passive: false });
@@ -2142,6 +2195,7 @@ function initPullToRefresh() {
     function resetPull(immediate) {
         isPulling = false;
         startY = 0;
+        startX = 0;
         if (rAF) {
             cancelAnimationFrame(rAF);
             rAF = null;
@@ -2173,6 +2227,8 @@ function initPullToRefresh() {
     container.addEventListener('touchend', function() {
         if (!isPulling || isRefreshing) {
             isPulling = false;
+            startY = 0;
+            startX = 0;
             return;
         }
 
@@ -2205,6 +2261,15 @@ function initPullToRefresh() {
         } else {
             resetPull(false);
         }
+    }, { passive: true });
+
+    container.addEventListener('touchcancel', function() {
+        if (isPulling && !isRefreshing) {
+            resetPull(true);
+        }
+        startY = 0;
+        startX = 0;
+        isPulling = false;
     }, { passive: true });
 }
 

@@ -431,7 +431,7 @@ if (
     <div class="mobile-content hidden" id="tab-resumen">
         <div id="resumen-principal">
             <h2 style="color:var(--primary);margin-bottom:4px;">Resumen Académico</h2>
-        <p style="margin-bottom:18px;color:#666;font-size:14px;">Métricas y avance de asistencia del período actual</p>
+        <p style="margin-bottom:15px;color:#666;">Métricas y avance de asistencia del período actual</p>
 
         <!-- 1. Avance del Período Académico -->
         <div class="card" style="margin-bottom:16px;padding:16px;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
@@ -505,11 +505,15 @@ if (
             </div>
         </div>
 
-        <!-- Botón para ver desglose por materia -->
-        <button type="button" class="btn btn-primary" onclick="verRendimientoMaterias()" style="width:100%;padding:13px 16px;font-size:14.5px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;border-radius:4px;cursor:pointer;">
-            <span>Ver Rendimiento por Materia</span>
-            <span style="font-size:16px;">→</span>
-        </button>
+        <!-- Botones de acceso a secciones detalladas -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;">
+            <button type="button" class="btn btn-primary" onclick="verRendimientoMaterias()" style="padding:12px 10px;font-size:13.5px;font-weight:600;text-align:center;border-radius:4px;cursor:pointer;line-height:1.3;box-shadow:none;">
+                Rendimiento por Materia
+            </button>
+            <button type="button" class="btn btn-primary" onclick="verHorarioClases()" style="padding:12px 10px;font-size:13.5px;font-weight:600;text-align:center;border-radius:4px;cursor:pointer;line-height:1.3;box-shadow:none;">
+                Horario de Clases
+            </button>
+        </div>
     </div>
 
     <!-- 3. Subsección Desglose / Semáforo por Materia -->
@@ -603,6 +607,17 @@ if (
             <?php endforeach; ?>
             </div>
         <?php endif; ?>
+        </div>
+
+        <!-- 4. Subsección Horario de Clases -->
+        <div id="resumen-horario-detalle" class="hidden">
+            <button type="button" class="btn" style="margin-bottom:15px;background:#eee;color:var(--text-dark);font-size:13.5px;padding:8px 14px;border-radius:4px;cursor:pointer;border:none;" onclick="volverResumenPrincipal()">⬅ Volver al resumen</button>
+            <h3 style="color:var(--primary);font-size:16px;margin:0 0 6px 0;letter-spacing:0.2px;">Horario de Clases</h3>
+            <p style="margin-bottom:15px;color:#666;">Consulta tus bloques de horario semanal</p>
+            <div class="card" style="text-align:center;padding:50px 20px;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
+                <p style="font-size:16px;color:var(--primary);font-weight:bold;margin:0 0 8px 0;">Próximamente...</p>
+                <p style="color:#777;font-size:13.5px;margin:0;">Esta sección estará disponible en una próxima actualización.</p>
+            </div>
         </div>
     </div>
 
@@ -835,16 +850,30 @@ function volverMaterias() {
 function verRendimientoMaterias() {
     window.scrollTo(0, 0);
     var p = document.getElementById('resumen-principal');
-    var d = document.getElementById('resumen-materias-detalle');
+    var m = document.getElementById('resumen-materias-detalle');
+    var h = document.getElementById('resumen-horario-detalle');
     if (p) p.classList.add('hidden');
-    if (d) d.classList.remove('hidden');
+    if (h) h.classList.add('hidden');
+    if (m) m.classList.remove('hidden');
+}
+
+function verHorarioClases() {
+    window.scrollTo(0, 0);
+    var p = document.getElementById('resumen-principal');
+    var m = document.getElementById('resumen-materias-detalle');
+    var h = document.getElementById('resumen-horario-detalle');
+    if (p) p.classList.add('hidden');
+    if (m) m.classList.add('hidden');
+    if (h) h.classList.remove('hidden');
 }
 
 function volverResumenPrincipal() {
     window.scrollTo(0, 0);
     var p = document.getElementById('resumen-principal');
-    var d = document.getElementById('resumen-materias-detalle');
-    if (d) d.classList.add('hidden');
+    var m = document.getElementById('resumen-materias-detalle');
+    var h = document.getElementById('resumen-horario-detalle');
+    if (m) m.classList.add('hidden');
+    if (h) h.classList.add('hidden');
     if (p) p.classList.remove('hidden');
 }
 

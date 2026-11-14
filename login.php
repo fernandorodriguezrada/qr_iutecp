@@ -16,7 +16,6 @@ $cedula_input = trim($_POST['cedula'] ?? '');
 $password = $_POST['password'] ?? '';
 
 if ($login_tipo === 'admin') {
-    // === FLUJO DE ADMINISTRADOR ===
     if (empty($username_input) || empty($password)) {
         header('Location: index.php?error=credenciales');
         exit;
@@ -33,19 +32,16 @@ if ($login_tipo === 'admin') {
         exit;
     }
 
-    // No permitir entrar como profesor o estudiante desde la pestaña de admin
     if ($usuario['rol'] !== 'admin') {
         header('Location: index.php?error=acceso_denegado_usuario');
         exit;
     }
 } else {
-    // === FLUJO DE ESTUDIANTE / PROFESOR ===
     if (empty($cedula_input) || empty($password)) {
         header('Location: index.php?error=credenciales');
         exit;
     }
 
-    // Cuentas demo de prueba
     if ($cedula_input === 'alumno' || $cedula_input === 'profesor') {
         $stmt = $pdo->prepare("SELECT id, cedula, username, nombre_completo, email, rol, password_hash, password_temporal, activo 
                                FROM usuarios 
@@ -53,7 +49,6 @@ if ($login_tipo === 'admin') {
         $stmt->execute([$cedula_input, $cedula_input]);
         $usuario = $stmt->fetch();
     } else {
-        // Validar formato estricto: solo números
         if (!preg_match('/^[0-9]+$/', $cedula_input)) {
             header('Location: index.php?error=formato_cedula');
             exit;
@@ -72,7 +67,6 @@ if ($login_tipo === 'admin') {
         exit;
     }
 
-    // Estricto: Administradores NO pueden ingresar desde el menú de profesores/alumnos
     if ($usuario['rol'] === 'admin') {
         header('Location: index.php?error=acceso_denegado_admin');
         exit;

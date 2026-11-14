@@ -99,7 +99,6 @@
             });
         }
 
-        // Al enfocar inputs en móviles, asegurar que la ventana no se desplace hacia abajo
         document.addEventListener('focusin', function(e) {
             if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT')) {
                 setTimeout(function() {

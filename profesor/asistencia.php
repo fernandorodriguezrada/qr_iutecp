@@ -73,7 +73,6 @@ if ($accion === 'conteo_en_vivo' && $curso_id > 0) {
         exit;
     }
 
-    // Obtener alumnos inscritos en este curso
     $stmt2 = $pdo->prepare("
         SELECT u.id, u.nombre_completo, i.id as inscripcion_id
         FROM inscripciones i
@@ -84,7 +83,6 @@ if ($accion === 'conteo_en_vivo' && $curso_id > 0) {
     $stmt2->execute([$curso_id, $periodo]);
     $alumnos = $stmt2->fetchAll();
 
-    // Obtener asistencias registradas para esta sesión
     $stmt3 = $pdo->prepare("
         SELECT inscripcion_id, estado, hora_escaneo
         FROM asistencias
@@ -105,7 +103,6 @@ if ($accion === 'conteo_en_vivo' && $curso_id > 0) {
             $total_registrados++;
         }
 
-        // Formato: Primer nombre y Primer apellido
         $partes = preg_split('/\s+/', trim($al['nombre_completo']));
         $primer_nombre = $partes[0] ?? '';
         $primer_apellido = $partes[1] ?? '';

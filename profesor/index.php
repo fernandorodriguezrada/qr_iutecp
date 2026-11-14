@@ -140,7 +140,6 @@ if ($sesion_activa) {
     $qr_tolerancia_segundos = max(0, $tol_time - $now);
 }
 
-// Cargar ajustes guardados del profesor
 $stmt_cfg_prof = $pdo->prepare("SELECT expiracion_minutos, tolerancia_minutos FROM configuracion_profesor WHERE profesor_id = ?");
 $stmt_cfg_prof->execute([$profesor_id]);
 $cfg_prof_db = $stmt_cfg_prof->fetch();
@@ -149,13 +148,11 @@ $cfg_tol_db = $cfg_prof_db && !empty($cfg_prof_db['tolerancia_minutos']) ? (int)
 $val_puntual_html = $cfg_tol_db;
 $val_tarde_html = max(0, $cfg_exp_db - $cfg_tol_db);
 
-// Métricas para Dashboard de Resumen del Profesor
 $total_semanas = 12;
 $semanas_transcurridas = min($total_semanas, max(1, (int)$semana_actual));
 $semanas_restantes = max(0, $total_semanas - $semanas_transcurridas);
 $porcentaje_avance_periodo = min(100, round(($semanas_transcurridas / $total_semanas) * 100));
 
-// Alumnos únicos asignados al profesor en este período
 $stmt_total_estudiantes = $pdo->prepare("
     SELECT COUNT(DISTINCT i.estudiante_id)
     FROM inscripciones i
@@ -165,7 +162,6 @@ $stmt_total_estudiantes = $pdo->prepare("
 $stmt_total_estudiantes->execute([$profesor_id, $periodo]);
 $total_estudiantes_profesor = (int)$stmt_total_estudiantes->fetchColumn();
 
-// Asistencias globales del profesor
 $global_counts = [
     'presente' => 0,
     'tarde' => 0,
@@ -195,7 +191,6 @@ $global_porcentaje_asistencia = $global_total_registros > 0
     ? round(($global_asistencias_validas / $global_total_registros) * 100) 
     : 100;
 
-// Total de sesiones/clases con asistencia registrada dictadas por el profesor en el periodo
 $stmt_clases_dictadas = $pdo->prepare("
     SELECT COUNT(DISTINCT CONCAT(a.semana, '-', i.curso_id))
     FROM asistencias a
@@ -206,7 +201,6 @@ $stmt_clases_dictadas = $pdo->prepare("
 $stmt_clases_dictadas->execute([$profesor_id, $periodo]);
 $total_clases_dictadas = (int)$stmt_clases_dictadas->fetchColumn();
 
-// Estadísticas por cada curso del profesor
 $cursos_resumen = [];
 foreach ($cursos as $c) {
     $stmt_c = $pdo->prepare("
@@ -398,7 +392,6 @@ foreach ($cursos as $c) {
                     <span id="qr-estudiantes-resumen" style="font-size:12px;color:#666;font-weight:600;">0 / 0 registrados</span>
                 </div>
                 <div id="qr-estudiantes-grid" style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px 6px;max-height:220px;overflow-y:auto;padding-right:2px;text-align:left;">
-                    <!-- Cargados en vivo dinámicamente -->
                 </div>
             </div>
         </div>
@@ -490,7 +483,6 @@ foreach ($cursos as $c) {
             <h2 style="color:var(--primary);margin-bottom:6px">Resumen del Profesor</h2>
             <p style="margin-bottom:15px;color:#666;">Métricas y rendimiento de asistencia del período actual</p>
 
-            <!-- Métricas Rápidas (Cursos, Alumnos, Clases) -->
             <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;margin-bottom:15px;">
                 <div class="card" style="padding:12px 8px;text-align:center;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
                     <div style="font-size:11.5px;color:#666;font-weight:600;margin-bottom:2px;">Materias</div>
@@ -506,7 +498,6 @@ foreach ($cursos as $c) {
                 </div>
             </div>
 
-            <!-- 1. Avance del Período Académico -->
             <div class="card" style="margin-bottom:16px;padding:16px;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
                     <span style="font-weight:bold;color:var(--primary);font-size:14.5px;">Período <?= htmlspecialchars($periodo) ?></span>
@@ -521,7 +512,6 @@ foreach ($cursos as $c) {
                 </div>
             </div>
 
-            <!-- 2. Métricas Globales de Asistencia (KPIs) -->
             <div class="card" style="margin-bottom:20px;padding:16px;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
                 <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #f0f0f0;">
                     <div>
@@ -538,7 +528,6 @@ foreach ($cursos as $c) {
                     </div>
                 </div>
 
-                <!-- Barra segmentada global -->
                 <div style="display:flex;width:100%;background:#e2e8f0;height:8px;border-radius:4px;overflow:hidden;margin-bottom:14px;">
                 <?php if ($global_total_registros === 0): ?>
                     <div style="width:100%;background:#cbd5e1;height:100%;" title="Sin sesiones"></div>
@@ -578,7 +567,6 @@ foreach ($cursos as $c) {
                 </div>
             </div>
 
-            <!-- Botones de acceso a secciones detalladas -->
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;margin-bottom:0;">
                 <button type="button" class="btn btn-primary" onclick="verRendimientoMaterias()" style="padding:12px 10px;font-size:13.5px;font-weight:600;text-align:center;border-radius:4px;cursor:pointer;line-height:1.3;box-shadow:none;">
                     Rendimiento por Materia
@@ -589,7 +577,6 @@ foreach ($cursos as $c) {
             </div>
         </div>
 
-    <!-- 3. Subsección Desglose / Semáforo por Materia -->
     <div id="resumen-materias-detalle" class="hidden">
         <button type="button" class="btn" style="margin-bottom:15px;background:#eee;color:var(--text-dark);" onclick="volverResumenPrincipal()">⬅ Volver al resumen</button>
         <h2 style="color:var(--primary);margin-bottom:6px">Rendimiento por Materia</h2>
@@ -615,7 +602,6 @@ foreach ($cursos as $c) {
                         </span>
                     </div>
 
-                    <!-- Barra de progreso de asistencia por curso -->
                     <div style="display:flex;width:100%;background:#e2e8f0;height:8px;border-radius:4px;overflow:hidden;margin:12px 0;">
                         <?php if ($cr['total_registros'] === 0): ?>
                             <div style="width:100%;background:#cbd5e1;height:100%;"></div>
@@ -648,7 +634,6 @@ foreach ($cursos as $c) {
         <?php endif; ?>
     </div>
 
-    <!-- 4. Subsección Horario de Clases -->
     <div id="resumen-horario-detalle" class="hidden">
         <button type="button" class="btn" style="margin-bottom:15px;background:#eee;color:var(--text-dark);" onclick="volverResumenPrincipal()">⬅ Volver al resumen</button>
         <h2 style="color:var(--primary);margin-bottom:6px">Horario de Clases</h2>
@@ -1171,7 +1156,6 @@ function mostrarTemporizador(segundos, segundosTolerancia) {
                 var x = new XMLHttpRequest();
                 x.open('GET', 'asistencia.php?accion=finalizar_sesion&curso_id=' + cId, true);
                 x.onload = function() {
-                    // Refrescar lista de estudiantes para que pasen a rojo (ausentes)
                     var x2 = new XMLHttpRequest();
                     x2.open('GET', 'asistencia.php?accion=conteo_en_vivo&curso_id=' + cId + (sId ? '&sesion_id=' + sId : ''), true);
                     x2.onload = function() {
@@ -2073,7 +2057,7 @@ function initPullToRefresh() {
     var rAF = null;
     var threshold = 52;
     var maxPull = 76;
-    var dragThreshold = 8; // Umbral mínimo hacia abajo para no competir con el scroll interno
+    var dragThreshold = 8;
 
     function isInsideScrollable(el, root) {
         var cur = el;
@@ -2108,8 +2092,6 @@ function initPullToRefresh() {
         activeContent = document.querySelector('.mobile-content:not(.hidden)');
         if (!activeContent) return;
 
-        // Si el toque se inicia dentro de un componente con scroll interno (ej: lista de semanas),
-        // se desactiva el pull to refresh para dar prioridad absoluta a la navegación del componente
         if (isInsideScrollable(e.target, activeContent)) {
             startY = 0;
             startX = 0;
@@ -2142,13 +2124,11 @@ function initPullToRefresh() {
         var diffY = currentY - startY;
         var diffX = currentX - startX;
 
-        // Si el movimiento es horizontal, cancelar para permitir gestos laterales naturales
         if (!isPulling && Math.abs(diffX) > Math.abs(diffY)) {
             startY = 0;
             return;
         }
 
-        // Solo activar tras superar el umbral mínimo hacia abajo
         if (diffY > dragThreshold) {
             if (e.cancelable) e.preventDefault();
             isPulling = true;

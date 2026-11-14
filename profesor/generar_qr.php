@@ -58,7 +58,6 @@ try {
     $hora_expiracion = date('H:i:s', $now + $expiracion_segundos);
 
     $periodo_actual = obtenerPeriodoActual();
-    // Limpiar y marcar ausentes en sesiones activas previas antes de desactivar
     $stmtAnt = $pdo->prepare("SELECT id, curso_id, semana, fecha, bloque_horario FROM sesiones_qr WHERE profesor_id = ? AND activo = 1");
     $stmtAnt->execute([$profesor_id]);
     foreach ($stmtAnt->fetchAll(PDO::FETCH_ASSOC) as $expirada) {

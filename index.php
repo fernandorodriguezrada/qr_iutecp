@@ -161,7 +161,6 @@ $error = $_GET['error'] ?? '';
         if (!input) return true;
         var valor = input.value.trim();
 
-        // Si es usuario demo existente de pruebas 'alumno' o 'profesor', permitirlo
         if (valor === 'alumno' || valor === 'profesor') {
             if (alerta) alerta.style.display = 'none';
             return true;

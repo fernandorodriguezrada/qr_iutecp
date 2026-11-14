@@ -38,7 +38,6 @@ $stmt->execute([$estudiante_id, $periodo]);
 $cursos = $stmt->fetchAll();
 
 
-// Métricas para Dashboard de Resumen
 $total_semanas = 12;
 $semanas_transcurridas = min($total_semanas, max(1, (int)$semana_actual));
 $semanas_restantes = max(0, $total_semanas - $semanas_transcurridas);
@@ -84,29 +83,17 @@ $global_total_registros = array_sum($global_counts);
 $global_asistencias_validas = $global_counts['presente'] + $global_counts['tarde'] + $global_counts['justificado'];
 $global_porcentaje_asistencia = $global_total_registros > 0 ? round(($global_asistencias_validas / $global_total_registros) * 100) : 100;
 
-// Métricas Rápidas: Materias en Riesgo (< 75%) y Racha Actual (Días consecutivos)
-$materias_en_riesgo = 0;
-foreach ($cursos as $c) {
-    $c_ins_id = (int)($c['inscripcion_id'] ?? 0);
-    $c_cnt = $asistencias_por_inscripcion[$c_ins_id] ?? ['presente'=>0, 'tarde'=>0, 'ausente'=>0, 'justificado'=>0];
-    $c_tot = array_sum($c_cnt);
-    if ($c_tot > 0) {
-        $c_asi = $c_cnt['presente'] + $c_cnt['tarde'] + $c_cnt['justificado'];
-        $c_porc = round(($c_asi / $c_tot) * 100);
-        if ($c_porc < 75) {
-            $materias_en_riesgo++;
-        }
-    }
-}
+$total_asistencias_efectivas = $global_counts['presente'] + $global_counts['tarde'];
+$indice_puntualidad = $total_asistencias_efectivas > 0 ? round(($global_counts['presente'] / $total_asistencias_efectivas) * 100) : 100;
 
 $stmt_racha = $pdo->prepare("
-    SELECT a.fecha, 
+    SELECT a.fecha,
            SUM(CASE WHEN a.estado = 'ausente' THEN 1 ELSE 0 END) as ausencias_dia,
            SUM(CASE WHEN a.estado IN ('presente', 'tarde', 'justificado') THEN 1 ELSE 0 END) as asistencias_dia
-    FROM asistencias a 
-    JOIN inscripciones i ON a.inscripcion_id = i.id 
+    FROM asistencias a
+    JOIN inscripciones i ON a.inscripcion_id = i.id
     WHERE i.estudiante_id = ? AND i.periodo = ?
-    GROUP BY a.fecha 
+    GROUP BY a.fecha
     ORDER BY a.fecha DESC
 ");
 $stmt_racha->execute([$estudiante_id, $periodo]);
@@ -470,23 +457,21 @@ if (
             <h2 style="color:var(--primary);margin-bottom:4px;">Resumen Académico</h2>
         <p style="margin-bottom:15px;color:#666;">Métricas y avance de asistencia del período actual</p>
 
-        <!-- Métricas Rápidas (Materias, Racha, En Riesgo) -->
         <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;margin-bottom:15px;">
             <div class="card" style="padding:12px 8px;text-align:center;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
                 <div style="font-size:11.5px;color:#666;font-weight:600;margin-bottom:2px;">Materias</div>
                 <div style="font-size:20px;font-weight:bold;color:var(--primary);line-height:1.2;"><?= count($cursos) ?></div>
             </div>
             <div class="card" style="padding:12px 8px;text-align:center;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
-                <div style="font-size:11.5px;color:#666;font-weight:600;margin-bottom:2px;">Racha</div>
-                <div style="font-size:20px;font-weight:bold;color:var(--primary);line-height:1.2;"><?= $racha_dias ?><span style="font-size:12px;font-weight:600;color:#666;margin-left:2px;">días</span></div>
+                <div style="font-size:11.5px;color:#666;font-weight:600;margin-bottom:2px;">Días en Racha</div>
+                <div style="font-size:20px;font-weight:bold;color:var(--primary);line-height:1.2;"><?= $racha_dias ?></div>
             </div>
             <div class="card" style="padding:12px 8px;text-align:center;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
-                <div style="font-size:11.5px;color:#666;font-weight:600;margin-bottom:2px;">En Riesgo</div>
-                <div style="font-size:20px;font-weight:bold;color:<?= $materias_en_riesgo > 0 ? '#b91c1c' : '#15803d' ?>;line-height:1.2;"><?= $materias_en_riesgo ?></div>
+                <div style="font-size:11.5px;color:#666;font-weight:600;margin-bottom:2px;">Puntualidad</div>
+                <div style="font-size:20px;font-weight:bold;color:var(--primary);line-height:1.2;"><?= $indice_puntualidad ?>%</div>
             </div>
         </div>
 
-        <!-- 1. Avance del Período Académico -->
         <div class="card" style="margin-bottom:16px;padding:16px;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
                 <span style="font-weight:bold;color:var(--primary);font-size:14.5px;">Período <?= htmlspecialchars($periodo) ?></span>
@@ -501,7 +486,6 @@ if (
             </div>
         </div>
 
-        <!-- 2. Métricas Globales de Asistencia (KPIs) -->
         <div class="card" style="margin-bottom:20px;padding:16px;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
             <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #f0f0f0;">
                 <div>
@@ -518,7 +502,6 @@ if (
                 </div>
             </div>
 
-            <!-- Barra segmentada global -->
             <div id="resumen-global-bar" style="display:flex;width:100%;background:#e2e8f0;height:8px;border-radius:4px;overflow:hidden;margin-bottom:14px;">
             <?php if ($global_total_registros === 0): ?>
                 <div style="width:100%;background:#cbd5e1;height:100%;" title="Sin sesiones"></div>
@@ -558,7 +541,6 @@ if (
             </div>
         </div>
 
-        <!-- Botones de acceso a secciones detalladas -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;">
             <button type="button" class="btn btn-primary" onclick="verRendimientoMaterias()" style="padding:12px 10px;font-size:13.5px;font-weight:600;text-align:center;border-radius:4px;cursor:pointer;line-height:1.3;box-shadow:none;">
                 Rendimiento por Materia
@@ -569,7 +551,6 @@ if (
         </div>
     </div>
 
-    <!-- 3. Subsección Desglose / Semáforo por Materia -->
     <div id="resumen-materias-detalle" class="hidden">
         <button type="button" class="btn" style="margin-bottom:15px;background:#eee;color:var(--text-dark);" onclick="volverResumenPrincipal()">⬅ Volver al resumen</button>
         <h2 style="color:var(--primary);margin-bottom:6px">Rendimiento por Materia</h2>
@@ -630,7 +611,6 @@ if (
                         <?php endif; ?>
                     </div>
 
-                    <!-- Barra segmentada proporcional (4 colores) -->
                     <div data-curso-bar="<?= $c['id'] ?>" style="display:flex;width:100%;background:#e2e8f0;height:8px;border-radius:4px;overflow:hidden;margin-bottom:10px;">
                     <?php if ($c_tot === 0): ?>
                         <div style="width:100%;background:#cbd5e1;height:100%;" title="Sin sesiones"></div>
@@ -662,7 +642,6 @@ if (
         <?php endif; ?>
         </div>
 
-        <!-- 4. Subsección Horario de Clases -->
         <div id="resumen-horario-detalle" class="hidden">
             <button type="button" class="btn" style="margin-bottom:15px;background:#eee;color:var(--text-dark);" onclick="volverResumenPrincipal()">⬅ Volver al resumen</button>
             <h2 style="color:var(--primary);margin-bottom:6px">Horario de Clases</h2>
@@ -833,7 +812,7 @@ function verAsistenciaEstudiante(btn, cursoId, semana) {
     var detailsEl = btn.closest('details');
     var cursoNombre = detailsEl ? detailsEl.querySelector('summary').textContent.trim() : 'Materia';
     var profHeader = detailsEl && detailsEl.previousElementSibling ? detailsEl.previousElementSibling.textContent.trim() : '';
-    
+
     document.getElementById('est-detalle-titulo').textContent = cursoNombre + (profHeader ? ' (' + profHeader + ')' : '') + ' - Semana ' + semana;
     document.getElementById('est-inicio-lista').classList.add('hidden');
     document.getElementById('est-asistencia-detalle').classList.remove('hidden');
@@ -1472,7 +1451,7 @@ function initPullToRefresh() {
     var rAF = null;
     var threshold = 52;
     var maxPull = 76;
-    var dragThreshold = 8; // Umbral mínimo hacia abajo para no competir con el scroll interno
+    var dragThreshold = 8;
 
     function isInsideScrollable(el, root) {
         var cur = el;
@@ -1507,8 +1486,6 @@ function initPullToRefresh() {
         activeContent = document.querySelector('.mobile-content:not(.hidden)');
         if (!activeContent) return;
 
-        // Si el toque se inicia dentro de un componente con scroll interno (ej: lista de semanas),
-        // se desactiva el pull to refresh para dar prioridad absoluta a la navegación del componente
         if (isInsideScrollable(e.target, activeContent)) {
             startY = 0;
             startX = 0;
@@ -1541,13 +1518,11 @@ function initPullToRefresh() {
         var diffY = currentY - startY;
         var diffX = currentX - startX;
 
-        // Si el movimiento es horizontal, cancelar para permitir gestos laterales naturales
         if (!isPulling && Math.abs(diffX) > Math.abs(diffY)) {
             startY = 0;
             return;
         }
 
-        // Solo activar tras superar el umbral mínimo hacia abajo
         if (diffY > dragThreshold) {
             if (e.cancelable) e.preventDefault();
             isPulling = true;

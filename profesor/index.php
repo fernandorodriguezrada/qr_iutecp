@@ -258,7 +258,7 @@ if ($sesion_activa) {
                     <span style="font-size:13px;font-weight:bold;color:var(--primary);">Alumnos de la clase</span>
                     <span id="qr-estudiantes-resumen" style="font-size:12px;color:#666;font-weight:600;">0 / 0 registrados</span>
                 </div>
-                <div id="qr-estudiantes-grid" style="display:grid;grid-template-columns:repeat(3, 1fr);gap:6px;max-height:220px;overflow-y:auto;padding-right:2px;">
+                <div id="qr-estudiantes-grid" style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px 6px;max-height:220px;overflow-y:auto;padding-right:2px;text-align:left;">
                     <!-- Cargados en vivo dinámicamente -->
                 </div>
             </div>
@@ -780,36 +780,25 @@ function renderizarEstudiantesGrid(container, estudiantes) {
     var html = '';
     estudiantes.forEach(function(est) {
         var estado = (est.estado || 'pendiente').toLowerCase();
-        var bg = '#f8fafc';
-        var border = '#cbd5e1';
-        var color = '#64748b';
-        var badge = '○ Pendiente';
+        var color = '#94a3b8';
+        var weight = '500';
 
         if (estado === 'presente') {
-            bg = '#f0fdf4';
-            border = '#86efac';
-            color = '#15803d';
-            badge = '✓ Presente';
+            color = '#16a34a';
+            weight = '700';
         } else if (estado === 'tarde') {
-            bg = '#fffbeb';
-            border = '#fde68a';
-            color = '#b45309';
-            badge = '🕒 Tarde';
+            color = '#d97706';
+            weight = '700';
         } else if (estado === 'ausente') {
-            bg = '#fef2f2';
-            border = '#fecaca';
-            color = '#b91c1c';
-            badge = '✕ Ausente';
+            color = '#dc2626';
+            weight = '700';
         } else if (estado === 'justificado') {
-            bg = '#f0fdfa';
-            border = '#99f6e4';
-            color = '#0f766e';
-            badge = 'ℹ Justif.';
+            color = '#0d9488';
+            weight = '700';
         }
 
-        html += '<div style="background:' + bg + ';border:1px solid ' + border + ';color:' + color + ';border-radius:6px;padding:6px 4px;font-size:11px;line-height:1.2;text-align:center;display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:48px;box-sizing:border-box;transition:all 0.25s ease;">';
-        html += '<span style="font-size:9.5px;font-weight:700;margin-bottom:2px;letter-spacing:0.2px;">' + badge + '</span>';
-        html += '<span style="font-weight:600;word-break:break-word;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;" title="' + escapeHtml(est.nombre) + '">' + escapeHtml(est.nombre) + '</span>';
+        html += '<div style="color:' + color + ';font-weight:' + weight + ';font-size:11px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left;transition:color 0.25s ease;" title="' + escapeHtml(est.nombre) + ' (' + estado + ')">';
+        html += escapeHtml(est.nombre);
         html += '</div>';
     });
 

@@ -74,6 +74,8 @@
             if (window.scrollY !== 0) {
                 window.scrollTo(0, 0);
             }
+            if (document.body && document.body.scrollTop !== 0) document.body.scrollTop = 0;
+            if (document.documentElement && document.documentElement.scrollTop !== 0) document.documentElement.scrollTop = 0;
         }
 
         syncAppViewport();
@@ -88,7 +90,25 @@
 
         if (window.visualViewport) {
             window.visualViewport.addEventListener('resize', syncAppViewport);
+            window.visualViewport.addEventListener('scroll', function() {
+                if (window.visualViewport.offsetTop > 0 || window.scrollY !== 0) {
+                    window.scrollTo(0, 0);
+                    if (document.body) document.body.scrollTop = 0;
+                    if (document.documentElement) document.documentElement.scrollTop = 0;
+                }
+            });
         }
+
+        // Al enfocar inputs en móviles, asegurar que la ventana no se desplace hacia abajo
+        document.addEventListener('focusin', function(e) {
+            if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT')) {
+                setTimeout(function() {
+                    window.scrollTo(0, 0);
+                    if (document.body) document.body.scrollTop = 0;
+                    if (document.documentElement) document.documentElement.scrollTop = 0;
+                }, 50);
+            }
+        });
     } catch (err) {
         console.warn('Error al sincronizar viewport:', err);
     }

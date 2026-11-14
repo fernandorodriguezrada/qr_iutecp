@@ -489,13 +489,22 @@ th {
   flex: 1;
 }
 
-html.mobile-app-html,
+html.mobile-app-html {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  overflow: hidden !important;
+  background-color: var(--bg-light);
+}
+
 body.mobile-app-body {
   margin: 0 !important;
   padding: 0 !important;
   width: 100% !important;
   max-width: 100% !important;
   height: 100% !important;
+  height: 100dvh !important;
   height: var(--app-height, 100%) !important;
   min-height: 100% !important;
   overflow: hidden !important;
@@ -510,6 +519,12 @@ body.mobile-app-body {
   display: flex !important;
   justify-content: center !important;
   align-items: stretch !important;
+}
+
+.mobile-app-body input,
+.mobile-app-body select,
+.mobile-app-body textarea {
+  font-size: 16px !important;
 }
 
 .mobile-container {
@@ -1071,7 +1086,7 @@ body.auth-body .auth-view {
 .prof-select {
   width: 100%;
   padding: 10px 12px;
-  font-size: 15px;
+  font-size: 16px;
   border: 1px solid var(--border-color);
   border-radius: 4px;
   background-color: #fff;

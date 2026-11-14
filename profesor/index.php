@@ -257,7 +257,7 @@ foreach ($cursos as $c) {
 <html lang="es" class="mobile-app-html">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content" />
     <meta name="theme-color" content="#262865" />
     <meta name="color-scheme" content="light" />
     <meta name="mobile-web-app-capable" content="yes" />
@@ -360,13 +360,13 @@ foreach ($cursos as $c) {
                         <label for="cfg-puntual" style="font-weight:bold;color:var(--primary);font-size:13px;display:block;margin-bottom:5px;">
                             Puntual (min)
                         </label>
-                        <input type="number" name="tiempo_puntual" id="cfg-puntual" class="prof-select" value="<?= (int)$val_puntual_html ?>" min="1" max="120" required style="margin-bottom:0;width:100%;height:38px;box-sizing:border-box;" />
+                        <input type="number" name="tiempo_puntual" id="cfg-puntual" class="prof-select" value="<?= (int)$val_puntual_html ?>" min="1" max="120" required style="margin-bottom:0;width:100%;height:38px;box-sizing:border-box;font-size:16px;" />
                     </div>
                     <div>
                         <label for="cfg-tarde" style="font-weight:bold;color:var(--primary);font-size:13px;display:block;margin-bottom:5px;">
                             Tarde (min)
                         </label>
-                        <input type="number" name="tiempo_tarde" id="cfg-tarde" class="prof-select" value="<?= (int)$val_tarde_html ?>" min="0" max="120" required style="margin-bottom:0;width:100%;height:38px;box-sizing:border-box;" />
+                        <input type="number" name="tiempo_tarde" id="cfg-tarde" class="prof-select" value="<?= (int)$val_tarde_html ?>" min="0" max="120" required style="margin-bottom:0;width:100%;height:38px;box-sizing:border-box;font-size:16px;" />
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary" style="width:100%;height:38px;font-size:13.5px;font-weight:bold;border-radius:4px;display:flex;align-items:center;justify-content:center;">

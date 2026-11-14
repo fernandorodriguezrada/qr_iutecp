@@ -37,17 +37,6 @@ $stmt = $pdo->prepare("
 $stmt->execute([$estudiante_id, $periodo]);
 $cursos = $stmt->fetchAll();
 
-// Métricas Rápidas del Estudiante
-$total_materias_estudiante = count($cursos);
-$nivel_estudiante_num = 1;
-$total_creditos_inscritos = 0;
-foreach ($cursos as $c) {
-    if (!empty($c['trayecto']) && (int)$c['trayecto'] > $nivel_estudiante_num) {
-        $nivel_estudiante_num = (int)$c['trayecto'];
-    }
-    $total_creditos_inscritos += (int)($c['creditos'] ?? 0);
-}
-$nivel_estudiante_romano = !empty($cursos) ? (nivelRomano($nivel_estudiante_num) ?: 'I') : '-';
 
 // Métricas para Dashboard de Resumen
 $total_semanas = 12;
@@ -94,6 +83,42 @@ while ($row = $stmt_asist->fetch()) {
 $global_total_registros = array_sum($global_counts);
 $global_asistencias_validas = $global_counts['presente'] + $global_counts['tarde'] + $global_counts['justificado'];
 $global_porcentaje_asistencia = $global_total_registros > 0 ? round(($global_asistencias_validas / $global_total_registros) * 100) : 100;
+
+// Métricas Rápidas: Materias en Riesgo (< 75%) y Racha Actual (Días consecutivos)
+$materias_en_riesgo = 0;
+foreach ($cursos as $c) {
+    $c_ins_id = (int)($c['inscripcion_id'] ?? 0);
+    $c_cnt = $asistencias_por_inscripcion[$c_ins_id] ?? ['presente'=>0, 'tarde'=>0, 'ausente'=>0, 'justificado'=>0];
+    $c_tot = array_sum($c_cnt);
+    if ($c_tot > 0) {
+        $c_asi = $c_cnt['presente'] + $c_cnt['tarde'] + $c_cnt['justificado'];
+        $c_porc = round(($c_asi / $c_tot) * 100);
+        if ($c_porc < 75) {
+            $materias_en_riesgo++;
+        }
+    }
+}
+
+$stmt_racha = $pdo->prepare("
+    SELECT a.fecha, 
+           SUM(CASE WHEN a.estado = 'ausente' THEN 1 ELSE 0 END) as ausencias_dia,
+           SUM(CASE WHEN a.estado IN ('presente', 'tarde', 'justificado') THEN 1 ELSE 0 END) as asistencias_dia
+    FROM asistencias a 
+    JOIN inscripciones i ON a.inscripcion_id = i.id 
+    WHERE i.estudiante_id = ? AND i.periodo = ?
+    GROUP BY a.fecha 
+    ORDER BY a.fecha DESC
+");
+$stmt_racha->execute([$estudiante_id, $periodo]);
+$racha_dias = 0;
+foreach ($stmt_racha->fetchAll(PDO::FETCH_ASSOC) as $dia) {
+    if ((int)$dia['ausencias_dia'] > 0) {
+        break;
+    }
+    if ((int)$dia['asistencias_dia'] > 0) {
+        $racha_dias++;
+    }
+}
 
 $stmt = $pdo->prepare("SELECT carrera_id FROM usuarios WHERE id = ?");
 $stmt->execute([$estudiante_id]);
@@ -445,19 +470,19 @@ if (
             <h2 style="color:var(--primary);margin-bottom:4px;">Resumen Académico</h2>
         <p style="margin-bottom:15px;color:#666;">Métricas y avance de asistencia del período actual</p>
 
-        <!-- Métricas Rápidas (Materias, Nivel, Créditos) -->
+        <!-- Métricas Rápidas (Materias, Racha, En Riesgo) -->
         <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;margin-bottom:15px;">
             <div class="card" style="padding:12px 8px;text-align:center;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
                 <div style="font-size:11.5px;color:#666;font-weight:600;margin-bottom:2px;">Materias</div>
-                <div style="font-size:20px;font-weight:bold;color:var(--primary);line-height:1.2;"><?= $total_materias_estudiante ?></div>
+                <div style="font-size:20px;font-weight:bold;color:var(--primary);line-height:1.2;"><?= count($cursos) ?></div>
             </div>
             <div class="card" style="padding:12px 8px;text-align:center;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
-                <div style="font-size:11.5px;color:#666;font-weight:600;margin-bottom:2px;">Nivel</div>
-                <div style="font-size:20px;font-weight:bold;color:var(--primary);line-height:1.2;"><?= $nivel_estudiante_romano ?></div>
+                <div style="font-size:11.5px;color:#666;font-weight:600;margin-bottom:2px;">Racha</div>
+                <div style="font-size:20px;font-weight:bold;color:var(--primary);line-height:1.2;"><?= $racha_dias ?><span style="font-size:12px;font-weight:600;color:#666;margin-left:2px;">días</span></div>
             </div>
             <div class="card" style="padding:12px 8px;text-align:center;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
-                <div style="font-size:11.5px;color:#666;font-weight:600;margin-bottom:2px;">Créditos</div>
-                <div style="font-size:20px;font-weight:bold;color:var(--primary);line-height:1.2;"><?= $total_creditos_inscritos ?><span style="font-size:12px;font-weight:600;color:#666;margin-left:2px;">UC</span></div>
+                <div style="font-size:11.5px;color:#666;font-weight:600;margin-bottom:2px;">En Riesgo</div>
+                <div style="font-size:20px;font-weight:bold;color:<?= $materias_en_riesgo > 0 ? '#b91c1c' : '#15803d' ?>;line-height:1.2;"><?= $materias_en_riesgo ?></div>
             </div>
         </div>
 

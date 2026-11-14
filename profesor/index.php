@@ -139,6 +139,15 @@ if ($sesion_activa) {
     $qr_activo_segundos = max(0, $exp_time - $now);
     $qr_tolerancia_segundos = max(0, $tol_time - $now);
 }
+
+// Cargar ajustes guardados del profesor
+$stmt_cfg_prof = $pdo->prepare("SELECT expiracion_minutos, tolerancia_minutos FROM configuracion_profesor WHERE profesor_id = ?");
+$stmt_cfg_prof->execute([$profesor_id]);
+$cfg_prof_db = $stmt_cfg_prof->fetch();
+$cfg_exp_db = $cfg_prof_db && !empty($cfg_prof_db['expiracion_minutos']) ? (int)$cfg_prof_db['expiracion_minutos'] : 20;
+$cfg_tol_db = $cfg_prof_db && !empty($cfg_prof_db['tolerancia_minutos']) ? (int)$cfg_prof_db['tolerancia_minutos'] : 10;
+$val_puntual_html = $cfg_tol_db;
+$val_tarde_html = max(0, $cfg_exp_db - $cfg_tol_db);
 ?>
 <!doctype html>
 <html lang="es" class="mobile-app-html">
@@ -355,14 +364,14 @@ if ($sesion_activa) {
                     <label for="cfg-puntual" style="font-weight:bold;color:var(--primary);font-size:14px;display:block;margin-bottom:6px;">
                         Tiempo de llegada puntual (Minutos)
                     </label>
-                    <input type="number" name="tiempo_puntual" id="cfg-puntual" class="prof-select" value="10" min="1" max="120" required style="margin-bottom:15px;" />
+                    <input type="number" name="tiempo_puntual" id="cfg-puntual" class="prof-select" value="<?= (int)$val_puntual_html ?>" min="1" max="120" required style="margin-bottom:15px;" />
                 </div>
 
                 <div style="margin-bottom:20px;">
                     <label for="cfg-tarde" style="font-weight:bold;color:var(--primary);font-size:14px;display:block;margin-bottom:6px;">
                         Tiempo de llegada tarde (Minutos)
                     </label>
-                    <input type="number" name="tiempo_tarde" id="cfg-tarde" class="prof-select" value="10" min="0" max="120" required style="margin-bottom:20px;" />
+                    <input type="number" name="tiempo_tarde" id="cfg-tarde" class="prof-select" value="<?= (int)$val_tarde_html ?>" min="0" max="120" required style="margin-bottom:20px;" />
                 </div>
 
                 <button class="btn btn-primary" style="width:100%;padding:10px;font-size:14px;font-weight:bold;border-radius:4px;">Guardar Ajustes</button>

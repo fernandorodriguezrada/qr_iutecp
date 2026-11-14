@@ -23,7 +23,7 @@ $periodo = obtenerPeriodoActual();
 $semana_actual = obtenerSemanaActual($estudiante_id);
 
 $stmt = $pdo->prepare("
-    SELECT c.id, c.nombre, c.codigo, c.seccion, c.horario, c.aula, c.trayecto,
+    SELECT c.id, c.nombre, c.codigo, c.seccion, c.horario, c.aula, c.trayecto, c.creditos,
            cr.nombre as carrera_nombre, cr.nivel as carrera_nivel,
            u.nombre_completo as profesor_nombre,
            i.id as inscripcion_id
@@ -36,6 +36,18 @@ $stmt = $pdo->prepare("
 ");
 $stmt->execute([$estudiante_id, $periodo]);
 $cursos = $stmt->fetchAll();
+
+// Métricas Rápidas del Estudiante
+$total_materias_estudiante = count($cursos);
+$nivel_estudiante_num = 1;
+$total_creditos_inscritos = 0;
+foreach ($cursos as $c) {
+    if (!empty($c['trayecto']) && (int)$c['trayecto'] > $nivel_estudiante_num) {
+        $nivel_estudiante_num = (int)$c['trayecto'];
+    }
+    $total_creditos_inscritos += (int)($c['creditos'] ?? 0);
+}
+$nivel_estudiante_romano = !empty($cursos) ? (nivelRomano($nivel_estudiante_num) ?: 'I') : '-';
 
 // Métricas para Dashboard de Resumen
 $total_semanas = 12;
@@ -432,6 +444,22 @@ if (
         <div id="resumen-principal">
             <h2 style="color:var(--primary);margin-bottom:4px;">Resumen Académico</h2>
         <p style="margin-bottom:15px;color:#666;">Métricas y avance de asistencia del período actual</p>
+
+        <!-- Métricas Rápidas (Materias, Nivel, Créditos) -->
+        <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;margin-bottom:15px;">
+            <div class="card" style="padding:12px 8px;text-align:center;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
+                <div style="font-size:11.5px;color:#666;font-weight:600;margin-bottom:2px;">Materias</div>
+                <div style="font-size:20px;font-weight:bold;color:var(--primary);line-height:1.2;"><?= $total_materias_estudiante ?></div>
+            </div>
+            <div class="card" style="padding:12px 8px;text-align:center;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
+                <div style="font-size:11.5px;color:#666;font-weight:600;margin-bottom:2px;">Nivel</div>
+                <div style="font-size:20px;font-weight:bold;color:var(--primary);line-height:1.2;"><?= $nivel_estudiante_romano ?></div>
+            </div>
+            <div class="card" style="padding:12px 8px;text-align:center;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
+                <div style="font-size:11.5px;color:#666;font-weight:600;margin-bottom:2px;">Créditos</div>
+                <div style="font-size:20px;font-weight:bold;color:var(--primary);line-height:1.2;"><?= $total_creditos_inscritos ?><span style="font-size:12px;font-weight:600;color:#666;margin-left:2px;">UC</span></div>
+            </div>
+        </div>
 
         <!-- 1. Avance del Período Académico -->
         <div class="card" style="margin-bottom:16px;padding:16px;border:1px solid var(--border-color);border-radius:4px;background:#fff;">

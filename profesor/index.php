@@ -309,7 +309,7 @@ foreach ($cursos as $c) {
 
         <div class="card <?= $sesion_activa ? 'hidden' : '' ?>" id="form-generar-container" style="margin-bottom:15px;padding:15px 18px;">
             <?php if (empty($cursos)): ?>
-                <p style="color:#999;font-size:14px;text-align:center;padding:10px 0;">No tienes cursos asignados actualmente.</p>
+                <p style="color:#999;font-size:14px;text-align:center;padding:10px 0;">No tienes materias asignadas actualmente.</p>
             <?php else: ?>
                 <label style="font-weight:bold;display:block;margin-bottom:6px;color:var(--primary);font-size:14px;">Seleccionar Clase de Hoy:</label>
                 <select id="qr-curso" class="prof-select" onchange="actualizarInfoCurso()">
@@ -438,7 +438,7 @@ foreach ($cursos as $c) {
             </div>
 
             <?php if (empty($cursos)): ?>
-                <p style="color:#999;font-size:14px;">No tienes cursos asignados.</p>
+                <p style="color:#999;font-size:14px;">No tienes materias asignadas.</p>
             <?php else: ?>
                 <div id="bloques-cursos-container">
                 <?php foreach ($bloques_cursos as $bKey => $bloque): ?>
@@ -493,7 +493,7 @@ foreach ($cursos as $c) {
             <!-- Métricas Rápidas (Cursos, Alumnos, Clases) -->
             <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;margin-bottom:15px;">
                 <div class="card" style="padding:12px 8px;text-align:center;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
-                    <div style="font-size:11.5px;color:#666;font-weight:600;margin-bottom:2px;">Cursos</div>
+                    <div style="font-size:11.5px;color:#666;font-weight:600;margin-bottom:2px;">Materias</div>
                     <div style="font-size:20px;font-weight:bold;color:var(--primary);line-height:1.2;"><?= count($cursos) ?></div>
                 </div>
                 <div class="card" style="padding:12px 8px;text-align:center;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
@@ -597,7 +597,7 @@ foreach ($cursos as $c) {
 
         <?php if (empty($cursos_resumen)): ?>
             <div class="card" style="text-align:center;padding:30px;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
-                <p style="color:#999;font-size:14px;margin:0;">No tienes cursos asignados para el período actual.</p>
+                <p style="color:#999;font-size:14px;margin:0;">No tienes materias asignadas para el período actual.</p>
             </div>
         <?php else: ?>
             <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px;">
@@ -982,7 +982,7 @@ function ejecutarGenerarQR(bloqueHorario) {
     if (!cursoSelect) return;
     var cursoId = cursoSelect.value;
     var semana = document.getElementById('qr-semana').value;
-    if (!cursoId) { alert('Selecciona un curso'); return; }
+    if (!cursoId) { alert('Selecciona una materia'); return; }
 
     var opt = cursoSelect.selectedOptions[0];
     var nombreCurso = opt ? opt.getAttribute('data-nombre') : 'Materia';

@@ -1463,8 +1463,8 @@ function initPullToRefresh() {
         var progress = Math.min(1, pullDistance / threshold);
         indicator.classList.add('pulling');
         indicator.style.transition = 'none';
-        indicator.style.opacity = Math.max(0, (progress - 0.1) / 0.9);
-        indicator.style.transform = 'translate3d(0, ' + (pullDistance - 46) + 'px, 0)';
+        indicator.style.height = pullDistance + 'px';
+        indicator.style.opacity = Math.min(1, Math.max(0, (pullDistance - 6) / 24));
 
         if (activeContent) {
             activeContent.style.transition = 'none';
@@ -1494,8 +1494,8 @@ function initPullToRefresh() {
         }
         var duration = immediate ? '0s' : '0.28s cubic-bezier(0.25, 1, 0.5, 1)';
         indicator.classList.remove('pulling');
-        indicator.style.transition = 'transform ' + duration + ', opacity 0.2s ease';
-        indicator.style.transform = 'translate3d(0, -100%, 0)';
+        indicator.style.transition = 'height ' + duration + ', opacity 0.2s ease';
+        indicator.style.height = '0px';
         indicator.style.opacity = '0';
 
         if (ptrIcon) {
@@ -1532,9 +1532,9 @@ function initPullToRefresh() {
             isPulling = false;
             indicator.classList.remove('pulling');
             indicator.classList.add('refreshing');
-            indicator.style.transition = 'transform 0.26s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease';
+            indicator.style.transition = 'height 0.26s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease';
             indicator.style.opacity = '1';
-            indicator.style.transform = 'translate3d(0, 2px, 0)';
+            indicator.style.height = '48px';
 
             if (activeContent) {
                 activeContent.style.transition = 'transform 0.26s cubic-bezier(0.25, 1, 0.5, 1)';

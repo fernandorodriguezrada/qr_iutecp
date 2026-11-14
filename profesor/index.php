@@ -148,6 +148,110 @@ $cfg_exp_db = $cfg_prof_db && !empty($cfg_prof_db['expiracion_minutos']) ? (int)
 $cfg_tol_db = $cfg_prof_db && !empty($cfg_prof_db['tolerancia_minutos']) ? (int)$cfg_prof_db['tolerancia_minutos'] : 10;
 $val_puntual_html = $cfg_tol_db;
 $val_tarde_html = max(0, $cfg_exp_db - $cfg_tol_db);
+
+// Métricas para Dashboard de Resumen del Profesor
+$total_semanas = 12;
+$semanas_transcurridas = min($total_semanas, max(1, (int)$semana_actual));
+$semanas_restantes = max(0, $total_semanas - $semanas_transcurridas);
+$porcentaje_avance_periodo = min(100, round(($semanas_transcurridas / $total_semanas) * 100));
+
+// Alumnos únicos asignados al profesor en este período
+$stmt_total_estudiantes = $pdo->prepare("
+    SELECT COUNT(DISTINCT i.estudiante_id)
+    FROM inscripciones i
+    JOIN cursos c ON c.id = i.curso_id
+    WHERE c.profesor_id = ? AND c.activo = 1 AND i.periodo = ?
+");
+$stmt_total_estudiantes->execute([$profesor_id, $periodo]);
+$total_estudiantes_profesor = (int)$stmt_total_estudiantes->fetchColumn();
+
+// Asistencias globales del profesor
+$global_counts = [
+    'presente' => 0,
+    'tarde' => 0,
+    'ausente' => 0,
+    'justificado' => 0,
+];
+
+$stmt_asist_global = $pdo->prepare("
+    SELECT a.estado, COUNT(*) as cnt
+    FROM asistencias a
+    JOIN inscripciones i ON i.id = a.inscripcion_id
+    JOIN cursos c ON c.id = i.curso_id
+    WHERE c.profesor_id = ? AND i.periodo = ?
+    GROUP BY a.estado
+");
+$stmt_asist_global->execute([$profesor_id, $periodo]);
+while ($row = $stmt_asist_global->fetch(PDO::FETCH_ASSOC)) {
+    $est_key = strtolower($row['estado']);
+    if (isset($global_counts[$est_key])) {
+        $global_counts[$est_key] = (int)$row['cnt'];
+    }
+}
+
+$global_total_registros = array_sum($global_counts);
+$global_asistencias_validas = $global_counts['presente'] + $global_counts['tarde'] + $global_counts['justificado'];
+$global_porcentaje_asistencia = $global_total_registros > 0 
+    ? round(($global_asistencias_validas / $global_total_registros) * 100) 
+    : 100;
+
+// Total de sesiones/clases con asistencia registrada dictadas por el profesor en el periodo
+$stmt_clases_dictadas = $pdo->prepare("
+    SELECT COUNT(DISTINCT CONCAT(a.semana, '-', i.curso_id))
+    FROM asistencias a
+    JOIN inscripciones i ON i.id = a.inscripcion_id
+    JOIN cursos c ON c.id = i.curso_id
+    WHERE c.profesor_id = ? AND i.periodo = ?
+");
+$stmt_clases_dictadas->execute([$profesor_id, $periodo]);
+$total_clases_dictadas = (int)$stmt_clases_dictadas->fetchColumn();
+
+// Estadísticas por cada curso del profesor
+$cursos_resumen = [];
+foreach ($cursos as $c) {
+    $stmt_c = $pdo->prepare("
+        SELECT 
+            COUNT(DISTINCT i.id) as total_inscritos,
+            COUNT(DISTINCT a.semana) as semanas_registradas,
+            SUM(CASE WHEN a.estado = 'presente' THEN 1 ELSE 0 END) as pres,
+            SUM(CASE WHEN a.estado = 'tarde' THEN 1 ELSE 0 END) as tar,
+            SUM(CASE WHEN a.estado = 'ausente' THEN 1 ELSE 0 END) as aus,
+            SUM(CASE WHEN a.estado = 'justificado' THEN 1 ELSE 0 END) as just,
+            COUNT(a.id) as total_reg
+        FROM inscripciones i
+        LEFT JOIN asistencias a ON a.inscripcion_id = i.id
+        WHERE i.curso_id = ? AND i.periodo = ?
+    ");
+    $stmt_c->execute([$c['id'], $periodo]);
+    $info = $stmt_c->fetch(PDO::FETCH_ASSOC);
+
+    $pres = (int)($info['pres'] ?? 0);
+    $tar = (int)($info['tar'] ?? 0);
+    $just = (int)($info['just'] ?? 0);
+    $aus = (int)($info['aus'] ?? 0);
+    $total_reg = (int)($info['total_reg'] ?? 0);
+    $validos = $pres + $tar + $just;
+    $porcentaje_curso = $total_reg > 0 ? round(($validos / $total_reg) * 100) : 100;
+
+    $cursos_resumen[] = [
+        'id' => $c['id'],
+        'nombre' => $c['nombre'],
+        'codigo' => $c['codigo'],
+        'seccion' => $c['seccion'] ?: '-',
+        'trayecto' => (int)($c['trayecto'] ?: 1),
+        'carrera_nombre' => $c['carrera_nombre'],
+        'aula' => $c['aula'] ?: '-',
+        'horario' => $c['horario'] ?: '-',
+        'total_inscritos' => (int)($info['total_inscritos'] ?? 0),
+        'semanas_registradas' => (int)($info['semanas_registradas'] ?? 0),
+        'presente' => $pres,
+        'tarde' => $tar,
+        'ausente' => $aus,
+        'justificado' => $just,
+        'total_registros' => $total_reg,
+        'porcentaje' => $porcentaje_curso,
+    ];
+}
 ?>
 <!doctype html>
 <html lang="es" class="mobile-app-html">
@@ -243,6 +347,32 @@ $val_tarde_html = max(0, $cfg_exp_db - $cfg_tol_db);
                     </div>
                 </div>
             <?php endif; ?>
+        </div>
+
+        <div class="card <?= $sesion_activa ? 'hidden' : '' ?>" id="ajustes-generar-container" style="margin-bottom:15px;padding:15px 18px;">
+            <h3 style="color:var(--primary);margin:0 0 4px 0;font-size:15px;display:flex;align-items:center;gap:6px;">
+                ⏱️ Tiempos de Escaneo QR
+            </h3>
+            <p style="margin:0 0 12px 0;color:#666;font-size:12.5px;">Configura los minutos permitidos para llegada puntual y con retraso</p>
+            <form id="ajustes-form" onsubmit="return guardarAjustes(event)">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+                    <div>
+                        <label for="cfg-puntual" style="font-weight:bold;color:var(--primary);font-size:13px;display:block;margin-bottom:5px;">
+                            Puntual (min)
+                        </label>
+                        <input type="number" name="tiempo_puntual" id="cfg-puntual" class="prof-select" value="<?= (int)$val_puntual_html ?>" min="1" max="120" required style="margin-bottom:0;width:100%;height:38px;box-sizing:border-box;" />
+                    </div>
+                    <div>
+                        <label for="cfg-tarde" style="font-weight:bold;color:var(--primary);font-size:13px;display:block;margin-bottom:5px;">
+                            Tarde (min)
+                        </label>
+                        <input type="number" name="tiempo_tarde" id="cfg-tarde" class="prof-select" value="<?= (int)$val_tarde_html ?>" min="0" max="120" required style="margin-bottom:0;width:100%;height:38px;box-sizing:border-box;" />
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;height:38px;font-size:13.5px;font-weight:bold;border-radius:4px;display:flex;align-items:center;justify-content:center;">
+                    Guardar Ajustes
+                </button>
+            </form>
         </div>
 
         <div class="card <?= $sesion_activa ? '' : 'hidden' ?>" id="qr-display-area" style="text-align:center;padding:15px 18px;margin-bottom:15px;">
@@ -355,28 +485,153 @@ $val_tarde_html = max(0, $cfg_exp_db - $cfg_tol_db);
         </div>
     </div>
 
-    <div class="mobile-content hidden" id="tab-ajustes">
-        <h2 style="color:var(--primary);margin-bottom:6px">Ajustes de Escaneo QR</h2>
-        <p style="margin-bottom:15px;color:#666;">Configuración de tiempos de asistencia</p>
-        <div class="card">
-            <form id="ajustes-form" onsubmit="return guardarAjustes(event)">
-                <div style="margin-bottom:15px;">
-                    <label for="cfg-puntual" style="font-weight:bold;color:var(--primary);font-size:14px;display:block;margin-bottom:6px;">
-                        Tiempo de llegada puntual (Minutos)
-                    </label>
-                    <input type="number" name="tiempo_puntual" id="cfg-puntual" class="prof-select" value="<?= (int)$val_puntual_html ?>" min="1" max="120" required style="margin-bottom:15px;" />
-                </div>
+    <div class="mobile-content hidden" id="tab-resumen">
+        <h2 style="color:var(--primary);margin-bottom:4px">Resumen del Profesor</h2>
+        <p style="margin-bottom:15px;color:#666;">Métricas y rendimiento de asistencia del período actual</p>
 
-                <div style="margin-bottom:20px;">
-                    <label for="cfg-tarde" style="font-weight:bold;color:var(--primary);font-size:14px;display:block;margin-bottom:6px;">
-                        Tiempo de llegada tarde (Minutos)
-                    </label>
-                    <input type="number" name="tiempo_tarde" id="cfg-tarde" class="prof-select" value="<?= (int)$val_tarde_html ?>" min="0" max="120" required style="margin-bottom:20px;" />
-                </div>
-
-                <button class="btn btn-primary" style="width:100%;padding:10px;font-size:14px;font-weight:bold;border-radius:4px;">Guardar Ajustes</button>
-            </form>
+        <!-- Métricas Rápidas (Cursos, Alumnos, Clases) -->
+        <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;margin-bottom:15px;">
+            <div class="card" style="padding:12px 8px;text-align:center;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
+                <div style="font-size:11.5px;color:#666;font-weight:600;margin-bottom:2px;">Cursos</div>
+                <div style="font-size:20px;font-weight:bold;color:var(--primary);line-height:1.2;"><?= count($cursos) ?></div>
+            </div>
+            <div class="card" style="padding:12px 8px;text-align:center;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
+                <div style="font-size:11.5px;color:#666;font-weight:600;margin-bottom:2px;">Estudiantes</div>
+                <div style="font-size:20px;font-weight:bold;color:var(--primary);line-height:1.2;"><?= $total_estudiantes_profesor ?></div>
+            </div>
+            <div class="card" style="padding:12px 8px;text-align:center;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
+                <div style="font-size:11.5px;color:#666;font-weight:600;margin-bottom:2px;">Clases</div>
+                <div style="font-size:20px;font-weight:bold;color:var(--primary);line-height:1.2;"><?= $total_clases_dictadas ?></div>
+            </div>
         </div>
+
+        <!-- 1. Avance del Período Académico -->
+        <div class="card" style="margin-bottom:16px;padding:16px;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <span style="font-weight:bold;color:var(--primary);font-size:14.5px;">Período <?= htmlspecialchars($periodo) ?></span>
+                <span style="font-size:12.5px;font-weight:bold;color:var(--primary);background:#e8eaf6;padding:3px 8px;border-radius:4px;">Semana <?= $semanas_transcurridas ?> de <?= $total_semanas ?></span>
+            </div>
+            <div style="width:100%;background:#e2e8f0;height:8px;border-radius:4px;overflow:hidden;margin-bottom:8px;">
+                <div style="width:<?= $porcentaje_avance_periodo ?>%;background:var(--primary);height:100%;transition:width 0.4s ease;"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:#666;">
+                <span><?= $porcentaje_avance_periodo ?>% del período transcurrido</span>
+                <span><?= $semanas_restantes ?> semana<?= $semanas_restantes == 1 ? '' : 's' ?> restante<?= $semanas_restantes == 1 ? '' : 's' ?></span>
+            </div>
+        </div>
+
+        <!-- 2. Métricas Globales de Asistencia (KPIs) -->
+        <div class="card" style="margin-bottom:20px;padding:16px;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #f0f0f0;">
+                <div>
+                    <span style="font-size:13px;color:#666;display:block;margin-bottom:2px;">Asistencia Global</span>
+                    <strong style="font-size:26px;color:var(--primary);line-height:1;"><?= $global_total_registros > 0 ? $global_porcentaje_asistencia . '%' : '100%' ?></strong>
+                </div>
+                <div style="text-align:right;">
+                    <span style="font-size:12.5px;color:#555;display:block;">
+                        <?= $global_total_registros > 0 ? "$global_asistencias_validas de $global_total_registros asistencias" : "Sin clases registradas aún" ?>
+                    </span>
+                    <span style="font-size:11.5px;color:<?= $global_porcentaje_asistencia >= 75 ? '#15803d' : ($global_porcentaje_asistencia >= 60 ? '#b45309' : '#b91c1c') ?>;font-weight:600;">
+                        <?= $global_total_registros > 0 ? ($global_porcentaje_asistencia >= 75 ? 'Excelente asistencia' : ($global_porcentaje_asistencia >= 60 ? 'Asistencia regular' : 'Baja asistencia')) : 'Período en curso' ?>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Barra segmentada global -->
+            <div style="display:flex;width:100%;background:#e2e8f0;height:8px;border-radius:4px;overflow:hidden;margin-bottom:14px;">
+            <?php if ($global_total_registros === 0): ?>
+                <div style="width:100%;background:#cbd5e1;height:100%;" title="Sin sesiones"></div>
+            <?php else: ?>
+                <?php if ($global_counts['presente'] > 0): ?>
+                    <div style="width:<?= ($global_counts['presente'] / $global_total_registros) * 100 ?>%;background:#22c55e;height:100%;" title="Puntual: <?= $global_counts['presente'] ?>"></div>
+                <?php endif; ?>
+                <?php if ($global_counts['tarde'] > 0): ?>
+                    <div style="width:<?= ($global_counts['tarde'] / $global_total_registros) * 100 ?>%;background:#f59e0b;height:100%;" title="Con retraso: <?= $global_counts['tarde'] ?>"></div>
+                <?php endif; ?>
+                <?php if ($global_counts['justificado'] > 0): ?>
+                    <div style="width:<?= ($global_counts['justificado'] / $global_total_registros) * 100 ?>%;background:#06b6d4;height:100%;" title="Justificado: <?= $global_counts['justificado'] ?>"></div>
+                <?php endif; ?>
+                <?php if ($global_counts['ausente'] > 0): ?>
+                    <div style="width:<?= ($global_counts['ausente'] / $global_total_registros) * 100 ?>%;background:#ef4444;height:100%;" title="Inasistencia: <?= $global_counts['ausente'] ?>"></div>
+                <?php endif; ?>
+            <?php endif; ?>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:4px;padding:12px 14px;">
+                    <div style="font-size:22px;font-weight:bold;color:#15803d;line-height:1.2;"><?= $global_counts['presente'] ?></div>
+                    <div style="font-size:12.5px;color:#166534;font-weight:600;margin-top:2px;">Puntual</div>
+                </div>
+                <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:4px;padding:12px 14px;">
+                    <div style="font-size:22px;font-weight:bold;color:#b45309;line-height:1.2;"><?= $global_counts['tarde'] ?></div>
+                    <div style="font-size:12.5px;color:#92400e;font-weight:600;margin-top:2px;">Con retraso</div>
+                </div>
+                <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:4px;padding:12px 14px;">
+                    <div style="font-size:22px;font-weight:bold;color:#b91c1c;line-height:1.2;"><?= $global_counts['ausente'] ?></div>
+                    <div style="font-size:12.5px;color:#991b1b;font-weight:600;margin-top:2px;">Inasistencias</div>
+                </div>
+                <div style="background:#f0fdfa;border:1px solid #99f6e4;border-radius:4px;padding:12px 14px;">
+                    <div style="font-size:22px;font-weight:bold;color:#0f766e;line-height:1.2;"><?= $global_counts['justificado'] ?></div>
+                    <div style="font-size:12.5px;color:#115e59;font-weight:600;margin-top:2px;">Justificadas</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Rendimiento por Materia -->
+        <h3 style="color:var(--primary);font-size:16px;margin:0 0 6px 0;letter-spacing:0.2px;">Rendimiento por Materia</h3>
+        <p style="margin-bottom:14px;color:#666;font-size:13px;">Desglose y nivel de asistencia de tus materias asignadas</p>
+
+        <?php if (empty($cursos_resumen)): ?>
+            <div class="card" style="text-align:center;padding:25px;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
+                <p style="color:#999;font-size:14px;margin:0;">No tienes cursos asignados para el período actual.</p>
+            </div>
+        <?php else: ?>
+            <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px;">
+                <?php foreach ($cursos_resumen as $cr): ?>
+                <div class="card" style="padding:14px 16px;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+                        <div style="flex:1;min-width:0;padding-right:8px;">
+                            <strong style="color:var(--primary);font-size:14.5px;display:block;line-height:1.3;"><?= htmlspecialchars($cr['nombre']) ?></strong>
+                            <span style="font-size:12px;color:#666;display:block;margin-top:2px;">
+                                Sec: <?= htmlspecialchars($cr['seccion']) ?> • Nivel <?= nivelRomano($cr['trayecto']) ?> • <?= htmlspecialchars($cr['carrera_nombre']) ?>
+                            </span>
+                        </div>
+                        <span style="font-size:12px;font-weight:bold;padding:3px 8px;border-radius:4px;white-space:nowrap;background:<?= $cr['total_registros'] === 0 ? '#f1f5f9' : ($cr['porcentaje'] >= 75 ? '#dcfce7' : ($cr['porcentaje'] >= 60 ? '#fef3c7' : '#fee2e2')) ?>;color:<?= $cr['total_registros'] === 0 ? '#64748b' : ($cr['porcentaje'] >= 75 ? '#15803d' : ($cr['porcentaje'] >= 60 ? '#b45309' : '#b91c1c')) ?>;">
+                            <?= $cr['total_registros'] > 0 ? $cr['porcentaje'] . '%' : 'Sin datos' ?>
+                        </span>
+                    </div>
+
+                    <!-- Barra de progreso de asistencia por curso -->
+                    <div style="display:flex;width:100%;background:#e2e8f0;height:6px;border-radius:3px;overflow:hidden;margin:10px 0;">
+                        <?php if ($cr['total_registros'] === 0): ?>
+                            <div style="width:100%;background:#cbd5e1;height:100%;"></div>
+                        <?php else: ?>
+                            <?php if ($cr['presente'] > 0): ?>
+                                <div style="width:<?= ($cr['presente'] / $cr['total_registros']) * 100 ?>%;background:#22c55e;height:100%;" title="Puntual: <?= $cr['presente'] ?>"></div>
+                            <?php endif; ?>
+                            <?php if ($cr['tarde'] > 0): ?>
+                                <div style="width:<?= ($cr['tarde'] / $cr['total_registros']) * 100 ?>%;background:#f59e0b;height:100%;" title="Tarde: <?= $cr['tarde'] ?>"></div>
+                            <?php endif; ?>
+                            <?php if ($cr['justificado'] > 0): ?>
+                                <div style="width:<?= ($cr['justificado'] / $cr['total_registros']) * 100 ?>%;background:#06b6d4;height:100%;" title="Justificado: <?= $cr['justificado'] ?>"></div>
+                            <?php endif; ?>
+                            <?php if ($cr['ausente'] > 0): ?>
+                                <div style="width:<?= ($cr['ausente'] / $cr['total_registros']) * 100 ?>%;background:#ef4444;height:100%;" title="Ausente: <?= $cr['ausente'] ?>"></div>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                    </div>
+
+                    <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#555;margin-top:6px;">
+                        <span>👥 <?= $cr['total_inscritos'] ?> alumno<?= $cr['total_inscritos'] == 1 ? '' : 's' ?></span>
+                        <span>📅 <?= $cr['semanas_registradas'] ?> <?= $cr['semanas_registradas'] == 1 ? 'semana' : 'semanas' ?></span>
+                        <button type="button" onclick="irAAsistenciasCurso(<?= $cr['id'] ?>)" class="btn" style="padding:4px 10px;font-size:12px;background:#e8eaf6;color:var(--primary);font-weight:600;border-radius:4px;border:none;cursor:pointer;">
+                            Ver asistencias →
+                        </button>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
     </div>
 
     <div class="mobile-content hidden" id="tab-password">
@@ -537,7 +792,7 @@ $val_tarde_html = max(0, $cfg_exp_db - $cfg_tol_db);
     <div class="mobile-nav">
         <button class="active" onclick="switchTab('generar',this)">Generar QR</button>
         <button onclick="switchTab('asistencia',this)">Asistencias</button>
-        <button onclick="switchTab('ajustes',this)">Ajustes</button>
+        <button onclick="switchTab('resumen',this)">Resumen</button>
     </div>
 </div>
 
@@ -550,9 +805,11 @@ function switchTab(tab, btn) {
         document.querySelectorAll('.mobile-nav button').forEach(function(b) { b.classList.remove('active'); });
         btn.classList.add('active');
     }
-    if (tab === 'generar') actualizarInfoCurso();
+    if (tab === 'generar') {
+        actualizarInfoCurso();
+        cargarAjustes();
+    }
     if (tab === 'asistencia') cargarEstadoSemanas();
-    if (tab === 'ajustes') cargarAjustes();
     if (tab === 'diagnostico') cargarDiagnostico();
 }
 function toggleMenu() {
@@ -599,6 +856,8 @@ function handleAccionQR() {
     if (qrActivo) {
         var formContainer = document.getElementById('form-generar-container');
         if (formContainer) formContainer.classList.add('hidden');
+        var cfgContainer = document.getElementById('ajustes-generar-container');
+        if (cfgContainer) cfgContainer.classList.add('hidden');
         var qrArea = document.getElementById('qr-display-area');
         if (qrArea) qrArea.classList.remove('hidden');
 
@@ -741,6 +1000,8 @@ function ejecutarGenerarQR(bloqueHorario) {
 
             var formContainer = document.getElementById('form-generar-container');
             if (formContainer) formContainer.classList.add('hidden');
+            var cfgContainer = document.getElementById('ajustes-generar-container');
+            if (cfgContainer) cfgContainer.classList.add('hidden');
 
             var qrArea = document.getElementById('qr-display-area');
             qrArea.classList.remove('hidden');
@@ -938,6 +1199,8 @@ function cerrarQR() {
 
     var formContainer = document.getElementById('form-generar-container');
     if (formContainer) formContainer.classList.remove('hidden');
+    var cfgContainer = document.getElementById('ajustes-generar-container');
+    if (cfgContainer) cfgContainer.classList.remove('hidden');
 
     var saludo = document.getElementById('generar-header-saludo');
     if (saludo) saludo.classList.remove('hidden');
@@ -1017,6 +1280,8 @@ function cancelarQR() {
 
                 var formContainer = document.getElementById('form-generar-container');
                 if (formContainer) formContainer.classList.remove('hidden');
+                var cfgContainer = document.getElementById('ajustes-generar-container');
+                if (cfgContainer) cfgContainer.classList.remove('hidden');
 
                 var saludo = document.getElementById('generar-header-saludo');
                 if (saludo) saludo.classList.remove('hidden');
@@ -1230,6 +1495,23 @@ function verAsistencia(el) {
 function volverClases() {
     document.getElementById('asistencia-lista').classList.remove('hidden');
     document.getElementById('asistencia-detalle').classList.add('hidden');
+}
+
+function irAAsistenciasCurso(cursoId) {
+    volverClases();
+    var navBtns = document.querySelectorAll('.mobile-nav button');
+    if (navBtns.length >= 2) {
+        switchTab('asistencia', navBtns[1]);
+    } else {
+        switchTab('asistencia');
+    }
+    setTimeout(function() {
+        var accordion = document.querySelector('details[data-curso-id="' + cursoId + '"]');
+        if (accordion) {
+            accordion.open = true;
+            accordion.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, 150);
 }
 
 var filtroTexto = '';

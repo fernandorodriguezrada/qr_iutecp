@@ -13,7 +13,6 @@
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*M!100616 SET @OLD_NOTE_VERBOSITY=@@NOTE_VERBOSITY, NOTE_VERBOSITY=0 */;
 
 --
 -- Table structure for table `asistencias`
@@ -36,7 +35,7 @@ CREATE TABLE `asistencias` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_asistencia` (`inscripcion_id`,`semana`,`fecha`,`bloque_horario`),
   CONSTRAINT `asistencias_ibfk_1` FOREIGN KEY (`inscripcion_id`) REFERENCES `inscripciones` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=209 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -56,7 +55,57 @@ INSERT INTO `asistencias` VALUES
 (22,80,10,'2026-11-11','Jueves 07:00 - 08:30','20:09:53','presente',NULL,'3a2ed8e9fd8e4a993c8058b3949d023b','2026-11-12 00:09:53'),
 (23,84,10,'2026-11-11','Jueves 07:00 - 08:30',NULL,'justificado','test',NULL,'2026-11-12 00:11:49'),
 (24,80,10,'2026-11-11','Viernes 08:45 - 10:15','20:12:47','presente',NULL,'22375065045a01f8d15bef012d466e86','2026-11-12 00:12:47'),
-(25,84,10,'2026-11-11','Viernes 08:45 - 10:15',NULL,'ausente',NULL,NULL,'2026-11-12 00:14:44');
+(25,84,10,'2026-11-11','Viernes 08:45 - 10:15',NULL,'ausente',NULL,NULL,'2026-11-12 00:14:44'),
+(26,81,10,'2026-11-12','Viernes 07:00 - 08:30','23:20:48','tarde',NULL,'73cb6ee6ff16b47efb53a6d7487f4104','2026-11-13 03:20:48'),
+(27,85,10,'2026-11-12','Viernes 07:00 - 08:30',NULL,'ausente',NULL,NULL,'2026-11-13 03:21:23'),
+(28,78,10,'2026-11-13','Viernes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-13 23:59:43'),
+(29,82,10,'2026-11-13','Viernes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-13 23:59:43'),
+(100,79,10,'2026-11-09','',NULL,'ausente',NULL,NULL,'2026-11-14 04:03:38'),
+(101,83,10,'2026-11-09','',NULL,'ausente',NULL,NULL,'2026-11-14 04:03:38'),
+(102,79,3,'2026-11-11','',NULL,'ausente',NULL,NULL,'2026-11-14 04:03:38'),
+(103,83,3,'2026-11-11','',NULL,'ausente',NULL,NULL,'2026-11-14 04:03:38'),
+(167,87,10,'2026-11-14','Lunes 10:15 - 11:45','00:14:33','tarde',NULL,'dc22cc9723b09ccb2470d01f78a26060','2026-11-14 04:14:33'),
+(168,88,10,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:15:24'),
+(169,89,10,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:15:24'),
+(170,90,10,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:15:24'),
+(171,91,10,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:15:24'),
+(172,92,10,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:15:24'),
+(173,93,10,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:15:24'),
+(174,94,10,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:15:24'),
+(175,95,10,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:15:24'),
+(176,96,10,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:15:24'),
+(177,97,10,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:15:24'),
+(178,98,10,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:15:24'),
+(179,99,10,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:15:24'),
+(180,100,10,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:15:24'),
+(181,101,10,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:15:24'),
+(182,102,10,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:15:24'),
+(183,103,10,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:15:24'),
+(184,104,10,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:15:24'),
+(185,105,10,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:15:24'),
+(186,106,10,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:15:24'),
+(187,107,10,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:15:24'),
+(188,87,1,'2026-11-14','Lunes 10:15 - 11:45','00:37:36','tarde',NULL,'844c08dbb1e22b3a0d2015f57c4e6a47','2026-11-14 04:37:36'),
+(189,88,1,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:38:17'),
+(190,89,1,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:38:17'),
+(191,90,1,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:38:17'),
+(192,91,1,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:38:17'),
+(193,92,1,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:38:17'),
+(194,93,1,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:38:17'),
+(195,94,1,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:38:17'),
+(196,95,1,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:38:17'),
+(197,96,1,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:38:17'),
+(198,97,1,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:38:17'),
+(199,98,1,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:38:17'),
+(200,99,1,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:38:17'),
+(201,100,1,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:38:17'),
+(202,101,1,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:38:17'),
+(203,102,1,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:38:17'),
+(204,103,1,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:38:17'),
+(205,104,1,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:38:17'),
+(206,105,1,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:38:17'),
+(207,106,1,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:38:17'),
+(208,107,1,'2026-11-14','Lunes 10:15 - 11:45',NULL,'ausente',NULL,NULL,'2026-11-14 04:38:17');
 /*!40000 ALTER TABLE `asistencias` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -79,7 +128,7 @@ CREATE TABLE `auditoria` (
   PRIMARY KEY (`id`),
   KEY `usuario_id` (`usuario_id`),
   CONSTRAINT `auditoria_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=108 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=170 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -196,7 +245,69 @@ INSERT INTO `auditoria` VALUES
 (104,3,'Generar QR','Curso ID: 57, Semana: 10, Sesion QR ID: 37','172.18.0.6','2026-11-12 00:12:44'),
 (105,2,'Escaneo QR','Curso: PROGRAMACIÓN IV (PRO1554), Semana: 10, Estado: presente','192.168.10.12','2026-11-12 00:12:47'),
 (106,3,'Cambio manual de asistencia','Estudiante: Fernando Rodríguez Rada (V31853086) | Semana 10 | Fecha: 2026-11-11 [Jueves 07:00 - 08:30] | Estado: justificado -> presente','172.18.0.6','2026-11-12 01:45:33'),
-(107,3,'Cambio manual de asistencia','Estudiante: Fernando Rodríguez Rada (V31853086) | Semana 10 | Fecha: 2026-11-11 [Jueves 07:00 - 08:30] | Estado: presente -> ausente','172.18.0.6','2026-11-12 01:45:41');
+(107,3,'Cambio manual de asistencia','Estudiante: Fernando Rodríguez Rada (V31853086) | Semana 10 | Fecha: 2026-11-11 [Jueves 07:00 - 08:30] | Estado: presente -> ausente','172.18.0.6','2026-11-12 01:45:41'),
+(108,3,'Inicio de sesión','Inicio de sesión exitoso','172.18.0.6','2026-11-12 23:34:49'),
+(109,3,'Generar QR','Curso ID: 56, Semana: 10, Sesion QR ID: 38','172.18.0.6','2026-11-13 01:35:25'),
+(110,3,'Cancelar QR','Curso ID: 56, Sesion ID: 38','172.18.0.6','2026-11-13 01:35:29'),
+(111,3,'Cierre de sesión','Sesión cerrada voluntariamente','172.18.0.6','2026-11-13 01:38:24'),
+(112,2,'Inicio de sesión','Inicio de sesión exitoso','172.18.0.6','2026-11-13 01:38:30'),
+(113,2,'Inicio de sesión','Inicio de sesión exitoso','172.18.0.6','2026-11-13 01:39:26'),
+(114,2,'Cierre de sesión','Sesión cerrada voluntariamente','172.18.0.6','2026-11-13 01:39:41'),
+(115,3,'Inicio de sesión','Inicio de sesión exitoso','172.18.0.6','2026-11-13 01:39:45'),
+(116,3,'Generar QR','Curso ID: 58, Semana: 10, Sesion QR ID: 39','172.18.0.6','2026-11-13 03:19:23'),
+(117,2,'Inicio de sesión','Inicio de sesión exitoso','192.168.10.12','2026-11-13 03:20:43'),
+(118,2,'Escaneo QR','Curso: REDES II (RED1532), Semana: 10, Estado: tarde','192.168.10.12','2026-11-13 03:20:48'),
+(119,3,'Inicio de sesión','Inicio de sesión exitoso','172.18.0.6','2026-11-13 23:22:56'),
+(120,2,'Inicio de sesión','Inicio de sesión exitoso','172.18.0.6','2026-11-13 23:36:18'),
+(121,3,'Cierre de sesión','Sesión cerrada voluntariamente','172.18.0.6','2026-11-13 23:57:15'),
+(122,13,'Inicio de sesión','Inicio de sesión exitoso','172.18.0.6','2026-11-13 23:57:20'),
+(123,13,'Generar QR','Curso ID: 55, Semana: 10, Sesion QR ID: 40','172.18.0.6','2026-11-13 23:57:28'),
+(124,13,'Cancelar QR','Curso ID: 55, Sesion ID: 40','172.18.0.6','2026-11-13 23:57:32'),
+(125,13,'Ajustes QR','Puntual:1min Tarde:1min (Total:2min)','172.18.0.6','2026-11-13 23:57:40'),
+(126,13,'Generar QR','Curso ID: 55, Semana: 10, Sesion QR ID: 41','172.18.0.6','2026-11-13 23:57:43'),
+(127,13,'Cierre de sesión','Sesión cerrada voluntariamente','172.18.0.6','2026-11-14 01:36:21'),
+(128,7,'Inicio de sesión','Inicio de sesión exitoso','192.168.10.5','2026-11-14 01:38:27'),
+(129,7,'Inicio de sesión','Inicio de sesión exitoso','172.18.0.6','2026-11-14 01:49:17'),
+(130,2,'Inscripción manual','Materia ID: 49','172.18.0.6','2026-11-14 01:50:02'),
+(131,7,'Cierre de sesión','Sesión cerrada voluntariamente','192.168.10.5','2026-11-14 01:53:18'),
+(132,7,'Inicio de sesión','Inicio de sesión exitoso','192.168.10.5','2026-11-14 01:53:33'),
+(133,2,'Inicio de sesión','Inicio de sesión exitoso','192.168.10.12','2026-11-14 01:53:58'),
+(134,7,'Ajustes QR','Puntual:1min Tarde:1min (Total:2min)','172.18.0.6','2026-11-14 02:48:50'),
+(135,7,'Generar QR','Curso ID: 49, Semana: 11, Sesion QR ID: 42','172.18.0.6','2026-11-14 02:49:02'),
+(136,2,'Escaneo QR','Curso: INTELIGENCIA DE NEGOCIO (INE1532), Semana: 11, Estado: presente','192.168.10.12','2026-11-14 02:49:19'),
+(137,7,'Generar QR','Curso ID: 49, Semana: 11, Sesion QR ID: 43','172.18.0.6','2026-11-14 02:51:50'),
+(138,7,'Cancelar QR','Curso ID: 49, Sesion ID: 43','172.18.0.6','2026-11-14 02:53:55'),
+(139,7,'Generar QR','Curso ID: 49, Semana: 11, Sesion QR ID: 44','172.18.0.6','2026-11-14 02:54:02'),
+(140,7,'Cancelar QR','Curso ID: 49, Sesion ID: 44','172.18.0.6','2026-11-14 02:55:31'),
+(141,7,'Generar QR','Curso ID: 49, Semana: 11, Sesion QR ID: 45','172.18.0.6','2026-11-14 02:55:42'),
+(142,7,'Cancelar QR','Curso ID: 49, Sesion ID: 45','172.18.0.6','2026-11-14 02:57:46'),
+(143,7,'Generar QR','Curso ID: 49, Semana: 10, Sesion QR ID: 53','172.18.0.6','2026-11-14 03:16:32'),
+(144,7,'Cancelar QR','Curso ID: 49, Sesion ID: 53','172.18.0.6','2026-11-14 03:17:02'),
+(145,7,'Generar QR','Curso ID: 49, Semana: 10, Sesion QR ID: 54','172.18.0.6','2026-11-14 03:20:52'),
+(146,7,'Cancelar QR','Curso ID: 49, Sesion ID: 54','172.18.0.6','2026-11-14 03:20:58'),
+(147,7,'Generar QR','Curso ID: 49, Semana: 10, Sesion QR ID: 56','172.18.0.6','2026-11-14 03:27:33'),
+(148,2,'Cierre de sesión','Sesión cerrada voluntariamente','192.168.10.12','2026-11-14 03:33:16'),
+(149,7,'Inicio de sesión','Inicio de sesión exitoso','192.168.10.12','2026-11-14 03:33:42'),
+(150,7,'Generar QR','Curso ID: 49, Semana: 10, Sesion QR ID: 57','192.168.10.12','2026-11-14 03:33:44'),
+(151,7,'Cancelar QR','Curso ID: 49, Sesion ID: 57','192.168.10.12','2026-11-14 03:33:57'),
+(152,7,'Generar QR','Curso ID: 49, Semana: 10, Sesion QR ID: 58','192.168.10.12','2026-11-14 03:34:00'),
+(153,7,'Cancelar QR','Curso ID: 49, Sesion ID: 58','192.168.10.12','2026-11-14 03:34:16'),
+(154,2,'Cierre de sesión','Sesión cerrada voluntariamente','172.18.0.6','2026-11-14 03:53:01'),
+(155,4,'Inicio de sesión','Inicio de sesión exitoso','172.18.0.6','2026-11-14 03:53:08'),
+(156,7,'Cancelar QR','Curso ID: 49, Sesion ID: 56','172.18.0.6','2026-11-14 04:03:35'),
+(157,7,'Generar QR','Curso ID: 49, Semana: 10, Sesion QR ID: 59','192.168.10.12','2026-11-14 04:06:07'),
+(158,4,'Escaneo QR','Curso: INTELIGENCIA DE NEGOCIO (INE1532), Semana: 10, Estado: presente','172.18.0.6','2026-11-14 04:06:35'),
+(159,7,'Generar QR','Curso ID: 49, Semana: 1, Sesion QR ID: 60','172.18.0.6','2026-11-14 04:07:51'),
+(160,4,'Escaneo QR','Curso: INTELIGENCIA DE NEGOCIO (INE1532), Semana: 1, Estado: presente','172.18.0.6','2026-11-14 04:08:02'),
+(161,7,'Generar QR','Curso ID: 49, Semana: 1, Sesion QR ID: 61','172.18.0.6','2026-11-14 04:10:52'),
+(162,7,'Cancelar QR','Curso ID: 49, Sesion ID: 61','172.18.0.6','2026-11-14 04:10:55'),
+(163,7,'Generar QR','Curso ID: 49, Semana: 10, Sesion QR ID: 62','172.18.0.6','2026-11-14 04:11:04'),
+(164,4,'Escaneo QR','Curso: INTELIGENCIA DE NEGOCIO (INE1532), Semana: 10, Estado: presente','172.18.0.6','2026-11-14 04:11:21'),
+(165,7,'Cancelar QR','Curso ID: 49, Sesion ID: 62','192.168.10.12','2026-11-14 04:13:12'),
+(166,7,'Generar QR','Curso ID: 49, Semana: 10, Sesion QR ID: 63','172.18.0.6','2026-11-14 04:13:24'),
+(167,4,'Escaneo QR','Curso: INTELIGENCIA DE NEGOCIO (INE1532), Semana: 10, Estado: tarde','172.18.0.6','2026-11-14 04:14:33'),
+(168,7,'Generar QR','Curso ID: 49, Semana: 1, Sesion QR ID: 64','172.18.0.6','2026-11-14 04:36:17'),
+(169,4,'Escaneo QR','Curso: INTELIGENCIA DE NEGOCIO (INE1532), Semana: 1, Estado: tarde','172.18.0.6','2026-11-14 04:37:36');
 /*!40000 ALTER TABLE `auditoria` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -412,13 +523,13 @@ LOCK TABLES `configuracion_profesor` WRITE;
 INSERT INTO `configuracion_profesor` VALUES
 (1,5,5,10,30,50,'2026-11-06 23:39:44','2026-11-06 23:39:44'),
 (2,6,5,10,30,50,'2026-11-07 00:14:32','2026-11-07 00:14:32'),
-(3,7,5,10,30,50,'2026-11-07 00:14:32','2026-11-07 00:14:32'),
+(3,7,2,1,30,50,'2026-11-07 00:14:32','2026-11-14 02:48:50'),
 (4,8,5,10,30,50,'2026-11-07 00:14:32','2026-11-07 00:14:32'),
 (5,9,5,10,30,50,'2026-11-07 00:14:32','2026-11-07 00:14:32'),
 (6,10,5,10,30,50,'2026-11-07 00:14:32','2026-11-07 00:14:32'),
 (7,11,5,10,30,50,'2026-11-07 00:14:32','2026-11-07 00:14:32'),
 (8,12,5,10,30,50,'2026-11-07 00:14:32','2026-11-07 00:14:32'),
-(9,13,5,10,10,50,'2026-11-07 00:14:32','2026-11-07 00:47:48'),
+(9,13,2,1,10,50,'2026-11-07 00:14:32','2026-11-13 23:57:40'),
 (10,3,2,1,30,50,'2026-11-12 00:09:36','2026-11-12 00:09:36');
 /*!40000 ALTER TABLE `configuracion_profesor` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -537,7 +648,7 @@ CREATE TABLE `inscripciones` (
   KEY `curso_id` (`curso_id`),
   CONSTRAINT `inscripciones_ibfk_1` FOREIGN KEY (`estudiante_id`) REFERENCES `usuarios` (`id`),
   CONSTRAINT `inscripciones_ibfk_2` FOREIGN KEY (`curso_id`) REFERENCES `cursos` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=86 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=108 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -629,7 +740,28 @@ INSERT INTO `inscripciones` VALUES
 (82,4,55,'2026-III','Activa'),
 (83,4,56,'2026-III','Activa'),
 (84,4,57,'2026-III','Activa'),
-(85,4,58,'2026-III','Activa');
+(85,4,58,'2026-III','Activa'),
+(87,4,49,'2026-III','Activa'),
+(88,14,49,'2026-III','Activa'),
+(89,15,49,'2026-III','Activa'),
+(90,16,49,'2026-III','Activa'),
+(91,17,49,'2026-III','Activa'),
+(92,18,49,'2026-III','Activa'),
+(93,19,49,'2026-III','Activa'),
+(94,20,49,'2026-III','Activa'),
+(95,21,49,'2026-III','Activa'),
+(96,22,49,'2026-III','Activa'),
+(97,23,49,'2026-III','Activa'),
+(98,24,49,'2026-III','Activa'),
+(99,25,49,'2026-III','Activa'),
+(100,26,49,'2026-III','Activa'),
+(101,27,49,'2026-III','Activa'),
+(102,28,49,'2026-III','Activa'),
+(103,29,49,'2026-III','Activa'),
+(104,30,49,'2026-III','Activa'),
+(105,31,49,'2026-III','Activa'),
+(106,32,49,'2026-III','Activa'),
+(107,33,49,'2026-III','Activa');
 /*!40000 ALTER TABLE `inscripciones` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -767,7 +899,7 @@ CREATE TABLE `sesiones_qr` (
   KEY `profesor_id` (`profesor_id`),
   CONSTRAINT `sesiones_qr_ibfk_1` FOREIGN KEY (`curso_id`) REFERENCES `cursos` (`id`),
   CONSTRAINT `sesiones_qr_ibfk_2` FOREIGN KEY (`profesor_id`) REFERENCES `usuarios` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -784,7 +916,11 @@ INSERT INTO `sesiones_qr` VALUES
 (29,56,3,'da8067ff97ebf6a6a5d092a9e236f6ac','2026-11-10','14:42:21',NULL,10,'14:47:21',10,'',0,'2026-11-10 18:42:21'),
 (30,56,3,'433856cb2d4e6f6f027316d5d5c4fb6b','2026-11-11','15:55:04',NULL,10,'16:00:04',3,'',0,'2026-11-11 19:55:04'),
 (36,57,3,'3a2ed8e9fd8e4a993c8058b3949d023b','2026-11-11','20:09:49','20:10:49',1,'20:11:49',10,'Jueves 07:00 - 08:30',0,'2026-11-12 00:09:49'),
-(37,57,3,'22375065045a01f8d15bef012d466e86','2026-11-11','20:12:44','20:13:44',1,'20:14:44',10,'Viernes 08:45 - 10:15',0,'2026-11-12 00:12:44');
+(37,57,3,'22375065045a01f8d15bef012d466e86','2026-11-11','20:12:44','20:13:44',1,'20:14:44',10,'Viernes 08:45 - 10:15',0,'2026-11-12 00:12:44'),
+(39,58,3,'73cb6ee6ff16b47efb53a6d7487f4104','2026-11-12','23:19:23','23:20:23',1,'23:21:23',10,'Viernes 07:00 - 08:30',0,'2026-11-13 03:19:23'),
+(41,55,13,'d69d81a99680ef5ca900ed791a497545','2026-11-13','19:57:43','19:58:43',1,'19:59:43',10,'Viernes 10:15 - 11:45',0,'2026-11-13 23:57:43'),
+(63,49,7,'dc22cc9723b09ccb2470d01f78a26060','2026-11-14','00:13:24','00:14:24',1,'00:15:24',10,'Lunes 10:15 - 11:45',0,'2026-11-14 04:13:24'),
+(64,49,7,'844c08dbb1e22b3a0d2015f57c4e6a47','2026-11-14','00:36:17','00:37:17',1,'00:38:17',1,'Lunes 10:15 - 11:45',0,'2026-11-14 04:36:17');
 /*!40000 ALTER TABLE `sesiones_qr` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -820,7 +956,7 @@ CREATE TABLE `usuarios` (
   KEY `carrera_id` (`carrera_id`),
   CONSTRAINT `usuarios_ibfk_1` FOREIGN KEY (`creado_por`) REFERENCES `usuarios` (`id`),
   CONSTRAINT `usuarios_ibfk_2` FOREIGN KEY (`carrera_id`) REFERENCES `carreras` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -843,7 +979,27 @@ INSERT INTO `usuarios` VALUES
 (10,'V18403975','18403975','José Chacón','jose.chacon@iutecp.edu.ve',4,NULL,'profesor','$2y$12$VFrgWVxCyK.97ka2tBuD2eRCEPXdt/pJ0l6R2k4HIWG.3014kVbFC',0,1,0,NULL,'2026-11-07 00:14:32','2026-11-07 00:14:32'),
 (11,'V15564116','15564116','Jhanan Ojeda','jhanan.ojeda@iutecp.edu.ve',4,NULL,'profesor','$2y$12$VFrgWVxCyK.97ka2tBuD2eRCEPXdt/pJ0l6R2k4HIWG.3014kVbFC',0,1,0,NULL,'2026-11-07 00:14:32','2026-11-07 00:14:32'),
 (12,'V25327679','25327679','Pedro Yanez','pedro.yanez@iutecp.edu.ve',4,NULL,'profesor','$2y$12$VFrgWVxCyK.97ka2tBuD2eRCEPXdt/pJ0l6R2k4HIWG.3014kVbFC',0,1,0,NULL,'2026-11-07 00:14:32','2026-11-07 00:14:32'),
-(13,'V4273816','4273816','José Mejias','jose.mejias@iutecp.edu.ve',4,NULL,'profesor','$2y$12$VFrgWVxCyK.97ka2tBuD2eRCEPXdt/pJ0l6R2k4HIWG.3014kVbFC',0,1,0,NULL,'2026-11-07 00:14:32','2026-11-07 00:14:32');
+(13,'V4273816','4273816','José Mejias','jose.mejias@iutecp.edu.ve',4,NULL,'profesor','$2y$12$VFrgWVxCyK.97ka2tBuD2eRCEPXdt/pJ0l6R2k4HIWG.3014kVbFC',0,1,0,NULL,'2026-11-07 00:14:32','2026-11-07 00:14:32'),
+(14,'V30100101','30100101','Miguel Vanegas','30100101@iutecp.edu.ve',4,NULL,'estudiante','$2y$12$5cDtPIBr3vteEreu7sIWzOfFWp1Q48WoYrNu4oFDBzz5Q7HfsTl1K',0,1,0,NULL,'2026-11-14 03:24:39','2026-11-14 03:24:39'),
+(15,'V30100102','30100102','Luca Pedrique','30100102@iutecp.edu.ve',4,NULL,'estudiante','$2y$12$5cDtPIBr3vteEreu7sIWzOfFWp1Q48WoYrNu4oFDBzz5Q7HfsTl1K',0,1,0,NULL,'2026-11-14 03:24:39','2026-11-14 03:24:39'),
+(16,'V30100103','30100103','Carlos Mendoza','30100103@iutecp.edu.ve',4,NULL,'estudiante','$2y$12$5cDtPIBr3vteEreu7sIWzOfFWp1Q48WoYrNu4oFDBzz5Q7HfsTl1K',0,1,0,NULL,'2026-11-14 03:24:39','2026-11-14 03:24:39'),
+(17,'V30100104','30100104','Andrea Castillo','30100104@iutecp.edu.ve',4,NULL,'estudiante','$2y$12$5cDtPIBr3vteEreu7sIWzOfFWp1Q48WoYrNu4oFDBzz5Q7HfsTl1K',0,1,0,NULL,'2026-11-14 03:24:39','2026-11-14 03:24:39'),
+(18,'V30100105','30100105','Gabriel Morales','30100105@iutecp.edu.ve',4,NULL,'estudiante','$2y$12$5cDtPIBr3vteEreu7sIWzOfFWp1Q48WoYrNu4oFDBzz5Q7HfsTl1K',0,1,0,NULL,'2026-11-14 03:24:39','2026-11-14 03:24:39'),
+(19,'V30100106','30100106','Valeria Blanco','30100106@iutecp.edu.ve',4,NULL,'estudiante','$2y$12$5cDtPIBr3vteEreu7sIWzOfFWp1Q48WoYrNu4oFDBzz5Q7HfsTl1K',0,1,0,NULL,'2026-11-14 03:24:39','2026-11-14 03:24:39'),
+(20,'V30100107','30100107','Daniel Rivas','30100107@iutecp.edu.ve',4,NULL,'estudiante','$2y$12$5cDtPIBr3vteEreu7sIWzOfFWp1Q48WoYrNu4oFDBzz5Q7HfsTl1K',0,1,0,NULL,'2026-11-14 03:24:39','2026-11-14 03:24:39'),
+(21,'V30100108','30100108','Sofía Paredes','30100108@iutecp.edu.ve',4,NULL,'estudiante','$2y$12$5cDtPIBr3vteEreu7sIWzOfFWp1Q48WoYrNu4oFDBzz5Q7HfsTl1K',0,1,0,NULL,'2026-11-14 03:24:39','2026-11-14 03:24:39'),
+(22,'V30100109','30100109','Alejandro Ortiz','30100109@iutecp.edu.ve',4,NULL,'estudiante','$2y$12$5cDtPIBr3vteEreu7sIWzOfFWp1Q48WoYrNu4oFDBzz5Q7HfsTl1K',0,1,0,NULL,'2026-11-14 03:24:39','2026-11-14 03:24:39'),
+(23,'V30100110','30100110','Mariana Gil','30100110@iutecp.edu.ve',4,NULL,'estudiante','$2y$12$5cDtPIBr3vteEreu7sIWzOfFWp1Q48WoYrNu4oFDBzz5Q7HfsTl1K',0,1,0,NULL,'2026-11-14 03:24:39','2026-11-14 03:24:39'),
+(24,'V30100111','30100111','Javier Colina','30100111@iutecp.edu.ve',4,NULL,'estudiante','$2y$12$5cDtPIBr3vteEreu7sIWzOfFWp1Q48WoYrNu4oFDBzz5Q7HfsTl1K',0,1,0,NULL,'2026-11-14 03:24:39','2026-11-14 03:24:39'),
+(25,'V30100112','30100112','Camila Soto','30100112@iutecp.edu.ve',4,NULL,'estudiante','$2y$12$5cDtPIBr3vteEreu7sIWzOfFWp1Q48WoYrNu4oFDBzz5Q7HfsTl1K',0,1,0,NULL,'2026-11-14 03:24:39','2026-11-14 03:24:39'),
+(26,'V30100113','30100113','Diego Salazar','30100113@iutecp.edu.ve',4,NULL,'estudiante','$2y$12$5cDtPIBr3vteEreu7sIWzOfFWp1Q48WoYrNu4oFDBzz5Q7HfsTl1K',0,1,0,NULL,'2026-11-14 03:24:39','2026-11-14 03:24:39'),
+(27,'V30100114','30100114','Isabella Romero','30100114@iutecp.edu.ve',4,NULL,'estudiante','$2y$12$5cDtPIBr3vteEreu7sIWzOfFWp1Q48WoYrNu4oFDBzz5Q7HfsTl1K',0,1,0,NULL,'2026-11-14 03:24:39','2026-11-14 03:24:39'),
+(28,'V30100115','30100115','Leonardo Vargas','30100115@iutecp.edu.ve',4,NULL,'estudiante','$2y$12$5cDtPIBr3vteEreu7sIWzOfFWp1Q48WoYrNu4oFDBzz5Q7HfsTl1K',0,1,0,NULL,'2026-11-14 03:24:39','2026-11-14 03:24:39'),
+(29,'V30100116','30100116','Natalia Silva','30100116@iutecp.edu.ve',4,NULL,'estudiante','$2y$12$5cDtPIBr3vteEreu7sIWzOfFWp1Q48WoYrNu4oFDBzz5Q7HfsTl1K',0,1,0,NULL,'2026-11-14 03:24:39','2026-11-14 03:24:39'),
+(30,'V30100117','30100117','Samuel Herrera','30100117@iutecp.edu.ve',4,NULL,'estudiante','$2y$12$5cDtPIBr3vteEreu7sIWzOfFWp1Q48WoYrNu4oFDBzz5Q7HfsTl1K',0,1,0,NULL,'2026-11-14 03:24:39','2026-11-14 03:24:39'),
+(31,'V30100118','30100118','Paula Navarro','30100118@iutecp.edu.ve',4,NULL,'estudiante','$2y$12$5cDtPIBr3vteEreu7sIWzOfFWp1Q48WoYrNu4oFDBzz5Q7HfsTl1K',0,1,0,NULL,'2026-11-14 03:24:39','2026-11-14 03:24:39'),
+(32,'V30100119','30100119','Andrés Delgado','30100119@iutecp.edu.ve',4,NULL,'estudiante','$2y$12$5cDtPIBr3vteEreu7sIWzOfFWp1Q48WoYrNu4oFDBzz5Q7HfsTl1K',0,1,0,NULL,'2026-11-14 03:24:39','2026-11-14 03:24:39'),
+(33,'V30100120','30100120','Victoria Guzmán','30100120@iutecp.edu.ve',4,NULL,'estudiante','$2y$12$5cDtPIBr3vteEreu7sIWzOfFWp1Q48WoYrNu4oFDBzz5Q7HfsTl1K',0,1,0,NULL,'2026-11-14 03:24:39','2026-11-14 03:24:39');
 /*!40000 ALTER TABLE `usuarios` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -856,6 +1012,5 @@ SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-/*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2026-11-12 18:36:09
+-- Dump completed on 2026-11-14  1:08:30

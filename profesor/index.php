@@ -782,6 +782,8 @@ function renderizarEstudiantesGrid(container, estudiantes) {
         var estado = (est.estado || 'pendiente').toLowerCase();
         var color = '#94a3b8';
         var weight = '500';
+        var decoration = 'none';
+        var opacity = '1';
 
         if (estado === 'presente') {
             color = '#16a34a';
@@ -792,12 +794,14 @@ function renderizarEstudiantesGrid(container, estudiantes) {
         } else if (estado === 'ausente') {
             color = '#dc2626';
             weight = '700';
+            decoration = 'line-through';
+            opacity = '0.8';
         } else if (estado === 'justificado') {
             color = '#0d9488';
             weight = '700';
         }
 
-        html += '<div style="color:' + color + ';font-weight:' + weight + ';font-size:11px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left;transition:color 0.25s ease;" title="' + escapeHtml(est.nombre) + ' (' + estado + ')">';
+        html += '<div style="color:' + color + ';font-weight:' + weight + ';text-decoration:' + decoration + ';text-decoration-thickness:1.5px;opacity:' + opacity + ';font-size:11px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left;transition:all 0.25s ease;" title="' + escapeHtml(est.nombre) + ' (' + estado + ')">';
         html += escapeHtml(est.nombre);
         html += '</div>';
     });

@@ -350,8 +350,8 @@ foreach ($cursos as $c) {
         </div>
 
         <div class="card <?= $sesion_activa ? 'hidden' : '' ?>" id="ajustes-generar-container" style="margin-bottom:15px;padding:15px 18px;">
-            <h3 style="color:var(--primary);margin:0 0 4px 0;font-size:15px;display:flex;align-items:center;gap:6px;">
-                ⏱️ Tiempos de Escaneo QR
+            <h3 style="color:var(--primary);margin:0 0 4px 0;font-size:15px;">
+                Tiempos de Escaneo QR
             </h3>
             <p style="margin:0 0 12px 0;color:#666;font-size:12.5px;">Configura los minutos permitidos para llegada puntual y con retraso</p>
             <form id="ajustes-form" onsubmit="return guardarAjustes(event)">
@@ -486,7 +486,8 @@ foreach ($cursos as $c) {
     </div>
 
     <div class="mobile-content hidden" id="tab-resumen">
-        <h2 style="color:var(--primary);margin-bottom:4px">Resumen del Profesor</h2>
+        <div id="resumen-principal">
+            <h2 style="color:var(--primary);margin-bottom:4px">Resumen del Profesor</h2>
         <p style="margin-bottom:15px;color:#666;">Métricas y rendimiento de asistencia del período actual</p>
 
         <!-- Métricas Rápidas (Cursos, Alumnos, Clases) -->
@@ -577,7 +578,20 @@ foreach ($cursos as $c) {
             </div>
         </div>
 
-        <!-- 3. Rendimiento por Materia -->
+        <!-- Botones de acceso a secciones detalladas -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;margin-bottom:15px;">
+            <button type="button" class="btn btn-primary" onclick="verRendimientoMaterias()" style="padding:12px 10px;font-size:13.5px;font-weight:600;text-align:center;border-radius:4px;cursor:pointer;line-height:1.3;box-shadow:none;">
+                Rendimiento por Materia
+            </button>
+            <button type="button" class="btn btn-primary" onclick="verHorarioClases()" style="padding:12px 10px;font-size:13.5px;font-weight:600;text-align:center;border-radius:4px;cursor:pointer;line-height:1.3;box-shadow:none;">
+                Horario de Clases
+            </button>
+        </div>
+    </div>
+
+    <!-- 3. Subsección Desglose / Semáforo por Materia -->
+    <div id="resumen-materias-detalle" class="hidden">
+        <button type="button" class="btn" style="margin-bottom:15px;background:#eee;color:var(--text-dark);font-size:13.5px;padding:8px 14px;border-radius:4px;cursor:pointer;border:none;" onclick="volverResumenPrincipal()">⬅ Volver al resumen</button>
         <h3 style="color:var(--primary);font-size:16px;margin:0 0 6px 0;letter-spacing:0.2px;">Rendimiento por Materia</h3>
         <p style="margin-bottom:14px;color:#666;font-size:13px;">Desglose y nivel de asistencia de tus materias asignadas</p>
 
@@ -633,6 +647,18 @@ foreach ($cursos as $c) {
             </div>
         <?php endif; ?>
     </div>
+
+    <!-- 4. Subsección Horario de Clases -->
+    <div id="resumen-horario-detalle" class="hidden">
+        <button type="button" class="btn" style="margin-bottom:15px;background:#eee;color:var(--text-dark);font-size:13.5px;padding:8px 14px;border-radius:4px;cursor:pointer;border:none;" onclick="volverResumenPrincipal()">⬅ Volver al resumen</button>
+        <h3 style="color:var(--primary);font-size:16px;margin:0 0 6px 0;letter-spacing:0.2px;">Horario de Clases</h3>
+        <p style="margin-bottom:15px;color:#666;">Consulta tus bloques de horario semanal</p>
+        <div class="card" style="text-align:center;padding:50px 20px;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
+            <p style="font-size:16px;color:var(--primary);font-weight:bold;margin:0 0 8px 0;">Próximamente...</p>
+            <p style="color:#777;font-size:13.5px;margin:0;">Esta sección estará disponible en una próxima actualización.</p>
+        </div>
+    </div>
+</div>
 
     <div class="mobile-content hidden" id="tab-password">
         <h3 style="color:var(--primary);margin-bottom:15px">Cambiar Contraseña</h3>
@@ -810,6 +836,7 @@ function switchTab(tab, btn) {
         cargarAjustes();
     }
     if (tab === 'asistencia') cargarEstadoSemanas();
+    if (tab === 'resumen') volverResumenPrincipal();
     if (tab === 'diagnostico') cargarDiagnostico();
 }
 function toggleMenu() {
@@ -1495,6 +1522,36 @@ function verAsistencia(el) {
 function volverClases() {
     document.getElementById('asistencia-lista').classList.remove('hidden');
     document.getElementById('asistencia-detalle').classList.add('hidden');
+}
+
+function verRendimientoMaterias() {
+    window.scrollTo(0, 0);
+    var p = document.getElementById('resumen-principal');
+    var m = document.getElementById('resumen-materias-detalle');
+    var h = document.getElementById('resumen-horario-detalle');
+    if (p) p.classList.add('hidden');
+    if (h) h.classList.add('hidden');
+    if (m) m.classList.remove('hidden');
+}
+
+function verHorarioClases() {
+    window.scrollTo(0, 0);
+    var p = document.getElementById('resumen-principal');
+    var m = document.getElementById('resumen-materias-detalle');
+    var h = document.getElementById('resumen-horario-detalle');
+    if (p) p.classList.add('hidden');
+    if (m) m.classList.add('hidden');
+    if (h) h.classList.remove('hidden');
+}
+
+function volverResumenPrincipal() {
+    window.scrollTo(0, 0);
+    var p = document.getElementById('resumen-principal');
+    var m = document.getElementById('resumen-materias-detalle');
+    var h = document.getElementById('resumen-horario-detalle');
+    if (m) m.classList.add('hidden');
+    if (h) h.classList.add('hidden');
+    if (p) p.classList.remove('hidden');
 }
 
 function irAAsistenciasCurso(cursoId) {

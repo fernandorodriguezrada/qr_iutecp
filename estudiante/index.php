@@ -464,6 +464,26 @@ if (
                 </div>
             </div>
 
+            <!-- Barra segmentada global -->
+            <div style="display:flex;width:100%;background:#e2e8f0;height:8px;border-radius:4px;overflow:hidden;margin-bottom:14px;">
+            <?php if ($global_total_registros === 0): ?>
+                <div style="width:100%;background:#cbd5e1;height:100%;" title="Sin sesiones"></div>
+            <?php else: ?>
+                <?php if ($global_counts['presente'] > 0): ?>
+                    <div style="width:<?= ($global_counts['presente'] / $global_total_registros) * 100 ?>%;background:#22c55e;height:100%;" title="Puntual: <?= $global_counts['presente'] ?>"></div>
+                <?php endif; ?>
+                <?php if ($global_counts['tarde'] > 0): ?>
+                    <div style="width:<?= ($global_counts['tarde'] / $global_total_registros) * 100 ?>%;background:#f59e0b;height:100%;" title="Con retraso: <?= $global_counts['tarde'] ?>"></div>
+                <?php endif; ?>
+                <?php if ($global_counts['justificado'] > 0): ?>
+                    <div style="width:<?= ($global_counts['justificado'] / $global_total_registros) * 100 ?>%;background:#06b6d4;height:100%;" title="Justificado: <?= $global_counts['justificado'] ?>"></div>
+                <?php endif; ?>
+                <?php if ($global_counts['ausente'] > 0): ?>
+                    <div style="width:<?= ($global_counts['ausente'] / $global_total_registros) * 100 ?>%;background:#ef4444;height:100%;" title="Inasistencia: <?= $global_counts['ausente'] ?>"></div>
+                <?php endif; ?>
+            <?php endif; ?>
+            </div>
+
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
                 <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:4px;padding:12px 14px;">
                     <div style="font-size:22px;font-weight:bold;color:#15803d;line-height:1.2;"><?= $global_counts['presente'] ?></div>
@@ -505,25 +525,21 @@ if (
                     $badge_color = '#64748b';
                     $badge_bg = '#f1f5f9';
                     $badge_border = '#cbd5e1';
-                    $bar_color = '#cbd5e1';
                 } elseif ($c_porc >= 75) {
                     $badge_label = 'Al día (' . $c_porc . '%)';
                     $badge_color = '#15803d';
                     $badge_bg = '#dcfce7';
                     $badge_border = '#bbf7d0';
-                    $bar_color = '#22c55e';
                 } elseif ($c_porc >= 60) {
                     $badge_label = 'En observación (' . $c_porc . '%)';
                     $badge_color = '#b45309';
                     $badge_bg = '#fef3c7';
                     $badge_border = '#fde68a';
-                    $bar_color = '#f59e0b';
                 } else {
                     $badge_label = 'En riesgo (' . $c_porc . '%)';
                     $badge_color = '#b91c1c';
                     $badge_bg = '#fee2e2';
                     $badge_border = '#fecaca';
-                    $bar_color = '#ef4444';
                 }
             ?>
                 <div class="card" style="border:1px solid var(--border-color);border-radius:4px;background:#fff;padding:14px 16px;">
@@ -546,8 +562,24 @@ if (
                         <?php endif; ?>
                     </div>
 
-                    <div style="width:100%;background:#f1f5f9;height:6px;border-radius:3px;overflow:hidden;margin-bottom:10px;">
-                        <div style="width:<?= $c_tot > 0 ? $c_porc : 0 ?>%;background:<?= $bar_color ?>;height:100%;"></div>
+                    <!-- Barra segmentada proporcional (4 colores) -->
+                    <div style="display:flex;width:100%;background:#e2e8f0;height:7px;border-radius:3.5px;overflow:hidden;margin-bottom:10px;">
+                    <?php if ($c_tot === 0): ?>
+                        <div style="width:100%;background:#cbd5e1;height:100%;" title="Sin sesiones"></div>
+                    <?php else: ?>
+                        <?php if ($c_cnt['presente'] > 0): ?>
+                            <div style="width:<?= ($c_cnt['presente'] / $c_tot) * 100 ?>%;background:#22c55e;height:100%;" title="Puntual: <?= $c_cnt['presente'] ?>"></div>
+                        <?php endif; ?>
+                        <?php if ($c_cnt['tarde'] > 0): ?>
+                            <div style="width:<?= ($c_cnt['tarde'] / $c_tot) * 100 ?>%;background:#f59e0b;height:100%;" title="Con retraso: <?= $c_cnt['tarde'] ?>"></div>
+                        <?php endif; ?>
+                        <?php if ($c_cnt['justificado'] > 0): ?>
+                            <div style="width:<?= ($c_cnt['justificado'] / $c_tot) * 100 ?>%;background:#06b6d4;height:100%;" title="Justificado: <?= $c_cnt['justificado'] ?>"></div>
+                        <?php endif; ?>
+                        <?php if ($c_cnt['ausente'] > 0): ?>
+                            <div style="width:<?= ($c_cnt['ausente'] / $c_tot) * 100 ?>%;background:#ef4444;height:100%;" title="Inasistencia: <?= $c_cnt['ausente'] ?>"></div>
+                        <?php endif; ?>
+                    <?php endif; ?>
                     </div>
 
                     <div style="display:flex;gap:6px;flex-wrap:wrap;font-size:12px;">

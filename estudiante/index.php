@@ -518,9 +518,9 @@ if (
 
     <!-- 3. Subsección Desglose / Semáforo por Materia -->
     <div id="resumen-materias-detalle" class="hidden">
-        <button type="button" class="btn" style="margin-bottom:15px;background:#eee;color:var(--text-dark);font-size:13.5px;padding:8px 14px;border-radius:4px;cursor:pointer;border:none;" onclick="volverResumenPrincipal()">⬅ Volver al resumen</button>
-        <h3 style="color:var(--primary);font-size:16px;margin:0 0 6px 0;letter-spacing:0.2px;">Rendimiento por Materia</h3>
-        <p style="margin-bottom:16px;color:#666;font-size:13.5px;">Desglose y semáforo de asistencia de tus materias inscritas</p>
+        <button type="button" class="btn" style="margin-bottom:15px;background:#eee;color:var(--text-dark);" onclick="volverResumenPrincipal()">⬅ Volver al resumen</button>
+        <h2 style="color:var(--primary);margin-bottom:6px">Rendimiento por Materia</h2>
+        <p style="margin-bottom:15px;color:#666;">Desglose y semáforo de asistencia de tus materias inscritas</p>
 
         <?php if (empty($cursos)): ?>
             <div class="card" style="text-align:center;padding:30px;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
@@ -557,7 +557,7 @@ if (
                     $badge_border = '#fecaca';
                 }
             ?>
-                <div class="card" data-curso-card="<?= $c['id'] ?>" style="border:1px solid var(--border-color);border-radius:4px;background:#fff;padding:14px 16px;">
+                <div class="card" data-curso-card="<?= $c['id'] ?>" style="border:1px solid var(--border-color);border-radius:4px;background:#fff;padding:16px;">
                     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px;">
                         <div style="flex:1;min-width:0;">
                             <strong style="font-size:15px;color:var(--primary);display:block;line-height:1.35;word-break:break-word;"><?= htmlspecialchars($c['nombre']) ?></strong>
@@ -573,7 +573,7 @@ if (
                     <div style="font-size:12.5px;color:#555;margin-bottom:10px;">
                         <div>Prof. <?= htmlspecialchars($c['profesor_nombre']) ?></div>
                         <?php if (!empty($c['horario'])): ?>
-                            <div style="color:#777;margin-top:2px;">🕒 <?= htmlspecialchars($c['horario']) ?></div>
+                            <div style="color:#777;margin-top:2px;"><?= htmlspecialchars($c['horario']) ?></div>
                         <?php endif; ?>
                     </div>
 
@@ -611,8 +611,8 @@ if (
 
         <!-- 4. Subsección Horario de Clases -->
         <div id="resumen-horario-detalle" class="hidden">
-            <button type="button" class="btn" style="margin-bottom:15px;background:#eee;color:var(--text-dark);font-size:13.5px;padding:8px 14px;border-radius:4px;cursor:pointer;border:none;" onclick="volverResumenPrincipal()">⬅ Volver al resumen</button>
-            <h3 style="color:var(--primary);font-size:16px;margin:0 0 6px 0;letter-spacing:0.2px;">Horario de Clases</h3>
+            <button type="button" class="btn" style="margin-bottom:15px;background:#eee;color:var(--text-dark);" onclick="volverResumenPrincipal()">⬅ Volver al resumen</button>
+            <h2 style="color:var(--primary);margin-bottom:6px">Horario de Clases</h2>
             <p style="margin-bottom:15px;color:#666;">Consulta tus bloques de horario semanal</p>
             <div class="card" style="text-align:center;padding:50px 20px;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
                 <p style="font-size:16px;color:var(--primary);font-weight:bold;margin:0 0 8px 0;">Próximamente...</p>

@@ -591,22 +591,22 @@ foreach ($cursos as $c) {
 
     <!-- 3. Subsección Desglose / Semáforo por Materia -->
     <div id="resumen-materias-detalle" class="hidden">
-        <button type="button" class="btn" style="margin-bottom:15px;background:#eee;color:var(--text-dark);font-size:13.5px;padding:8px 14px;border-radius:4px;cursor:pointer;border:none;" onclick="volverResumenPrincipal()">⬅ Volver al resumen</button>
-        <h3 style="color:var(--primary);font-size:16px;margin:0 0 6px 0;letter-spacing:0.2px;">Rendimiento por Materia</h3>
-        <p style="margin-bottom:14px;color:#666;font-size:13px;">Desglose y nivel de asistencia de tus materias asignadas</p>
+        <button type="button" class="btn" style="margin-bottom:15px;background:#eee;color:var(--text-dark);" onclick="volverResumenPrincipal()">⬅ Volver al resumen</button>
+        <h2 style="color:var(--primary);margin-bottom:6px">Rendimiento por Materia</h2>
+        <p style="margin-bottom:15px;color:#666;">Desglose y nivel de asistencia de tus materias asignadas</p>
 
         <?php if (empty($cursos_resumen)): ?>
-            <div class="card" style="text-align:center;padding:25px;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
+            <div class="card" style="text-align:center;padding:30px;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
                 <p style="color:#999;font-size:14px;margin:0;">No tienes cursos asignados para el período actual.</p>
             </div>
         <?php else: ?>
             <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px;">
                 <?php foreach ($cursos_resumen as $cr): ?>
-                <div class="card" style="padding:14px 16px;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
+                <div class="card" style="padding:16px;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
                     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
                         <div style="flex:1;min-width:0;padding-right:8px;">
-                            <strong style="color:var(--primary);font-size:14.5px;display:block;line-height:1.3;"><?= htmlspecialchars($cr['nombre']) ?></strong>
-                            <span style="font-size:12px;color:#666;display:block;margin-top:2px;">
+                            <strong style="color:var(--primary);font-size:15px;display:block;line-height:1.3;"><?= htmlspecialchars($cr['nombre']) ?></strong>
+                            <span style="font-size:12.5px;color:#666;display:block;margin-top:2px;">
                                 Sec: <?= htmlspecialchars($cr['seccion']) ?> • Nivel <?= nivelRomano($cr['trayecto']) ?> • <?= htmlspecialchars($cr['carrera_nombre']) ?>
                             </span>
                         </div>
@@ -616,7 +616,7 @@ foreach ($cursos as $c) {
                     </div>
 
                     <!-- Barra de progreso de asistencia por curso -->
-                    <div style="display:flex;width:100%;background:#e2e8f0;height:6px;border-radius:3px;overflow:hidden;margin:10px 0;">
+                    <div style="display:flex;width:100%;background:#e2e8f0;height:8px;border-radius:4px;overflow:hidden;margin:12px 0;">
                         <?php if ($cr['total_registros'] === 0): ?>
                             <div style="width:100%;background:#cbd5e1;height:100%;"></div>
                         <?php else: ?>
@@ -635,11 +635,11 @@ foreach ($cursos as $c) {
                         <?php endif; ?>
                     </div>
 
-                    <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#555;margin-top:6px;">
-                        <span>👥 <?= $cr['total_inscritos'] ?> alumno<?= $cr['total_inscritos'] == 1 ? '' : 's' ?></span>
-                        <span>📅 <?= $cr['semanas_registradas'] ?> <?= $cr['semanas_registradas'] == 1 ? 'semana' : 'semanas' ?></span>
-                        <button type="button" onclick="irAAsistenciasCurso(<?= $cr['id'] ?>)" class="btn" style="padding:4px 10px;font-size:12px;background:#e8eaf6;color:var(--primary);font-weight:600;border-radius:4px;border:none;cursor:pointer;">
-                            Ver asistencias →
+                    <div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:#555;margin-top:8px;">
+                        <span><?= $cr['total_inscritos'] ?> alumno<?= $cr['total_inscritos'] == 1 ? '' : 's' ?></span>
+                        <span><?= $cr['semanas_registradas'] ?> <?= $cr['semanas_registradas'] == 1 ? 'semana' : 'semanas' ?></span>
+                        <button type="button" onclick="irAAsistenciasCurso(<?= $cr['id'] ?>)" class="btn btn-ver-asistencia" style="padding:6px 14px;font-size:13.5px;background:var(--primary);color:#fff;border-radius:4px;border:none;font-weight:bold;cursor:pointer;">
+                            Ver asistencias
                         </button>
                     </div>
                 </div>
@@ -650,8 +650,8 @@ foreach ($cursos as $c) {
 
     <!-- 4. Subsección Horario de Clases -->
     <div id="resumen-horario-detalle" class="hidden">
-        <button type="button" class="btn" style="margin-bottom:15px;background:#eee;color:var(--text-dark);font-size:13.5px;padding:8px 14px;border-radius:4px;cursor:pointer;border:none;" onclick="volverResumenPrincipal()">⬅ Volver al resumen</button>
-        <h3 style="color:var(--primary);font-size:16px;margin:0 0 6px 0;letter-spacing:0.2px;">Horario de Clases</h3>
+        <button type="button" class="btn" style="margin-bottom:15px;background:#eee;color:var(--text-dark);" onclick="volverResumenPrincipal()">⬅ Volver al resumen</button>
+        <h2 style="color:var(--primary);margin-bottom:6px">Horario de Clases</h2>
         <p style="margin-bottom:15px;color:#666;">Consulta tus bloques de horario semanal</p>
         <div class="card" style="text-align:center;padding:50px 20px;border:1px solid var(--border-color);border-radius:4px;background:#fff;">
             <p style="font-size:16px;color:var(--primary);font-weight:bold;margin:0 0 8px 0;">Próximamente...</p>

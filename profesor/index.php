@@ -177,7 +177,15 @@ if ($sesion_activa) {
     </div>
 
     <div class="mobile-content" id="tab-generar">
-        <h2 style="color:var(--primary);margin-bottom:5px">¡Hola, <?= htmlspecialchars(explode(' ', $_SESSION['nombre'])[0]) ?>!</h2>
+        <?php
+        $nombre_prof = trim($_SESSION['nombre'] ?? '');
+        if (stripos($nombre_prof, 'Prof.') === 0 || strcasecmp($nombre_prof, 'Profesor') === 0) {
+            $saludo_prof = $nombre_prof;
+        } else {
+            $saludo_prof = 'Prof. ' . $nombre_prof;
+        }
+        ?>
+        <h2 style="color:var(--primary);margin-bottom:5px">¡Hola, <?= htmlspecialchars($saludo_prof) ?>!</h2>
         <p style="margin-bottom:15px;color:#666">Gestión de Aula IUTECP</p>
 
         <div class="card <?= $sesion_activa ? 'hidden' : '' ?>" id="form-generar-container" style="margin-bottom:15px;padding:15px 18px;">

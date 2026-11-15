@@ -16,22 +16,16 @@
     $porcentaje_puntualidad = $asistieron > 0 ? round(($presentes / $asistieron) * 100) : 0;
     $porcentaje_ausencia = $total_asistencias > 0 ? round(($ausentes / $total_asistencias) * 100) : 0;
 
-    $asistentes_semana = (int)$pdo->query("
-        SELECT COUNT(DISTINCT i.estudiante_id)
-        FROM asistencias a
-        JOIN inscripciones i ON a.inscripcion_id = i.id
-        WHERE a.estado IN ('presente', 'tarde')
-        AND a.fecha >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
-    ")->fetchColumn();
+    $semana_counts = $pdo->query("
+        SELECT 
+            SUM(CASE WHEN estado IN ('presente', 'tarde') THEN 1 ELSE 0 END) as asistencias,
+            SUM(CASE WHEN estado = 'ausente' THEN 1 ELSE 0 END) as inasistencias
+        FROM asistencias
+        WHERE fecha >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+    ")->fetch();
 
-    $con_asistencia_semana = (int)$pdo->query("
-        SELECT COUNT(DISTINCT i.estudiante_id)
-        FROM asistencias a
-        JOIN inscripciones i ON a.inscripcion_id = i.id
-        WHERE a.fecha >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
-    ")->fetchColumn();
-
-    $inasistentes_semana = max(0, $con_asistencia_semana - $asistentes_semana);
+    $asistencias_semana = (int)($semana_counts['asistencias'] ?? 0);
+    $inasistencias_semana = (int)($semana_counts['inasistencias'] ?? 0);
 
     $ausencias_data = $pdo->query("
         SELECT 
@@ -92,16 +86,13 @@
             </div>
         </a>
         <div class="card" style="text-align:center;padding:15px">
-            <p style="font-size:12px;color:#666;font-weight:bold">Alumnos Asistentes (esta semana)</p>
-            <p style="font-size:24px;color:green;font-weight:bold;margin-top:5px">
-                <?= number_format($asistentes_semana) ?>
+            <p style="font-size:12px;color:#666;font-weight:bold">Asistencias vs. Inasistencias (esta semana)</p>
+            <p style="font-size:24px;font-weight:bold;margin-top:5px">
+                <span style="color:green"><?= $asistencias_semana ?></span>
+                <span style="color:#bbb;font-size:20px;font-weight:normal;margin:0 4px">/</span>
+                <span style="color:<?= $inasistencias_semana > 0 ? '#dc3545' : '#666' ?>"><?= $inasistencias_semana ?></span>
             </p>
-        </div>
-        <div class="card" style="text-align:center;padding:15px">
-            <p style="font-size:12px;color:#666;font-weight:bold">Alumnos Inasistentes (esta semana)</p>
-            <p style="font-size:24px;color:<?= $inasistentes_semana > 0 ? '#dc3545' : '#666' ?>;font-weight:bold;margin-top:5px">
-                <?= number_format($inasistentes_semana) ?>
-            </p>
+            <p style="font-size:11px;color:#888;margin-top:3px"><?= $asistencias_semana ?> asistencias · <?= $inasistencias_semana ?> inasistencias</p>
         </div>
         <div class="card" style="text-align:center;padding:15px">
             <p style="font-size:12px;color:#666;font-weight:bold">Promedio Asistencia</p>

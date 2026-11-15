@@ -11,7 +11,7 @@ if ($_SESSION['rol'] !== 'admin') {
     exit;
 }
 
-$periodo_actual = date('Y') . '-II';
+$periodo_actual = obtenerPeriodoActual();
 $filtro_periodo = $_GET['periodo'] ?? $periodo_actual;
 $filtro_carrera = $_GET['carrera'] ?? '';
 $filtro_min_pct = (int)($_GET['min_pct'] ?? 0);
@@ -47,9 +47,10 @@ $stmt = $pdo->prepare("
         i.id as insc_id,
         COUNT(a.id) as total_sesiones,
         SUM(CASE WHEN a.estado = 'presente' THEN 1 ELSE 0 END) as presentes,
+        SUM(CASE WHEN a.estado = 'tarde' THEN 1 ELSE 0 END) as tardes,
         SUM(CASE WHEN a.estado = 'ausente' THEN 1 ELSE 0 END) as ausencias,
         SUM(CASE WHEN a.estado = 'justificado' THEN 1 ELSE 0 END) as justificados,
-        ROUND((SUM(CASE WHEN a.estado != 'presente' THEN 1 ELSE 0 END) / COUNT(a.id)) * 100) as pct_ausencia
+        ROUND((SUM(CASE WHEN a.estado = 'ausente' THEN 1 ELSE 0 END) / COUNT(a.id)) * 100) as pct_ausencia
     FROM inscripciones i
     JOIN usuarios u ON i.estudiante_id = u.id
     JOIN carreras ca ON u.carrera_id = ca.id
@@ -173,19 +174,21 @@ require_once __DIR__ . '/includes/header.php';
                     <tr>
                         <th>Cédula</th>
                         <th>Estudiante</th>
+                        <th>Materia</th>
                         <th>Carrera</th>
                         <th>Nivel</th>
                         <th>Sec.</th>
                         <th>Total</th>
                         <th style="color:green">P</th>
-                        <th style="color:#dc3545">A</th>
+                        <th style="color:#e67e22" title="Con retraso">T</th>
+                        <th style="color:#dc3545" title="Inasistencia">A</th>
                         <th style="color:#008b8b">J</th>
-                        <th>%</th>
+                        <th title="Porcentaje de inasistencia">% Aus.</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (count($rows) === 0): ?>
-                    <tr><td colspan="10" style="text-align:center;color:#888;padding:20px">No se encontraron registros con los filtros seleccionados</td></tr>
+                    <tr><td colspan="12" style="text-align:center;color:#888;padding:20px">No se encontraron registros con los filtros seleccionados</td></tr>
                     <?php else: ?>
                     <?php foreach ($rows as $r):
                         $pct = (int)$r['pct_ausencia'];
@@ -195,12 +198,17 @@ require_once __DIR__ . '/includes/header.php';
                     <tr class="ausencia-row" data-nombre="<?= htmlspecialchars($r['estudiante'])?>" data-cedula="<?= htmlspecialchars($r['cedula'])?>" data-curso="<?= htmlspecialchars($r['codigo'])?>">
                         <td><?= htmlspecialchars($r['cedula']) ?></td>
                         <td style="font-weight:bold"><?= htmlspecialchars($r['estudiante']) ?></td>
+                        <td>
+                            <strong style="color:var(--primary);display:block;"><?= htmlspecialchars($r['curso']) ?></strong>
+                            <small style="color:#666;"><?= htmlspecialchars($r['codigo']) ?></small>
+                        </td>
                         <td><?= htmlspecialchars($r['carrera']) ?></td>
                         <td>Nivel <?= (int)$r['trayecto'] ?></td>
                         <td><?= htmlspecialchars($r['seccion']) ?></td>
                         <td><?= $r['total_sesiones'] ?></td>
                         <td style="color:green;font-weight:bold"><?= $r['presentes'] ?></td>
-                        <td style="color:#dc3545"><?= $r['ausencias'] ?></td>
+                        <td style="color:#e67e22;font-weight:bold"><?= $r['tardes'] ?></td>
+                        <td style="color:#dc3545;font-weight:bold"><?= $r['ausencias'] ?></td>
                         <td style="cursor:pointer;color:#008b8b;font-weight:bold" onclick='abrirJustAdmin(<?= json_encode($justs) ?>)'><?= $r['justificados'] ?></td>
                         <td style="color:<?= $color ?>;font-weight:bold"><?= $pct ?>%</td>
                     </tr>

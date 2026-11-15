@@ -22,3 +22,8 @@ Thumbs.db
 *.tmp
 *.bak
 deploy_infinityfree.zip
+backup_infinityfree_listo.sql
+
+# Diapositivas y borradores locales
+diapositivas/
+DOCUMENTACION_SISTEMA_IUTECP.md

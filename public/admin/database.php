@@ -269,10 +269,16 @@ $total_profesores = $pdo->query("SELECT COUNT(*) FROM usuarios WHERE rol='profes
             <p style="font-size:12px;color:#666;font-weight:bold">Profesores</p>
             <p style="font-size:24px;color:var(--primary);font-weight:bold;margin-top:5px"><?= number_format($total_profesores) ?></p>
         </div>
+        <?php
+        $host_actual = $_SERVER['HTTP_HOST'] ?? '';
+        $is_ddev = strpos($host_actual, 'ddev.site') !== false;
+        if ($is_ddev):
+        ?>
         <div class="card" style="text-align:center;padding:15px">
-            <p style="font-size:12px;color:#666;font-weight:bold">Base de Datos</p>
-            <a href="https://qr-iutecp.ddev.site:9101/?server=db&username=db&db=db" target="_blank" style="text-decoration:none;display:inline-block;margin-top:8px;padding:4px 12px;background:transparent;color:var(--primary);border:1px solid var(--border-color);border-radius:4px;font-weight:bold;font-size:14px">&gt;&gt;</a>
+            <p style="font-size:12px;color:#666;font-weight:bold">Gestor Adminer</p>
+            <a href="https://qr-iutecp.ddev.site:9101/?server=db&username=db&db=db" target="_blank" style="text-decoration:none;display:inline-block;margin-top:8px;padding:4px 12px;background:transparent;color:var(--primary);border:1px solid var(--border-color);border-radius:4px;font-weight:bold;font-size:14px" title="Abrir Adminer local">&gt;&gt;</a>
         </div>
+        <?php endif; ?>
     </div>
 
     <div class="card" style="margin-bottom:20px">

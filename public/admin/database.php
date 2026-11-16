@@ -207,7 +207,7 @@ $periodos = $pdo->query("SELECT * FROM periodos ORDER BY codigo DESC")->fetchAll
 
 require_once __DIR__ . '/includes/header.php';
 
-$tables = $pdo->query("SHOW TABLE STATUS FROM `db`")->fetchAll();
+$tables = $pdo->query("SHOW TABLE STATUS FROM `" . DB_NAME . "`")->fetchAll();
 
 $audit_log = $pdo->query("
     SELECT a.*, u.nombre_completo
@@ -220,7 +220,7 @@ $audit_log = $pdo->query("
 $db_size = $pdo->query("
     SELECT ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS size_mb
     FROM information_schema.tables
-    WHERE table_schema = 'db'
+    WHERE table_schema = '" . DB_NAME . "'
 ")->fetchColumn() ?: 0;
 
 $total_administradores = $pdo->query("SELECT COUNT(*) FROM usuarios WHERE rol='admin' AND activo=1")->fetchColumn();

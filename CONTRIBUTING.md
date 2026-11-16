@@ -29,7 +29,7 @@ Para evitar conflictos de código (*merge conflicts*), cada integrante se enfoca
 | Integrante | Rol | Módulos / Archivos Asignados |
 | :--- | :--- | :--- |
 | **Fernando** | Scrum Master & Lead Frontend/QR | `estudiante/`, `profesor/`, `assets/js/`, `includes/academico.php` |
-| **Alex** | Backend & Gestión Administrativa | `admin/usuarios*.php`, `admin/cursos*.php`, `admin/cargar_*.php` |
+| **Alex** | Backend & Gestión Administrativa | `admin/usuarios.php`, `admin/usuarios_lista.php`, `admin/cursos_lista.php`, `admin/cargar_inscripciones.php` |
 | **José** | Métricas & Reportes Administrativos | `admin/ausencias.php`, `admin/reportes.php`, `admin/index.php` |
 
 > ⚠️ **Archivos Compartidos (`includes/config.php`, `includes/functions.php`, `style.css`):**  

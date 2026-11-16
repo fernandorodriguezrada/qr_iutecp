@@ -199,7 +199,7 @@ if (
 <body class="mobile-app-body">
 <div class="mobile-container">
     <div class="mobile-header">
-        <img src="/logoIUTECP_azul.png" alt="IUTECP" class="mobile-logo" />
+        <img src="/assets/img/logoIUTECP_azul.png" alt="IUTECP" class="mobile-logo" />
         <div class="hamburger" onclick="toggleMenu()">
             <span></span><span></span><span></span>
         </div>
@@ -280,7 +280,7 @@ if (
                     <span style="position:absolute;top:65%;left:75%;transform:rotate(-25deg);font-size:3.5rem;opacity:0.4;user-select:none;">👥</span>
                 </div>
                 <div id="esc-welcome" style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;transition:opacity 0.3s;">
-                    <img src="/k-listo-foto.png" alt="K-Listo" style="width:200px;max-width:80%;margin-bottom:15px;" />
+                    <img src="/assets/img/k-listo-foto.png" alt="K-Listo" style="width:200px;max-width:80%;margin-bottom:15px;" />
                     <p style="font-size:20px;font-weight:bold;color:var(--primary);text-align:center;margin:0 0 8px 0;">Escanea el código QR</p>
                     <p style="font-size:15px;color:var(--primary);text-align:center;margin:0 0 25px 0;line-height:1.5;max-width:320px;">
                         Espera a que tu profesor active el código en su pantalla.

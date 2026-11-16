@@ -22,7 +22,7 @@ if ($_SESSION['rol'] !== 'admin') {
 <body>
 <div style="display:flex;flex:1;height:100vh;">
     <aside class="admin-sidebar">
-        <img src="/logoIUTECP_azul.png" alt="IUTECP" />
+        <img src="/assets/img/logoIUTECP_azul.png" alt="IUTECP" />
         <ul>
             <li class="<?= basename($_SERVER['PHP_SELF']) === 'index.php' ? 'active' : '' ?>">
                 <a href="/admin/index.php" style="text-decoration:none;color:inherit;display:block">📊 Panel Principal</a>

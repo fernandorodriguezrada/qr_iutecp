@@ -80,9 +80,9 @@ $error = $_GET['error'] ?? '';
             <span style="top:65%;left:22%;transform:rotate(30deg)" title="Relaciones Industriales">👥</span>
             <span style="top:25%;left:65%;transform:rotate(-25deg)" title="Informática">⌨️</span>
         </div>
-        <img src="k-listo-foto.png" alt="K-Listo" class="auth-mascot" />
+        <img src="assets/img/k-listo-foto.png" alt="K-Listo" class="auth-mascot" />
         <div class="auth-card">
-            <img src="logoIUTECP_azul.png" alt="IUTECP" class="auth-logo" />
+            <img src="assets/img/logoIUTECP_azul.png" alt="IUTECP" class="auth-logo" />
             <p class="auth-slogan">¡Formando profesionales exitosos!</p>
             <hr class="auth-divider" />
             <h2 style="color: var(--primary); margin-bottom: 20px">Iniciar Sesión</h2>
@@ -129,7 +129,7 @@ $error = $_GET['error'] ?? '';
                 </form>
             </div>
         </div>
-        <img src="k-listo-happy.png" alt="K-Listo Feliz" class="auth-mascot" />
+        <img src="assets/img/k-listo-happy.png" alt="K-Listo Feliz" class="auth-mascot" />
     </div>
 
     <?php

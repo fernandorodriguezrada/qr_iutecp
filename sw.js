@@ -4,9 +4,9 @@ const STATIC_ASSETS = [
     '/style.css',
     '/script.js',
     '/favicon.ico',
-    '/logoIUTECP_azul.png',
-    '/k-listo-foto.png',
-    '/k-listo-happy.png',
+    '/assets/img/logoIUTECP_azul.png',
+    '/assets/img/k-listo-foto.png',
+    '/assets/img/k-listo-happy.png',
     '/assets/icons/icon-192.png',
     '/assets/icons/icon-512.png',
     '/manifest.php'

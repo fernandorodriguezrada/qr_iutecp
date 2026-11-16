@@ -267,7 +267,7 @@ foreach ($cursos as $c) {
 <body class="mobile-app-body">
 <div class="mobile-container">
     <div class="mobile-header">
-        <img src="/logoIUTECP_azul.png" alt="IUTECP" class="mobile-logo" />
+        <img src="/assets/img/logoIUTECP_azul.png" alt="IUTECP" class="mobile-logo" />
         <div class="hamburger" onclick="toggleMenu()">
             <span></span><span></span><span></span>
         </div>

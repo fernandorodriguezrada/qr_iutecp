@@ -13,6 +13,7 @@ includes/phpqrcode/cache/qr_*.png
 deploy/ssl/*.crt
 deploy/ssl/*.key
 deploy/.duckdns.env
+deploy/dnsmasq/dnsmasq.generated.conf
 
 # Temporary LaTeX compilation files
 informes/*.aux

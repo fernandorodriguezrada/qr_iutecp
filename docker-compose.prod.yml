@@ -59,6 +59,18 @@ services:
     networks:
       - internal_net
 
+  dns:
+    image: 4km3/dnsmasq:latest
+    container_name: qr_iutecp_dns
+    restart: unless-stopped
+    ports:
+      - "53:53/udp"
+      - "53:53/tcp"
+    volumes:
+      - ./deploy/dnsmasq/dnsmasq.generated.conf:/etc/dnsmasq.conf:ro
+    networks:
+      - internal_net
+
 volumes:
   db_data:
     name: qr_iutecp_db_data

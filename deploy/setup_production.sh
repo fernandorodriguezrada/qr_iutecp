@@ -65,30 +65,41 @@ else
     echo -e "${GREEN}  ✓ Servidor detectado en la IP local: ${BOLD}$LOCAL_IP${NC}"
 fi
 
-DOMAIN="asistencias.local"
+DOMAIN_EDU="asistencias.iutecp.edu.ve"
+DOMAIN_LOCAL="asistencias.local"
 
-# 3. Configuración mDNS (Avahi) para resolver asistencias.local sin configurar routers
-echo -e "${BLUE}[2/5] Configurando difusión mDNS (${DOMAIN})...${NC}"
+# 3. Configuración de DNS Local (dnsmasq) y mDNS (Avahi)
+echo -e "${BLUE}[2/5] Configurando resolución de dominios (${DOMAIN_EDU} y ${DOMAIN_LOCAL})...${NC}"
+
+# Generar archivo de configuración de dnsmasq con la IP real detectada
+mkdir -p "$PROJECT_ROOT/deploy/dnsmasq"
+sed "s/__SERVER_IP__/$LOCAL_IP/g" "$PROJECT_ROOT/deploy/dnsmasq/dnsmasq.conf" > "$PROJECT_ROOT/deploy/dnsmasq/dnsmasq.generated.conf"
+echo -e "${GREEN}  ✓ Servidor DNS local configurado para resolver ${DOMAIN_EDU} -> ${LOCAL_IP}.${NC}"
+
+# Si systemd-resolved está usando el puerto 53 en el host, liberar o bindear según corresponda
+if $SUDO ss -ulpn | grep -q ":53 "; then
+    echo -e "${YELLOW}  [i] Desactivando DNSStubListener de systemd-resolved para liberar el puerto 53...${NC}"
+    $SUDO mkdir -p /etc/systemd/resolved.conf.d/
+    echo -e "[Resolve]\nDNSStubListener=no" | $SUDO tee /etc/systemd/resolved.conf.d/disable-stub.conf >/dev/null
+    $SUDO systemctl restart systemd-resolved || true
+fi
+
+# Configurar Avahi (mDNS) para compatibilidad con teléfonos Apple / Android modernos
 if command -v avahi-daemon >/dev/null 2>&1; then
     if [ -f /etc/avahi/avahi-daemon.conf ]; then
         $SUDO sed -i 's/^#host-name=.*$/host-name=asistencias/' /etc/avahi/avahi-daemon.conf 2>/dev/null || true
         $SUDO sed -i 's/^host-name=.*$/host-name=asistencias/' /etc/avahi/avahi-daemon.conf 2>/dev/null || true
     fi
     $SUDO systemctl restart avahi-daemon 2>/dev/null || true
-    echo -e "${GREEN}  ✓ Anunciando ${DOMAIN} en la red local mediante mDNS.${NC}"
-else
-    echo -e "${YELLOW}  [i] Instalando avahi-daemon para soporte .local automático...${NC}"
-    $SUDO apt-get update -qq && $SUDO apt-get install -y -qq avahi-daemon >/dev/null 2>&1 || true
-    $SUDO systemctl enable --now avahi-daemon 2>/dev/null || true
+    echo -e "${GREEN}  ✓ Anunciando ${DOMAIN_LOCAL} mediante mDNS.${NC}"
 fi
 
-# 4. Generación de Certificados SSL SAN (Para dominio local e IP)
-echo -e "${BLUE}[3/5] Generando certificado SSL para HTTPS (habilitar cámara web)...${NC}"
+# 4. Generación de Certificados SSL SAN Multidominio (Cubre .edu.ve, .local e IP)
+echo -e "${BLUE}[3/5] Generando certificado SSL multidominio para HTTPS...${NC}"
 SSL_DIR="$PROJECT_ROOT/deploy/ssl"
 mkdir -p "$SSL_DIR"
 
-if [ ! -f "$SSL_DIR/server.crt" ] || [ ! -f "$SSL_DIR/server.key" ]; then
-    cat <<EOF > "$SSL_DIR/openssl.cnf"
+cat <<EOF > "$SSL_DIR/openssl.cnf"
 [req]
 default_bits = 2048
 prompt = no
@@ -102,7 +113,7 @@ ST = Miranda
 L = Guatire
 O = IUTECP
 OU = Sistemas
-CN = $DOMAIN
+CN = $DOMAIN_EDU
 
 [v3_req]
 subjectAltName = @alt_names
@@ -111,25 +122,26 @@ keyUsage = digitalSignature, keyEncipherment
 extendedKeyUsage = serverAuth
 
 [alt_names]
-DNS.1 = $DOMAIN
-DNS.2 = localhost
+DNS.1 = $DOMAIN_EDU
+DNS.2 = $DOMAIN_LOCAL
+DNS.3 = localhost
 IP.1 = $LOCAL_IP
 IP.2 = 127.0.0.1
 EOF
 
-    openssl req -x509 -nodes -days 1825 -newkey rsa:2048 \
-        -keyout "$SSL_DIR/server.key" \
-        -out "$SSL_DIR/server.crt" \
-        -config "$SSL_DIR/openssl.cnf" >/dev/null 2>&1
+openssl req -x509 -nodes -days 1825 -newkey rsa:2048 \
+    -keyout "$SSL_DIR/server.key" \
+    -out "$SSL_DIR/server.crt" \
+    -config "$SSL_DIR/openssl.cnf" >/dev/null 2>&1
 
-    rm -f "$SSL_DIR/openssl.cnf"
-    echo -e "${GREEN}  ✓ Certificado SSL generado con éxito (Válido para $DOMAIN y $LOCAL_IP).${NC}"
-else
-    echo -e "${GREEN}  ✓ Certificados SSL existentes encontrados en deploy/ssl/.${NC}"
-fi
+rm -f "$SSL_DIR/openssl.cnf"
+echo -e "${GREEN}  ✓ Certificado SSL generado con éxito para:${NC}"
+echo -e "    - ${DOMAIN_EDU}"
+echo -e "    - ${DOMAIN_LOCAL}"
+echo -e "    - IP: ${LOCAL_IP}"
 
 # 5. Despliegue de Contenedores Docker de Producción
-echo -e "${BLUE}[4/5] Levantando pila de producción (MariaDB 11.8 + PHP 8.2-FPM + Nginx)...${NC}"
+echo -e "${BLUE}[4/5] Levantando pila de producción (MariaDB 11.8 + PHP 8.2-FPM + Nginx + DNS)...${NC}"
 
 # Si DDEV está corriendo en esta máquina, detenerlo para liberar los puertos 80/443
 if command -v ddev >/dev/null 2>&1 && ddev describe >/dev/null 2>&1; then
@@ -156,9 +168,14 @@ echo -e "${GREEN}${BOLD}======================================================${
 echo -e "${GREEN}${BOLD}  ¡INSTALACIÓN DE PRODUCCIÓN COMPLETADA CON ÉXITO!    ${NC}"
 echo -e "${GREEN}${BOLD}======================================================${NC}"
 echo ""
-echo -e "  🌐 ${BOLD}Enlaces de acceso en la red del IUTECP:${NC}"
-echo -e "     • Nombre amigable: ${BOLD}https://${DOMAIN}${NC}"
-echo -e "     • Por IP directa:  ${BOLD}https://${LOCAL_IP}${NC}"
+echo -e "  🌐 ${BOLD}Enlaces de acceso institucional en la red del IUTECP:${NC}"
+echo -e "     • Institucional: ${BOLD}https://${DOMAIN_EDU}${NC}"
+echo -e "     • Red local:     ${BOLD}https://${DOMAIN_LOCAL}${NC}"
+echo -e "     • IP directa:    ${BOLD}https://${LOCAL_IP}${NC}"
+echo ""
+echo -e "  💡 ${BOLD}Tip para la red Wi-Fi del IUTECP:${NC}"
+echo -e "     Si configuran el router Wi-Fi para que asigne el DNS a ${LOCAL_IP},"
+echo -e "     todos los teléfonos abrirán directamente: https://${DOMAIN_EDU}"
 echo ""
 echo -e "  👤 ${BOLD}Credenciales predeterminadas de Administrador:${NC}"
 echo -e "     • Usuario: ${BOLD}admin${NC}"
@@ -166,7 +183,4 @@ echo -e "     • Clave:   ${BOLD}12344321${NC}"
 echo ""
 echo -e "  📌 ${BOLD}Para detener el sistema:${NC}"
 echo -e "     docker compose -f docker-compose.prod.yml down"
-echo ""
-echo -e "  📌 ${BOLD}Para reiniciar el sistema tras un reinicio de la PC:${NC}"
-echo -e "     docker compose -f docker-compose.prod.yml start"
 echo ""

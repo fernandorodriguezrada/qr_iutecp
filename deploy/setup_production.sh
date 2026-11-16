@@ -65,16 +65,17 @@ else
     echo -e "${GREEN}  ✓ Servidor detectado en la IP local: ${BOLD}$LOCAL_IP${NC}"
 fi
 
+DOMAIN_DUCK="asistencias-iutecp.duckdns.org"
 DOMAIN_EDU="asistencias.iutecp.edu.ve"
 DOMAIN_LOCAL="asistencias.local"
 
 # 3. Configuración de DNS Local (dnsmasq) y mDNS (Avahi)
-echo -e "${BLUE}[2/5] Configurando resolución de dominios (${DOMAIN_EDU} y ${DOMAIN_LOCAL})...${NC}"
+echo -e "${BLUE}[2/5] Configurando resolución de dominios (${DOMAIN_DUCK}, ${DOMAIN_EDU} y ${DOMAIN_LOCAL})...${NC}"
 
 # Generar archivo de configuración de dnsmasq con la IP real detectada
 mkdir -p "$PROJECT_ROOT/deploy/dnsmasq"
 sed "s/__SERVER_IP__/$LOCAL_IP/g" "$PROJECT_ROOT/deploy/dnsmasq/dnsmasq.conf" > "$PROJECT_ROOT/deploy/dnsmasq/dnsmasq.generated.conf"
-echo -e "${GREEN}  ✓ Servidor DNS local configurado para resolver ${DOMAIN_EDU} -> ${LOCAL_IP}.${NC}"
+echo -e "${GREEN}  ✓ Servidor DNS local configurado para resolver hacia ${LOCAL_IP}.${NC}"
 
 # Si systemd-resolved está usando el puerto 53 en el host, liberar o bindear según corresponda
 if $SUDO ss -ulpn | grep -q ":53 "; then
@@ -94,8 +95,8 @@ if command -v avahi-daemon >/dev/null 2>&1; then
     echo -e "${GREEN}  ✓ Anunciando ${DOMAIN_LOCAL} mediante mDNS.${NC}"
 fi
 
-# 4. Generación de Certificados SSL SAN Multidominio (Cubre .edu.ve, .local e IP)
-echo -e "${BLUE}[3/5] Generando certificado SSL multidominio para HTTPS...${NC}"
+# 4. Generación de Certificados SSL SAN Multidominio
+echo -e "${BLUE}[3/5] Configurando certificados SSL para HTTPS...${NC}"
 SSL_DIR="$PROJECT_ROOT/deploy/ssl"
 mkdir -p "$SSL_DIR"
 
@@ -113,7 +114,7 @@ ST = Miranda
 L = Guatire
 O = IUTECP
 OU = Sistemas
-CN = $DOMAIN_EDU
+CN = $DOMAIN_DUCK
 
 [v3_req]
 subjectAltName = @alt_names
@@ -122,9 +123,10 @@ keyUsage = digitalSignature, keyEncipherment
 extendedKeyUsage = serverAuth
 
 [alt_names]
-DNS.1 = $DOMAIN_EDU
-DNS.2 = $DOMAIN_LOCAL
-DNS.3 = localhost
+DNS.1 = $DOMAIN_DUCK
+DNS.2 = $DOMAIN_EDU
+DNS.3 = $DOMAIN_LOCAL
+DNS.4 = localhost
 IP.1 = $LOCAL_IP
 IP.2 = 127.0.0.1
 EOF
@@ -136,6 +138,7 @@ openssl req -x509 -nodes -days 1825 -newkey rsa:2048 \
 
 rm -f "$SSL_DIR/openssl.cnf"
 echo -e "${GREEN}  ✓ Certificado SSL generado con éxito para:${NC}"
+echo -e "    - ${DOMAIN_DUCK}"
 echo -e "    - ${DOMAIN_EDU}"
 echo -e "    - ${DOMAIN_LOCAL}"
 echo -e "    - IP: ${LOCAL_IP}"
@@ -168,14 +171,15 @@ echo -e "${GREEN}${BOLD}======================================================${
 echo -e "${GREEN}${BOLD}  ¡INSTALACIÓN DE PRODUCCIÓN COMPLETADA CON ÉXITO!    ${NC}"
 echo -e "${GREEN}${BOLD}======================================================${NC}"
 echo ""
-echo -e "  🌐 ${BOLD}Enlaces de acceso institucional en la red del IUTECP:${NC}"
-echo -e "     • Institucional: ${BOLD}https://${DOMAIN_EDU}${NC}"
-echo -e "     • Red local:     ${BOLD}https://${DOMAIN_LOCAL}${NC}"
-echo -e "     • IP directa:    ${BOLD}https://${LOCAL_IP}${NC}"
+echo -e "  🌐 ${BOLD}Enlaces de acceso en la red del IUTECP:${NC}"
+echo -e "     • Enlace DuckDNS:  ${BOLD}https://${DOMAIN_DUCK}${NC}"
+echo -e "     • Institucional:   ${BOLD}https://${DOMAIN_EDU}${NC}"
+echo -e "     • Red local:       ${BOLD}https://${DOMAIN_LOCAL}${NC}"
+echo -e "     • IP directa:      ${BOLD}https://${LOCAL_IP}${NC}"
 echo ""
-echo -e "  💡 ${BOLD}Tip para la red Wi-Fi del IUTECP:${NC}"
-echo -e "     Si configuran el router Wi-Fi para que asigne el DNS a ${LOCAL_IP},"
-echo -e "     todos los teléfonos abrirán directamente: https://${DOMAIN_EDU}"
+echo -e "  💡 ${BOLD}Recordatorio DuckDNS:${NC}"
+echo -e "     Asegúrate de que en duckdns.org la IP de ${DOMAIN_DUCK}"
+echo -e "     apunte a ${LOCAL_IP} (tu IP local actual en el Wi-Fi del IUTECP)."
 echo ""
 echo -e "  👤 ${BOLD}Credenciales predeterminadas de Administrador:${NC}"
 echo -e "     • Usuario: ${BOLD}admin${NC}"

@@ -5,7 +5,7 @@ global $pdo;
 $mensaje = $_GET["msg"] ?? "";
 $error = $_GET["error"] ?? "";
 
-require_once __DIR__ . "/../includes/academico.php";
+require_once __DIR__ . "/../../includes/academico.php";
 
 $periodo_actual = obtenerPeriodoActual();
 

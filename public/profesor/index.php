@@ -1,8 +1,8 @@
 <?php
-require_once __DIR__ . '/../includes/config.php';
-require_once __DIR__ . '/../includes/session.php';
-require_once __DIR__ . '/../includes/functions.php';
-require_once __DIR__ . '/../includes/academico.php';
+require_once __DIR__ . '/../../includes/config.php';
+require_once __DIR__ . '/../../includes/session.php';
+require_once __DIR__ . '/../../includes/functions.php';
+require_once __DIR__ . '/../../includes/academico.php';
 
 global $pdo;
 
@@ -118,8 +118,8 @@ $stmt_activa->execute([$profesor_id]);
 $sesion_activa = $stmt_activa->fetch();
 
 if ($sesion_activa) {
-    require_once __DIR__ . '/../includes/phpqrcode/qrlib.php';
-    $cache_dir = __DIR__ . '/../includes/phpqrcode/cache/';
+    require_once __DIR__ . '/../../includes/phpqrcode/qrlib.php';
+    $cache_dir = __DIR__ . '/../../includes/phpqrcode/cache/';
     $qr_filename = 'qr_' . $sesion_activa['id'] . '.png';
     $qr_filepath = $cache_dir . $qr_filename;
     if (!file_exists($qr_filepath)) {
@@ -258,11 +258,11 @@ foreach ($cursos as $c) {
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="QR IUTECP" />
-    <?php require_once __DIR__ . "/../includes/pwa_head.php"; ?>
+    <?php require_once __DIR__ . "/../../includes/pwa_head.php"; ?>
     <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <title>Profesor - Sistema QR IUTECP</title>
-    <link rel="stylesheet" href="/style.css?v=<?= filemtime(__DIR__ . '/../style.css') ?>" />
+    <link rel="stylesheet" href="/assets/css/style.css?v=<?= filemtime(__DIR__ . '/../assets/css/style.css') ?>" />
 </head>
 <body class="mobile-app-body">
 <div class="mobile-container">

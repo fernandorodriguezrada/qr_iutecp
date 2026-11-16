@@ -1,8 +1,8 @@
 <?php
-require_once __DIR__ . '/../includes/config.php';
-require_once __DIR__ . '/../includes/session.php';
-require_once __DIR__ . '/../includes/functions.php';
-require_once __DIR__ . '/../includes/academico.php';
+require_once __DIR__ . '/../../includes/config.php';
+require_once __DIR__ . '/../../includes/session.php';
+require_once __DIR__ . '/../../includes/functions.php';
+require_once __DIR__ . '/../../includes/academico.php';
 
 global $pdo;
 
@@ -82,7 +82,7 @@ try {
 
     registrarAuditoria($pdo, $profesor_id, 'Generar QR', "Curso ID: $curso_id, Semana: $semana, Sesion QR ID: $sesion_id");
 
-    require_once __DIR__ . '/../includes/phpqrcode/qrlib.php';
+    require_once __DIR__ . '/../../includes/phpqrcode/qrlib.php';
     ob_start();
     QRcode::png($codigo_qr, false, QR_ECLEVEL_L, 6);
     $img_bytes = ob_get_clean();

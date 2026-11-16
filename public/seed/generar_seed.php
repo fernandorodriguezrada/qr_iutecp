@@ -74,7 +74,7 @@ $ins_csv = fopen(__DIR__ . '/inscripciones.csv', 'w');
 fprintf($ins_csv, chr(0xEF).chr(0xBB).chr(0xBF));
 fputcsv($ins_csv, ['cedula', 'codigo_materia', 'seccion', 'periodo'], ',', '"', '');
 
-require_once __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/../../includes/config.php';
 $cursos_por_carrera = [];
 foreach ($carreras_tsu as $cid) {
     $stmt = $pdo->prepare("SELECT codigo FROM cursos WHERE carrera_id = ? AND activo = 1 ORDER BY codigo");

@@ -1,8 +1,8 @@
 <?php
-require_once __DIR__ . "/../includes/config.php";
-require_once __DIR__ . "/../includes/session.php";
-require_once __DIR__ . "/../includes/functions.php";
-require_once __DIR__ . "/../includes/academico.php";
+require_once __DIR__ . "/../../includes/config.php";
+require_once __DIR__ . "/../../includes/session.php";
+require_once __DIR__ . "/../../includes/functions.php";
+require_once __DIR__ . "/../../includes/academico.php";
 
 global $pdo;
 
@@ -175,11 +175,11 @@ if (
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="QR IUTECP" />
-    <?php require_once __DIR__ . "/../includes/pwa_head.php"; ?>
+    <?php require_once __DIR__ . "/../../includes/pwa_head.php"; ?>
     <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <title>Estudiante - Sistema QR IUTECP</title>
-    <link rel="stylesheet" href="/style.css?v=<?= filemtime(__DIR__ . '/../style.css') ?>" />
+    <link rel="stylesheet" href="/assets/css/style.css?v=<?= filemtime(__DIR__ . '/../assets/css/style.css') ?>" />
     <script src="/assets/js/jsqr.js"></script>
     <style>
         @keyframes pulse-cam {

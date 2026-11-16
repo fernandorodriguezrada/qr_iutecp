@@ -1,7 +1,7 @@
 <?php
-require_once __DIR__ . '/../../includes/config.php';
-require_once __DIR__ . '/../../includes/session.php';
-require_once __DIR__ . '/../../includes/functions.php';
+require_once __DIR__ . '/../../../includes/config.php';
+require_once __DIR__ . '/../../../includes/session.php';
+require_once __DIR__ . '/../../../includes/functions.php';
 
 redirigirSiNoAutenticado();
 
@@ -17,7 +17,7 @@ if ($_SESSION['rol'] !== 'admin') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <title>Panel Administrativo - Sistema QR IUTECP</title>
-    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/assets/css/style.css" />
 </head>
 <body>
 <div style="display:flex;flex:1;height:100vh;">

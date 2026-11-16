@@ -29,8 +29,8 @@ Para evitar conflictos de código (*merge conflicts*), cada integrante se enfoca
 | Integrante | Rol | Módulos / Archivos Asignados |
 | :--- | :--- | :--- |
 | **Fernando** | Scrum Master & Lead Frontend/QR | `estudiante/`, `profesor/`, `assets/js/`, `includes/academico.php` |
-| **Alex** | Backend & User Management / Security | `admin/usuarios.php`, `admin/usuarios_lista.php`, `admin/seguridad.php` |
-| **José** | Backend & Academic Management / Reports | `admin/cursos_lista.php`, `admin/cargar_inscripciones.php`, `admin/ausencias.php`, `admin/reportes.php`, `admin/index.php` |
+| **Alex** | Backend & User Management / Security | `public/admin/usuarios.php`, `public/admin/usuarios_lista.php`, `public/admin/seguridad.php` |
+| **José** | Backend & Academic Management / Reports | `public/admin/cursos_lista.php`, `public/admin/cargar_inscripciones.php`, `public/admin/ausencias.php`, `public/admin/reportes.php`, `public/admin/index.php` |
 
 > ⚠️ **Archivos Compartidos (`includes/config.php`, `includes/functions.php`, `style.css`):**  
 > Si necesitas crear una función global o agregar una regla de estilo, avísalo en el grupo antes de tocarlo.
@@ -110,7 +110,7 @@ git checkout -b feature/nombre-de-tu-tarea
 ### Paso 3: Desarrollar y realizar commits limpios
 Realiza commits atómicos siguiendo la convención:
 ```bash
-git add admin/archivo_modificado.php
+git add public/admin/archivo_modificado.php
 git commit -m "feat(admin): descripcion del cambio realizado"
 ```
 

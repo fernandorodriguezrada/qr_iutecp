@@ -1,7 +1,7 @@
 const CACHE_NAME = 'qr-iutecp-v5';
 const STATIC_ASSETS = [
     '/index.php',
-    '/style.css',
+    '/assets/css/style.css',
     '/script.js',
     '/favicon.ico',
     '/assets/img/logoIUTECP_azul.png',

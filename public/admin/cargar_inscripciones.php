@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . "/../includes/academico.php";
+require_once __DIR__ . "/../../includes/academico.php";
 require_once __DIR__ . "/includes/header.php";
 
 function findOrCreateCurso($pdo, $codigo, $seccion) {
